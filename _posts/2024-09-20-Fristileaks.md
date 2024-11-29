@@ -2,7 +2,7 @@
 layout: post
 title: Fristileaks
 date: 20-09-2024
-categories: [Vulnhub]
+categories: [Writeup, Vulnhub]
 tag: [burpsuite,reverse-shell,gobuster,zsteg,dirb,hydra,cewl]
 image: /assets/images/fristileaks/featured_image_fristileaks.jpg
 alt: portada de WriteUp Fristileaks

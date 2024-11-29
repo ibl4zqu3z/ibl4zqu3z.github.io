@@ -2,8 +2,8 @@
 layout: post
 title: Video Write Up Mr Robot 1
 date: 15-07-2024
-categories: [Vulnhub]
-tag: [Video]
+categories: [Videos, Vulnhub]
+tag: [Videos]
 youtubeId: tW8xGzS8neg
 ---
 
