@@ -2,7 +2,7 @@
 layout: post
 title: Video Write Up Mr Robot 1
 date: 12-03-2024
-categories: [Video, Writeup]
+categories: [Vulnhub]
 tag: [Video]
 ---
 
