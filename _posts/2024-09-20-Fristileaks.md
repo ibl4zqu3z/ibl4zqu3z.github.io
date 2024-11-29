@@ -4,6 +4,8 @@ title: Fristileaks
 date: 20-09-2024
 categories: [Vulnhub]
 tag: [burpsuite,reverse-shell,gobuster,zsteg,dirb,hydra,cewl]
+image: /assets/images/fristileaks/featured_image_fristileaks.jpg
+alt: portada de WriteUp Fristileaks
 ---
 
 En este writeup, resolveré la máquina **Fristileaks** de **Vulnhub**, documentando cada paso y técnica empleada durante el proceso. A lo largo de este análisis, cubriré desde la recolección de información inicial hasta la explotación de vulnerabilidades y la escalada de privilegios, detallando las herramientas utilizadas y los métodos aplicados.
