@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Fristileaks
+title: Writeup Fristileaks
 date: 20-09-2024
 categories: [Writeup, Vulnhub]
 tag: [burpsuite,reverse-shell,gobuster,zsteg,dirb,hydra,cewl]

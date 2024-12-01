@@ -1,6 +1,6 @@
 ---
 layout: post
-title: StarWars CTF 1
+title: Writeup StarWars CTF 1
 date: 29-10-2024
 categories: [Writeup, Vulnhub]
 tag: [burpsuite,reverse-shell,gobuster,zsteg,dirb,hydra,cewl]
