@@ -2,7 +2,7 @@
 layout: post
 title: Writeup UnderPass
 date: 05-02-2025
-categories: [Writeup, HTB Machines]
+categories: [Writeup, HTB]
 tag: [UDP,snmp,gobuster,mosh,mosh-server]
 image: /assets/images/underpass/featured_image_underpass.jpg
 alt: portada de WriteUp Underpass
@@ -134,7 +134,7 @@ Utilicé **hashid** para identificar el tipo de hash:
 hashid 412DD4759978ACFCC81DEAB01B382403
 ```
 
-![alt text](../assets/images/underpass/<identificacion de hash.png>)
+![alt text](../assets/images/underpass/identificacion_de_hash.png)
 
 El resultado indicó que se trataba de un hash **MD5**. 
 
