@@ -5,7 +5,7 @@ date: 05-02-2025
 categories: [Writeup, HTB Machines]
 tag: [UDP,snmp,gobuster,mosh,mosh-server]
 image: /assets/images/underpass/featured_image_underpass.jpg
-#alt: portada de WriteUp DC1
+alt: portada de WriteUp Underpass
 ---
 
 ## 1. Introducción
