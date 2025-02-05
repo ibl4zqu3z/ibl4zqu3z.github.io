@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Writeup UnderPass
-date: 04-02-2025
+date: 05-02-2025
 categories: [Writeup, HTB Machines]
 tag: [UDP,snmp,gobuster,mosh,mosh-server]
 image: /assets/images/underpass/featured_image_underpass.jpg
