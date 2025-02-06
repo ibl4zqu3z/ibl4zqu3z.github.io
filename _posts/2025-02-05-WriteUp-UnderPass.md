@@ -8,16 +8,16 @@ image: /assets/images/underpass/featured_image_underpass.jpg
 alt: portada de WriteUp Underpass
 ---
 
+En este writeup, compartiré el proceso que seguí para comprometer la máquina **UnderPass** en Hack The Box. A través de la enumeración SNMP, la explotación de credenciales por defecto de *daloRADIUS*, y la escalada de privilegios utilizando *mosh-server*, logré obtener ambas flags.
+
+![alt text](../assets/images/underpass/maquina.png)
+
 ## 1. Introducción
 
 **Dificultad:** Fácil  
 **Dirección IP:** 10.10.11.48  
 **Objetivo:** Obtener la bandera de usuario y la de root.  
 **Herramientas utilizadas:** nmap, snmp-check, gobuster, hashid, john the ripper  
-
-En este writeup, compartiré el proceso que seguí para comprometer la máquina **UnderPass** en Hack The Box. A través de la enumeración SNMP, la explotación de credenciales por defecto de *daloRADIUS*, y la escalada de privilegios utilizando *mosh-server*, logré obtener ambas flags.
-
-![alt text](../assets/images/underpass/maquina.png)
 
 ## 2. Reconocimiento Inicial
 
