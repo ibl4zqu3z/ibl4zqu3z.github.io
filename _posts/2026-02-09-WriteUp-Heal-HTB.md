@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Writeup Heal
-date: 09-02-2025
+date: 09-02-2026
 categories: [Writeup, HackTheBox]
 tag: [Fuzzing, Path Traversal,Burp Suite,Robo de Token,Reverse Shell,RCE,Tunel SSH,JohnTheRipper]
 image: /assets/images/heal/featured_image_heal.jpg
