@@ -3,7 +3,7 @@ layout: post
 title: Writeup Monitoring 1
 date: 02-12-2024
 categories: [Writeup, Vulnhub]
-tag: [default-user, burp-suite]
+tag: [default-user, Burp Suite]
 image: /assets/images/monitoring-1/featured_image_monitoring.jpg
 alt: portada de WriteUp Monitoring
 ---

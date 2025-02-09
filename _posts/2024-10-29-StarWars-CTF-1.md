@@ -3,7 +3,7 @@ layout: post
 title: Writeup StarWars CTF 1
 date: 29-10-2024
 categories: [Writeup, Vulnhub]
-tag: [burpsuite,reverse-shell,gobuster,zsteg,dirb,hydra,cewl]
+tag: [Burp Suite,Reverse Shell,gobuster,zsteg,dirb,hydra,cewl]
 image: /assets/images/starwars1/featured_image.jpg
 alt: portada de CTF StarWars CTF
 ---
