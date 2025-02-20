@@ -5,7 +5,7 @@ date:  19-02-2026
 categories: [Walkthroughs, HTB Academy]
 tags: [Burp Suite, ZAP]
 image: "assets/images/HTB_Academy_Using_Web_Proxies/Skills_Assessment/featured_image_module.png"
-alt: portada de WriteUp Underpass
+alt: portada de Walkthrough Usando Web Proxies
 ---
 
 En este post, te guiaré a través del módulo **Using Web Proxies** de la plataforma **Hack The Box Academy**, resolviendo paso a paso todas las preguntas planteadas en el módulo y completando el Skill Assessment final.

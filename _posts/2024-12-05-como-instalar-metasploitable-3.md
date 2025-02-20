@@ -4,8 +4,12 @@ title: Como instalar Metasploitable 3 para practicar pentesting
 date: 05-12-2024
 categories: [documentacion,manual de instalacion]
 tag: [vagrant,metasploitable3]
+image: "assets/images/instalar-metasploitable3/image_featured_metasploitable3.png"
+alt: portada de Metasploitable 3
 ---
 
+
+![alt text](image.png)
 En este post te enseño a instalar Metasploitable 3 en tu equipo para que puedas practicar pentesting en dos maquinas cargadas de vulnerabilidades. 
 
 ## Requisitos previos
