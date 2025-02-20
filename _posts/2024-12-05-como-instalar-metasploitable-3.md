@@ -8,8 +8,6 @@ image: "assets/images/instalar-metasploitable3/image_featured_metasploitable3.pn
 alt: portada de Metasploitable 3
 ---
 
-
-![alt text](image.png)
 En este post te enseño a instalar Metasploitable 3 en tu equipo para que puedas practicar pentesting en dos maquinas cargadas de vulnerabilidades. 
 
 ## Requisitos previos
