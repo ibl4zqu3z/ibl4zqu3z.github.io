@@ -2,7 +2,7 @@
 layout: post
 title: Attacking SAM
 date: 12-03-2024
-categories: [Videos, Walkthroughs HTB]
+categories: [Videos, Video Walkthroughs HTB]
 tag: [HTB,Videos,Passwords Attacks]
 image: /assets/images/SAM_ATTACK.jpeg
 alt: portada de WriteUp Credential Hunting in Linux

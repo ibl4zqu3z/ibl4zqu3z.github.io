@@ -7,7 +7,6 @@ tag: [Burp Suite,Reverse Shell,gobuster,zsteg,dirb,hydra,cewl]
 image: /assets/images/starwars1/featured_image.jpg
 alt: portada de CTF StarWars CTF
 ---
----
 
 En este writeup, resolveré la máquina **StarWars CTF 1** de **Vulnhub**, documentando cada paso y técnica empleada durante el proceso. A lo largo de este análisis, cubriré desde la recolección de información inicial hasta la explotación de vulnerabilidades y la escalada de privilegios, detallando las herramientas utilizadas y los métodos aplicados.
 
