@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Walkthrough: Cracking Passwords with Hashcat"
-date:  19-02-2026
+date:  23-02-2026
 categories: [Walkthroughs, HTB Academy]
 tags: [Hashcat]
 image: "assets/images/HTB_Academy_Cracking_Passwords_with_Hashcat/featured_image_module.png"

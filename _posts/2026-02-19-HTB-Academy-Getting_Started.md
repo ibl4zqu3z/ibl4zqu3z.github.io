@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Walkthrough: Getting Started"
-date:  20-02-2026
+date:  19-02-2026
 categories: [Walkthroughs, HTB Academy]
 tags: [nmap, gobuster, wpscan, Curl, Hashcat, ssh, Metasploit]
 image: "assets/images/HTB_Academy_Getting_Started/featured_image.png"

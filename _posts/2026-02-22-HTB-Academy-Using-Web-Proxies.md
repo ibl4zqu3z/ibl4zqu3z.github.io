@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Walkthrough: Usando Web Proxies"
-date:  19-02-2026
+date:  22-02-2026
 categories: [Walkthroughs, HTB Academy]
 tags: [Burp Suite, ZAP]
 image: "assets/images/HTB_Academy_Using_Web_Proxies/Skills_Assessment/featured_image_module.png"

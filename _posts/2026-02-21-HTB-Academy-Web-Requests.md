@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Walkthrough: Web Requests"
-date:  19-02-2026
+date:  21-02-2026
 categories: [Walkthroughs, HTB Academy]
 tags: [Curl]
 image: "assets/images/HTB_Academy_Web_Requests/featured_image_Web_Requests.png"
