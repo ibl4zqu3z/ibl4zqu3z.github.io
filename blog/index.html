@@ -1,0 +1,89 @@
+---
+layout: default
+title: Blog
+---
+
+<div class="row g-4">
+  <!-- Columna principal (2/3) -->
+  <div class="col-12 col-lg-8">
+    <h1 class="h3 mb-3">Blog</h1>
+
+    <div class="row g-3">
+      {% for post in paginator.posts %}
+        {% assign img = post.image
+          | default: post.featured_image
+          | default: post.thumbnail
+          | default: post.header.teaser
+          | default: post.header.image
+        %}
+
+        <div class="col-12">
+          <article class="card border overflow-hidden">
+            {% if img %}
+              <a href="{{ post.url | relative_url }}" class="d-block">
+                <img
+                  src="{{ img | relative_url }}"
+                  alt="{{ post.title | escape }}"
+                  class="w-100 post-card-img"
+                  loading="lazy"
+                >
+              </a>
+            {% endif %}
+
+            <div class="card-body">
+              <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+                <span class="text-muted small">{{ post.date | date: "%Y-%m-%d" }}</span>
+                {% for c in post.categories %}
+                  <span class="badge text-bg-dark border">{{ c }}</span>
+                {% endfor %}
+              </div>
+
+              <h2 class="h5 mb-2">
+                <a class="link-underline link-underline-opacity-0" href="{{ post.url | relative_url }}">
+                  {{ post.title }}
+                </a>
+              </h2>
+
+              <div class="text-muted">
+                {{ post.excerpt | strip_html | truncate: 240 }}
+              </div>
+            </div>
+          </article>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if paginator.total_pages > 1 %}
+      <nav class="mt-4" aria-label="Paginación del blog">
+        <ul class="pagination justify-content-center mb-0">
+
+          <li class="page-item {% unless paginator.previous_page %}disabled{% endunless %}">
+            <a class="page-link" href="{{ paginator.previous_page_path | relative_url }}">Anterior</a>
+          </li>
+
+          {% for n in (1..paginator.total_pages) %}
+            <li class="page-item {% if n == paginator.page %}active{% endif %}">
+              {% if n == 1 %}
+                <a class="page-link" href="{{ '/blog/' | relative_url }}">1</a>
+              {% else %}
+                <a class="page-link" href="{{ site.paginate_path | replace: ':num', n | relative_url }}">{{ n }}</a>
+              {% endif %}
+            </li>
+          {% endfor %}
+
+          <li class="page-item {% unless paginator.next_page %}disabled{% endunless %}">
+            <a class="page-link" href="{{ paginator.next_page_path | relative_url }}">Siguiente</a>
+          </li>
+
+        </ul>
+      </nav>
+    {% endif %}
+  </div>
+
+  <!-- Sidebar (1/3) -->
+  <aside class="col-12 col-lg-4">
+    <div class="position-sticky" style="top: 1rem;">
+      {% include blog_sidebar.html %}
+    </div>
+  </aside>
+</div>

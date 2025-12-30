@@ -1,0 +1,43 @@
+---
+layout: default
+title: Contacto
+permalink: /contacto/
+---
+
+<section class="contact">
+  <div class="container">
+    <h1 class="contact__title">Contacto</h1>
+    <hr class="contact__rule">
+
+    <p class="contact__lead">
+      Para propuestas profesionales, colaboración o formación en ciberseguridad.
+    </p>
+
+    <div class="contact__email">
+      <span class="contact__label">Email:</span>
+      <a id="mailLink" class="contact__mail" href="#"><span id="mailText"></span></a>
+    </div>
+
+    <div class="contact__actions">
+      <a class="btn btn-outline-social" href="https://x.com/" target="_blank" rel="noreferrer">
+        <span class="social-ico">X</span> Twitter
+      </a>
+
+      <a class="btn btn-outline-social" href="https://www.linkedin.com/" target="_blank" rel="noreferrer">
+        <span class="social-ico">in</span> LinkedIn
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    var user = "hola";
+    var domain = "ibl4zqu3z.es";
+    var addr = user + "@" + domain;
+    document.getElementById("mailText").textContent = addr;
+    var a = document.getElementById("mailLink");
+    a.setAttribute("href", "mailto:" + addr);
+  })();
+</script>
+
