@@ -36,21 +36,21 @@ En este post te enseño a instalar Metasploitable 3 en tu equipo para que puedas
    
    https://developer.hashicorp.com/vagrant/install
 
-   ![alt text](/assets/images/instalar-metasploitable3/image-2.png)
+   ![alt text](/assets/images/posts/instalar-metasploitable3/image-2.png)
 
    Ejecuta el instalador descargado, acepta la licencia de uso y espera que acabe la instalacion.
 
-   ![alt text](/assets/images/instalar-metasploitable3/image-4.png)
+   ![alt text](/assets/images/posts/instalar-metasploitable3/image-4.png)
    
-   ![alt text](/assets/images/instalar-metasploitable3/image-5.png)
+   ![alt text](/assets/images/posts/instalar-metasploitable3/image-5.png)
    
-   ![alt text](/assets/images/instalar-metasploitable3/image-6.png)
+   ![alt text](/assets/images/posts/instalar-metasploitable3/image-6.png)
 
    **Importante**
 
    Reinicia tu sistema después de la instalación para que las variables de entorno se configuren correctamente.
 
-   ![alt text](/assets/images/instalar-metasploitable3/image-7.png)
+   ![alt text](/assets/images/posts/instalar-metasploitable3/image-7.png)
 
    Una vez reiniciado el sistema instala el plugin “Vagrant Reload” ejecutando el siguiente comando en la consola de comandos:
    
@@ -58,7 +58,7 @@ En este post te enseño a instalar Metasploitable 3 en tu equipo para que puedas
    vagrant plugin install vagrant-reload
    ```
 
-   ![alt text](/assets/images/instalar-metasploitable3/image-18.png)
+   ![alt text](/assets/images/posts/instalar-metasploitable3/image-18.png)
 
 ### Paso 2: Descargar las maquinas con vagrant.
 
@@ -70,29 +70,29 @@ mkdir metasploitable-workspace
 cd metasploitable-workspace
 ```
 
-![alt text](/assets/images/instalar-metasploitable3/image-22.png)
+![alt text](/assets/images/posts/instalar-metasploitable3/image-22.png)
 
 ```ps
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/rapid7/metasploitable3/master/Vagrantfile" -OutFile "Vagrantfile"
 ```
 
-![alt text](/assets/images/instalar-metasploitable3/image-23.png)
+![alt text](/assets/images/posts/instalar-metasploitable3/image-23.png)
 
-![alt text](/assets/images/instalar-metasploitable3/image-24.png)
+![alt text](/assets/images/posts/instalar-metasploitable3/image-24.png)
 
 ```ps
 vagrant up
 ```
 
-![alt text](/assets/images/instalar-metasploitable3/image-25.png)
+![alt text](/assets/images/posts/instalar-metasploitable3/image-25.png)
 
 Este proceso se tomara un tiempo en acabar dependiendo de tu conexion a internet.
 
-![alt text](/assets/images/instalar-metasploitable3/image-27.png)
+![alt text](/assets/images/posts/instalar-metasploitable3/image-27.png)
 
 Cuando acabe el proceso tendremos 2 maquinas nuevas en VirtualBox.
 
-![alt text](/assets/images/instalar-metasploitable3/image-28.png)
+![alt text](/assets/images/posts/instalar-metasploitable3/image-28.png)
 
 ## ¡Enhorabuena!
 

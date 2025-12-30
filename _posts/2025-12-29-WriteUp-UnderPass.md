@@ -24,7 +24,7 @@ collection: writeups
 
 En este writeup, compartiré el proceso que seguí para comprometer la máquina **UnderPass** en Hack The Box.<!--more--> A través de la enumeración SNMP, la explotación de credenciales por defecto de *daloRADIUS*, y la escalada de privilegios utilizando *mosh-server*, logré obtener ambas flags.
 
-![alt text](/assets/images/underpass/maquina.png)
+![alt text](/assets/images/posts/underpass/maquina.png)
 
 ## 1. Introducción
 
@@ -37,7 +37,7 @@ En este writeup, compartiré el proceso que seguí para comprometer la máquina 
 
 En primer lugar guardé en la variable IP la IP del sistema objetivo y comprobé la conexión al mismo.
 
-![alt text](/assets/images/underpass/prueba_conexion.png)
+![alt text](/assets/images/posts/underpass/prueba_conexion.png)
 
 ### 2.1. Escaneo de Puertos con Nmap
 
@@ -46,17 +46,17 @@ Comencé con un escaneo de puertos para identificar los servicios activos en la 
 ```bash
 sudo nmap -Pn -sS 10.10.11.48 -oA scan_TCP
 ```
-![alt text](/assets/images/underpass/scan_TCP.png)
+![alt text](/assets/images/posts/underpass/scan_TCP.png)
 
 ```bash
 sudo nmap -p22,80 -sSCV 10.10.11.48 -oA scan_TCP_services
 ```
-![alt text](/assets/images/underpass/scan_TCP_services.png)
+![alt text](/assets/images/posts/underpass/scan_TCP_services.png)
 
 ```bash
 sudo nmap -sU -F 10.10.11.48 -oA scan_UDP
 ```
-![alt text](/assets/images/underpass/scan_UDP.png)
+![alt text](/assets/images/posts/underpass/scan_UDP.png)
 
 En los resultados, detecté abiertos los puertos:
 
@@ -80,13 +80,13 @@ El escaneo reveló información interesante:
 - **Contacto:** steve@underpass.htb.
 - **Ubicación:** Nevada, U.S.A.
 
-![alt text](/assets/images/underpass/snmp-check.png)
+![alt text](/assets/images/posts/underpass/snmp-check.png)
 
 ### 3.2. Investigación de daloRADIUS
 
 Dado que el escaneo SNMP reveló que el servidor ejecutaba *daloRADIUS*, busqué más información sobre esta aplicación.
 
-![alt text](/assets/images/underpass/busqueda_daloradius.png)
+![alt text](/assets/images/posts/underpass/busqueda_daloradius.png)
 
  Encontré su [página en GitHub](https://github.com/lirantal/daloradius) y su [wiki de instalación](https://github.com/lirantal/daloradius/wiki/Installation).
 
@@ -95,11 +95,11 @@ La wiki proporcionaba credenciales por defecto:
 - **Usuario:** administrator  
 - **Contraseña:** radius  
 
-![alt text](/assets/images/underpass/testing_daloradius.png)
+![alt text](/assets/images/posts/underpass/testing_daloradius.png)
 
 Además, mencionaba directorios de configuración que podrían estar expuestos.
 
-![alt text](/assets/images/underpass/config_daloradius.png)
+![alt text](/assets/images/posts/underpass/config_daloradius.png)
 
 ### 3.3. Enumeración Web con Gobuster
 
@@ -109,7 +109,7 @@ Con esta información, ejecuté **gobuster** para buscar directorios expuestos:
 gobuster dir -u http://10.10.11.48 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x php,html,txt
 ```
 
-![alt text](/assets/images/underpass/gobuster.png)
+![alt text](/assets/images/posts/underpass/gobuster.png)
 
 El escaneo encontró el siguiente directorio interesante:
 
@@ -124,11 +124,11 @@ Usuario: administrator
 Contraseña: radius
 ```
 
-![alt text](/assets/images/underpass/panel_acceso_daloradius.png)
+![alt text](/assets/images/posts/underpass/panel_acceso_daloradius.png)
 
 Para mi suerte, las credenciales funcionaron y tuve acceso al panel de administración. 
 
-![alt text](/assets/images/underpass/dashboard_daloradius.png)
+![alt text](/assets/images/posts/underpass/dashboard_daloradius.png)
 
 Dentro del panel, localicé la lista de usuarios y encontré un usuario llamado **svcMosh** con el siguiente hash de contraseña:
 
@@ -136,7 +136,7 @@ Dentro del panel, localicé la lista de usuarios y encontré un usuario llamado 
 412DD4759978ACFCC81DEAB01B382403
 ```
 
-![alt text](/assets/images/underpass/lista_usuarios_daloradius.png)
+![alt text](/assets/images/posts/underpass/lista_usuarios_daloradius.png)
 
 ## 4. Cracking del Hash y Acceso al Sistema
 
@@ -148,7 +148,7 @@ Utilicé **hashid** para identificar el tipo de hash:
 hashid 412DD4759978ACFCC81DEAB01B382403
 ```
 
-![alt text](/assets/images/underpass/identificacion_de_hash.png)
+![alt text](/assets/images/posts/underpass/identificacion_de_hash.png)
 
 El resultado indicó que se trataba de un hash **MD5**. 
 
@@ -166,7 +166,7 @@ En pocos segundos, John reveló la contraseña:
 underwaterfriends
 ```
 
-![alt text](/assets/images/underpass/john.png)
+![alt text](/assets/images/posts/underpass/john.png)
 
 ### 4.3. Acceso Vía SSH
 
@@ -178,7 +178,7 @@ ssh svcMosh@10.10.11.48
 
 Ingresé la contraseña **underwaterfriends** y logre acceder exitosamente. 
 
-![alt text](/assets/images/underpass/ssh.png)
+![alt text](/assets/images/posts/underpass/ssh.png)
 
 ### 4.4. Obtención de la Flag de Usuario
 
@@ -194,7 +194,7 @@ La flag de usuario era:
 f7515bf03b0af43a7fd6e9fe5a872906
 ```
 
-![alt text](/assets/images/underpass/user-flag.png)
+![alt text](/assets/images/posts/underpass/user-flag.png)
 
 ## 5. Escalada de Privilegios
 
@@ -213,13 +213,13 @@ User svcMosh may run the following commands on localhost:
     (ALL) NOPASSWD: /usr/bin/mosh-server
 ```
 
-![alt text](/assets/images/underpass/sudo.png)
+![alt text](/assets/images/posts/underpass/sudo.png)
 
 ### 5.2. Explotación de mosh-server
 
 Revisé la ayuda de **mosh-server**
 
-![alt text](/assets/images/underpass/mosh-help.png)
+![alt text](/assets/images/posts/underpass/mosh-help.png)
 
 Descubrí que el parámetro `--server` permitía la ejecución de comandos arbitrarios. Aproveché esto para obtener una shell como root:
 
@@ -227,7 +227,7 @@ Descubrí que el parámetro `--server` permitía la ejecución de comandos arbit
 mosh --server="sudo /usr/bin/mosh-server" 127.0.0.1
 ```
 
-![alt text](/assets/images/underpass/acceso-root.png)
+![alt text](/assets/images/posts/underpass/acceso-root.png)
 
 Al ejecutar el comando, obtuve acceso root. Verifiqué mi identidad con:
 
@@ -237,7 +237,7 @@ id
 
 La salida confirmó que ahora era **root**. 
 
-![alt text](/assets/images/underpass/root.png)
+![alt text](/assets/images/posts/underpass/root.png)
 
 ## 6. Obtención de la Flag de Root
 
@@ -249,7 +249,7 @@ ls -lisah
 
 Obtuve el fichero `root.txt` que contenía la flag de root.
 
-![alt text](/assets/images/underpass/root-flag.png)
+![alt text](/assets/images/posts/underpass/root-flag.png)
 
 La flag de root era:
 

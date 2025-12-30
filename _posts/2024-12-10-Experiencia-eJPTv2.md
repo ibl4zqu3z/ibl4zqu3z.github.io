@@ -71,7 +71,7 @@ Aquí están algunos de los pasos clave que seguí durante mi preparación:
   - **Usa alguna herramienta para dibujar la red.** 
     - Yo use **draw.io** y fui colocando los diferentes elementos para obtener una visualizacion de la red con informacion que fui añadiendo durante el examen
 
-    ![alt text](/assets/images/exp_eJPTv2/image.png)
+    ![alt text](/assets/images/posts/exp_eJPTv2/image.png)
 
   - **Usa una aplicacion para toma de notas.** 
     - Yo use **Visual Studio** con ficheros en markdown y usando algunos pluggins para dar formato al codigo que copiaba y pegaba. Tambien puedes usar **Obsidian** o **Notion**, etc. Da igual cual uses pero que te sientas muy comodo usandola.
