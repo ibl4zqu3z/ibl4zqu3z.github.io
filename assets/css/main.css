@@ -410,7 +410,7 @@ Quien soy
   background-image: url("../images/hero/hero-abstract-dark.jpg");
   background-size: cover;
   background-position: center;
-  filter: saturate(.9) contrast(1.05);
+  /*filter: saturate(.9) contrast(1.05);*/
   transform: scale(1.02);
 }
 

@@ -1,93 +1,5 @@
 <div class="card border mb-3">
   <div class="card-body">
-    <div class="fw-semibold mb-2">Bloque lateral</div>
-    <div class="text-muted small">
-      Aquí colocas lo que quieras: CTA, enlaces, widgets, categorías, etc.
-    </div>
-  </div>
-</div>
-
-<div class="card border mb-3">
-  <div class="card-body">
-    <div class="fw-semibold mb-2">Bloque lateral</div>
-
-  {%- assign social = site.author.links | default: empty -%}
-  <div class="sidebar__social-icons" aria-label="Redes sociales">
-    {%- for l in social -%}
-      {%- assign u = l.url | default: "" -%}
-      {%- if u contains "linkedin.com" or u contains "twitter.com" or u contains "x.com" or u contains "mastodon" -%}
-        <a class="sidebar__social-btn" href="{{ u }}" rel="me noopener noreferrer" target="_blank" aria-label="{{ l.label | escape }}">
-          <i class="{{ l.icon }}"></i>
-        </a>  
-      {%- endif -%}
-    {%- endfor -%}
-  </div>
-    
-
-
-  </div>
-</div>
-
-
-<div class="card border mb-3">
-  <div class="card-body">
-    <div class="fw-semibold mb-3">Últimas entradas</div>
-    
- <div class="d-flex flex-column gap-3">
-    {%- for p in site.posts limit: 3 -%}
-      {%- assign img = p.image
-        | default: p.featured_image
-        | default: p.thumbnail
-        | default: p.header.teaser
-        | default: p.header.image
-      -%}
-
-      <a href="{{ p.url | relative_url }}"
-         class="text-decoration-none text-reset d-block">
-        <div class="bg-dark text-light rounded-3 overflow-hidden">
-          <div class="row g-0 align-items-stretch">
-            <div class="col-4">
-              {%- if img -%}
-                <img src="{{ img | relative_url }}"
-                     alt="{{ p.title | escape }}"
-                     class="img-fluid h-100 w-100 object-fit-cover"
-                     loading="lazy">
-              {%- else -%}
-                <div class="h-100 w-100 bg-secondary bg-opacity-25"></div>
-              {%- endif -%}
-            </div>
-
-            <div class="col-8">
-              <div class="p-3">
-                <div class="fw-semibold lh-sm mb-2">
-                  {{ p.title }}
-                </div>
-
-                <div class="d-flex flex-wrap gap-2 align-items-center small text-secondary">
-                  {%- if p.categories and p.categories.size > 0 -%}
-                    <span class="badge text-bg-secondary">{{ p.categories[0] }}</span>
-                  {%- endif -%}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </a>
-    {%- endfor -%}
-  </div>
-
-
-  </div>
-</div>
-
-
-
-
-
-
-
-<div class="card border mb-3">
-  <div class="card-body">
     <div class="fw-semibold mb-2">Categorias destacadas</div>
     <div class="d-flex flex-wrap gap-2">
       <a class="badge text-bg-dark border" href="{{ '/writeups/' | relative_url }}">writeups</a>
@@ -99,156 +11,57 @@
 
 <div class="card border mb-3">
   <div class="card-body">
-    <div class="fw-semibold mb-2">Mas Categorias</div>
-    <div class="d-flex flex-wrap gap-2">
-          {% assign cats = site.categories | sort %}
-    {% for c in cats %}
-      {% assign name = c[0] %}
-      {% assign count = c[1].size %}
-        <a
-          class="badge text-bg-dark border"
-          href="{{ '/categories/' | append: name | append: '/' | relative_url }}"
-        >
-          #{{ name }}
-        </a>
-      {% endfor %}
+    <div class="fw-semibold mb-3">Últimas entradas</div>
+      <div class="d-flex flex-column gap-3">
+      {%- for p in site.posts limit: 3 -%}
+        {%- assign img = p.image
+          | default: p.featured_image
+          | default: p.thumbnail
+          | default: p.header.teaser
+          | default: p.header.image
+        -%}
 
+        <a href="{{ p.url | relative_url }}"
+          class="text-decoration-none text-reset d-block">
+          <div class="bg-dark text-light rounded-3 overflow-hidden">
+            <div class="row g-0 align-items-stretch">
+              <div class="col-4">
+                {%- if img -%}
+                  <img src="{{ img | relative_url }}"
+                      alt="{{ p.title | escape }}"
+                      class="img-fluid h-100 w-100 object-fit-cover"
+                      loading="lazy">
+                {%- else -%}
+                  <div class="h-100 w-100 bg-secondary bg-opacity-25"></div>
+                {%- endif -%}
+              </div>
+
+              <div class="col-8">
+                <div class="p-3">
+                  <div class="fw-semibold lh-sm mb-2">
+                    {{ p.title }}
+                  </div>
+
+                  <div class="d-flex flex-wrap gap-2 align-items-center small text-secondary">
+                    {%- if p.categories and p.categories.size > 0 -%}
+                      <span class="badge text-bg-secondary">{{ p.categories[0] }}</span>
+                    {%- endif -%}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
+      {%- endfor -%}
     </div>
   </div>
 </div>
 
 <div class="card border mb-3">
   <div class="card-body">
-    <div class="fw-semibold mb-2">Etiquetas</div>
-    <div class="d-flex flex-wrap gap-2">
-      {% assign tags = site.tags | sort %}
-      {% for t in tags limit: 24 %}
-        {% assign name = t[0] %}
-        <a
-          class="badge text-bg-dark border"
-          href="{{ '/tags/' | append: name | append: '/' | relative_url }}"
-        >
-          #{{ name }}
-        </a>
-      {% endfor %}
-
+    <div class="fw-semibold mb-2">Bloque lateral</div>
+    <div class="text-muted small">
+      Aquí colocas lo que quieras: CTA, enlaces, widgets, categorías, etc.
     </div>
   </div>
 </div>
-
-<!--
-<div class="card bg-dark text-light border-secondary mb-4">
-  <div class="card-header border-secondary fw-semibold">
-    Tags
-  </div>
-  <div class="card-body">
-    <div class="d-flex flex-wrap gap-2">
-      {% assign tags = site.tags | sort %}
-      {% for t in tags limit: 24 %}
-        {% assign name = t[0] %}
-        <a
-          class="btn btn-sm btn-outline-light"
-          href="{{ '/tags/' | append: name | append: '/' | relative_url }}"
-        >
-          #{{ name }}
-        </a>
-      {% endfor %}
-    </div>
-  </div>
-</div>
--->
-
-<div class="card border">
-  <div class="card-body">
-    <div class="fw-semibold mb-2">Enlaces</div>
-    <div class="d-grid gap-2">
-      <a class="btn btn-accent" href="{{ '/contacto/' | relative_url }}">Contacto</a>
-      <a class="btn btn-outline-light" href="{{ '/quien-soy/' | relative_url }}">Quién soy</a>
-    </div>
-  </div>
-</div>
-
-
-<!-- Recientes 
-<div class="card bg-dark text-light border-secondary mb-4">
-  <div class="card-header border-secondary fw-semibold">
-    Recientes
-  </div>
-  <div class="list-group list-group-flush">
-    {% for p in site.posts limit: 6 %}
-      <a
-        class="list-group-item list-group-item-action bg-dark text-light border-secondary"
-        href="{{ p.url | relative_url }}"
-      >
-        {{ p.title }}
-        <div class="small text-secondary mt-1">{{ p.date | date: "%d/%m/%Y" }}</div>
-      </a>
-    {% endfor %}
-  </div>
-</div>
--->
-
-<!-- Categorías
-<div class="card bg-dark text-light border-secondary mb-4">
-  <div class="card-header border-secondary fw-semibold">
-    Categorías
-  </div>
-  <div class="list-group list-group-flush">
-    {% assign cats = site.categories | sort %}
-    {% for c in cats %}
-      {% assign name = c[0] %}
-      {% assign count = c[1].size %}
-      <a
-        class="list-group-item list-group-item-action bg-dark text-light border-secondary d-flex justify-content-between align-items-center"
-        href="{{ '/categories/' | append: name | append: '/' | relative_url }}"
-      >
-        <span>{{ name }}</span>
-        <span class="badge text-bg-secondary rounded-pill">{{ count }}</span>
-      </a>
-    {% endfor %}
-  </div>
-</div>
- -->
-<!-- Categorías
-<div class="card bg-dark text-light border-secondary mb-4">
-  <div class="card-header border-secondary fw-semibold">
-    Categorías
-  </div>
-  <div class="list-group list-group-flush">
-    {% assign cats = site.categories | sort %}
-    {% for c in cats %}
-      {% assign name = c[0] %}
-      {% assign count = c[1].size %}
-      <a
-        class="list-group-item list-group-item-action bg-dark text-light border-secondary d-flex justify-content-between align-items-center"
-        href="{{ '/categories/' | append: name | append: '/' | relative_url }}"
-      >
-        <span>{{ name }}</span>
-        <span class="badge text-bg-secondary rounded-pill">{{ count }}</span>
-      </a>
-    {% endfor %}
-  </div>
-</div>
- -->
-
-<!-- Tags
-<div class="card bg-dark text-light border-secondary mb-4">
-  <div class="card-header border-secondary fw-semibold">
-    Tags
-  </div>
-  <div class="card-body">
-    <div class="d-flex flex-wrap gap-2">
-      {% assign tags = site.tags | sort %}
-      {% for t in tags limit: 24 %}
-        {% assign name = t[0] %}
-        <a
-          class="btn btn-sm btn-outline-light"
-          href="{{ '/tags/' | append: name | append: '/' | relative_url }}"
-        >
-          #{{ name }}
-        </a>
-      {% endfor %}
-    </div>
-  </div>
-</div>
- -->
