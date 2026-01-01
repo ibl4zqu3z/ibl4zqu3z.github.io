@@ -31,7 +31,7 @@ Diseñada para quienes desean mejorar en el pentesting
 
 Lanzo `sudo netdiscover -i eth0 -r 192.168.88.0/24` para descubrir los hosts en la red
 
-![alt text](../assets/images/posts/monitoring-1/image.png)
+![alt text](/assets/images/posts/monitoring-1/image.png)
 
 Una vez obtenida la IP de la maquina objetivo la guardo en la variable IP.
 
@@ -45,7 +45,7 @@ Lanzo un escaneo con nmap para ver los puertos que tiene disponible.
 nmap -p- $IP 
 ```
 
-![alt text](../assets/images/posts/monitoring-1/image-3.png)
+![alt text](/assets/images/posts/monitoring-1/image-3.png)
 
 ```sh
 PORT     STATE SERVICE
@@ -65,7 +65,7 @@ cat puertos.txt
 export PORTS=22,25,80,389,443,5667
 ```
 
-![alt text](../assets/images/posts/monitoring-1/image-4.png)
+![alt text](/assets/images/posts/monitoring-1/image-4.png)
 
 Ahora usando la variable PORTS realizo un escaneo en mas profundidad.
 
@@ -73,7 +73,7 @@ Ahora usando la variable PORTS realizo un escaneo en mas profundidad.
 sudo nmap -p$PORTS -sS -sV -sC $IP -O -oA scan_nmap_$IP
 ```
 
-![alt text](../assets/images/posts/monitoring-1/image-5.png)
+![alt text](/assets/images/posts/monitoring-1/image-5.png)
 
 #### Descubrimiento de puertos y servicios en el host objetivo
 
@@ -155,41 +155,41 @@ OS details: Linux 3.2 - 4.9
 
 Realizo una exploracion visual de la web que sirve el puerto 80 que me lleva a una pagina de bienvenida que me da el acceso a **Nagios XI**
 
-![alt text](../assets/images/posts/monitoring-1/image-6.png)
+![alt text](/assets/images/posts/monitoring-1/image-6.png)
 
 Accedo y llego a una pagina donde hay un formulario de acceso y algo de informacion nada relevante.
 
-![alt text](../assets/images/posts/monitoring-1/image-7.png)
+![alt text](/assets/images/posts/monitoring-1/image-7.png)
 
 Como no conozco este servicio Nagios en nada, consulto en Google si tiene usuario predeterminado. Obtengo de esta forma que el usuario predeterminado es nagiosadmin y que la clave se define en el primer acceso al sitio.
 
-![alt text](../assets/images/posts/monitoring-1/image-12.png)
+![alt text](/assets/images/posts/monitoring-1/image-12.png)
 
 Si el administrador de la maquina no ha tenido cuidado con este detalle deshabilitando el usuario por defecto es probable que pueda atacarlo con un ataque de fuerza bruta y quizas obtener acceso. 
 
 Para este ataque uso Burp-Suite, defino un ataque de tipo cluster bomb para usar el payload 1 como username y el payload 2 como password. 
 
-![alt text](../assets/images/posts/monitoring-1/image-11.png)
+![alt text](/assets/images/posts/monitoring-1/image-11.png)
 
 En el payload 1 defino como usuario **nagiosadmin**
 
-![alt text](../assets/images/posts/monitoring-1/image-9.png)
+![alt text](/assets/images/posts/monitoring-1/image-9.png)
 
 En el payload 2 cargo un diccionario basico de claves **unix_password.txt** 
 
-![alt text](../assets/images/posts/monitoring-1/image-10.png)
+![alt text](/assets/images/posts/monitoring-1/image-10.png)
 
 A continuacion lanzo el ataque y veo que en la primera de las claves probadas el valor de length es diferente por mucho a los demas. Lo que me indica que es una clave valida.
 
-![alt text](../assets/images/posts/monitoring-1/image-8.png)
+![alt text](/assets/images/posts/monitoring-1/image-8.png)
 
 Compruebo las credenciales **[nagiosadmin:admin]** y obtengo acceso al sistema Nagios. 
 
-![alt text](../assets/images/posts/monitoring-1/image-13.png)
+![alt text](/assets/images/posts/monitoring-1/image-13.png)
 
 Una vez dentro veo que el sistema me da informacion sobre su version
 
-![alt text](../assets/images/posts/monitoring-1/image-14.png)
+![alt text](/assets/images/posts/monitoring-1/image-14.png)
 
 ### Explotación
 
@@ -201,7 +201,7 @@ Busco en metasploit vulnerabilidades conocidas para **nagios xi** mediante el co
 search nagios xi
 ```
 
-![alt text](../assets/images/posts/monitoring-1/image-16.png)
+![alt text](/assets/images/posts/monitoring-1/image-16.png)
 
 Selecciono el modulo nagios_xi_authenticated_rce y defino los valores necesarios despues de consultarlos en options.
 
@@ -215,11 +215,11 @@ exploit
 
 Esto nos da una sesion de meterpreter.
 
-![alt text](../assets/images/posts/monitoring-1/image-17.png)
+![alt text](/assets/images/posts/monitoring-1/image-17.png)
 
 Si consulto que usuario tengo en la sesion de meterpreter, me devuelve que tengo el usuario root. 
 
-![alt text](../assets/images/posts/monitoring-1/image-18.png)
+![alt text](/assets/images/posts/monitoring-1/image-18.png)
 
 Con este usuario puedo acceder a la carpeta /root/ y leer el fichero proof.txt para obtener la flag de solucion de la maquina.
 
