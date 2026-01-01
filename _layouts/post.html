@@ -13,7 +13,7 @@ layout: default
 
 
         <div class="post-content">
-                  {% assign featured = page.image
+         {% assign featured = page.image
           | default: page.featured_image
           | default: page.thumbnail
           | default: page.header.teaser
@@ -32,8 +32,9 @@ layout: default
           </figure>
         {% endif %}
             {{ content }}
+            {% include related-posts.html %}
         </div>
-        {% include related-posts.html %}
+
       </article>
     </div>
 
