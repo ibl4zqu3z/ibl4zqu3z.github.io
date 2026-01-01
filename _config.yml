@@ -80,18 +80,18 @@ kramdown:
 
 social_links:
   - label: LinkedIn
-    url: "https://www.linkedin.com/in/TU_USUARIO/"
+    url: "https://www.linkedin.com/in/isaac-blazquez-lopez/"
     icon: "fa-brands fa-linkedin-in"
 
   - label: X
-    url: "https://x.com/TU_USUARIO"
+    url: "https://x.com/ibl4zqu3z"
     icon: "fa-brands fa-x-twitter"
 
   - label: YouTube
-    url: "https://www.youtube.com/@TU_CANAL"
+    url: "https://www.youtube.com/channel/UCZkmFRilAu3vMytY2ZZu0hA"
     icon: "fa-brands fa-youtube"
 
   - label: Mastodon
-    url: "https://mastodon.social/@TU_USUARIO"
+    url: "https://mastodon.social/ibl4zqu3z"
     icon: "fa-brands fa-mastodon"
     rel: "me"
