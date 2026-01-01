@@ -76,3 +76,22 @@ kramdown:
   syntax_highlighter: rouge
   syntax_highlighter_opts:
     css_class: "highlight"
+
+
+social_links:
+  - label: LinkedIn
+    url: "https://www.linkedin.com/in/TU_USUARIO/"
+    icon: "fa-brands fa-linkedin-in"
+
+  - label: X
+    url: "https://x.com/TU_USUARIO"
+    icon: "fa-brands fa-x-twitter"
+
+  - label: YouTube
+    url: "https://www.youtube.com/@TU_CANAL"
+    icon: "fa-brands fa-youtube"
+
+  - label: Mastodon
+    url: "https://mastodon.social/@TU_USUARIO"
+    icon: "fa-brands fa-mastodon"
+    rel: "me"

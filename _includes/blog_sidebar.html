@@ -1,3 +1,26 @@
+
+<div class="card border mb-3">
+  <div class="card-body">
+    <div class="fw-semibold mb-2">Sigueme en redes sociales</div>
+    <div class="text-muted small">
+      {% if site.social_links %}
+        <div class="sidebar-social" aria-label="Redes sociales">
+          {% for s in site.social_links %}
+            <a class="social-btn"
+              href="{{ s.url }}"
+              target="_blank"
+              rel="noopener noreferrer{% if s.rel %} {{ s.rel }}{% endif %}"
+              aria-label="{{ s.label | escape }}"
+              title="{{ s.label | escape }}">
+              <i class="{{ s.icon }}" aria-hidden="true"></i>
+            </a>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
 <div class="card border mb-3">
   <div class="card-body">
     <div class="fw-semibold mb-2">Categorias destacadas</div>
@@ -65,3 +88,8 @@
     </div>
   </div>
 </div>
+
+
+
+
+

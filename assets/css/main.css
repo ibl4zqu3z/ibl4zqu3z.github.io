@@ -1142,3 +1142,33 @@ Contacto
 }
 
 .object-fit-cover{ object-fit: cover; }
+
+
+
+/* assets/css/custom.css (o tu CSS principal) */
+.sidebar-social{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.6rem;
+}
+
+.social-btn{
+  width:44px;
+  height:44px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:#d01818;
+  border-radius:12px;
+  text-decoration:none;
+  transition:transform .12s ease, filter .12s ease;
+}
+
+.social-btn i{
+  color:#fff;
+  font-size:22px;
+  line-height:1;
+}
+
+.social-btn:hover{ filter:brightness(1.08); transform:translateY(-1px); }
+.social-btn:focus-visible{ outline:2px solid #fff; outline-offset:2px; }
