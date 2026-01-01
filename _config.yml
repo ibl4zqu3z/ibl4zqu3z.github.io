@@ -23,8 +23,10 @@ email: "hola@ibl4zqu3z.es"
 description: >- # this means to ignore newlines until "baseurl:"
   Pentester y hacker ético. Auditorías de seguridad, pentesting de redes y aplicaciones web, y formación técnica.
   Writeups, guías prácticas y casos de estudio con enfoque reproducible y orientado a remediación.
+
+url: "https://ibl4zqu3z.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+
 twitter_username: ibl4zqu3z
 github_username:  ibl4zqu3z
 
@@ -58,3 +60,11 @@ plugins:
 
 paginate: 6
 paginate_path: "/blog/page:num/"
+
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post

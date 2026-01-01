@@ -957,3 +957,102 @@ Contacto
   .contact{ padding: 4rem 0; }
   .contact__email{ font-size: 1.25rem; }
 }
+
+
+/** RELATED **/
+
+.post-card{
+  border-radius: 12px;
+  border-color: #2a2a2a;
+}
+
+.post-card-img{
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.post-card-body{
+  background: #1c1c1c;
+  padding: 18px 18px 20px;
+}
+
+.post-card-meta{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: .875rem;
+  color: #a9a9a9;
+}
+
+.post-card-badge{
+  display: inline-block;
+  padding: .20rem .60rem;
+  border-radius: 999px;
+  border: 1px solid #343434;
+  background: #111;
+  color: #f2f2f2;
+  font-size: .75rem;
+  line-height: 1.2;
+}
+
+.post-card-title{
+  margin: 0 0 10px 0;
+  font-size: 1.10rem;
+  font-weight: 700;
+}
+
+.post-card-title a{
+  color: #d01818;
+  text-decoration: none;
+}
+
+.post-card-title a:hover{
+  text-decoration: underline;
+}
+
+.post-card-excerpt{
+  margin: 0;
+  color: #cfcfcf;
+}
+
+
+/** EVITAR SIDEBAR SOBREPUESTO **/
+
+/* Permite que el flex-item en Bootstrap pueda encogerse sin overflow raro */
+.row > * { min-width: 0; }
+
+/* Contenido del post: que nada se salga de la columna */
+.post, .post-content { min-width: 0; }
+.post-content * { max-width: 100%; }
+
+/* Imágenes */
+.post-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Iframes / embeds */
+.post-content iframe,
+.post-content video {
+  max-width: 100%;
+}
+
+/* Tablas largas */
+.post-content table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Bloques de código */
+.post-content pre {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.object-fit-cover{ object-fit: cover; }

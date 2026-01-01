@@ -13,18 +13,17 @@ title: Inicio
   <div class="container">
     <div class="hero__inner">
       <h1 class="hero__title">
-        Hola! Soy <span class="text-accent">ibl4zqu3z</span><br>
-        <span class="text-accent">Pentester</span> y <span class="text-accent">Hacker</span><br>
-        <span class="text-accent">ético</span>
+        Hola! Soy  <span class="text-accent">Isaac Blázquez</span><br>
+        (a.k.a. <span class="text-accent">ibl4zqu3z</span>)<br>
+        <span class="text-accent">Pentester</span> y <span class="text-accent">Hacker ético</span>
       </h1>
 
       <p class="hero__lead">
         Te ayudo a fortalecer la seguridad de sistemas y aplicaciones a través de técnicas avanzadas de pentesting.
       </p>
-
       <div class="hero__actions">
-        <a class="btn btn-ghost px-4" href="{{ '/servicios/' | relative_url }}">Servicios</a>
-        <a class="btn btn-ghost px-4" href="{{ '/quien-soy/' | relative_url }}">¿Quién soy?</a>
+        <a class="btn btn-accent btn-lg cta-band__btn" href="{{ '/quien-soy/' | relative_url }}">Conoce más de mi<span class="cta-band__arrow" aria-hidden="true">›</span>
+        </a>
       </div>
     </div>
   </div>

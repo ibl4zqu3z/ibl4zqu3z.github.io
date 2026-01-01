@@ -2,12 +2,11 @@
 layout: default
 title: Blog
 ---
-
+<h1 class="h3 mb-3">Blog</h1>
 <div class="row g-4">
   <!-- Columna principal (2/3) -->
   <div class="col-12 col-lg-8">
-    <h1 class="h3 mb-3">Blog</h1>
-
+    
     <div class="row g-3">
       {% for post in paginator.posts %}
         {% assign img = post.image

@@ -6,6 +6,68 @@ permalink: /casos-de-estudio/
 
 <h1 class="h3 mb-3">Casos de estudio</h1>
 
+{%- assign items = site.posts
+  | where_exp: "p", "p.categories contains 'casos-de-estudio'"
+  | where_exp: "p", "p.published != false"
+  | sort: "date"
+  | reverse
+-%}
+
+<div class="row g-4">
+  {%- for p in items -%}
+    {%- assign img = p.image
+      | default: p.featured_image
+      | default: p.thumbnail
+      | default: p.header.teaser
+      | default: p.header.image
+    -%}
+
+    <div class="col-12 col-lg-6">
+      <article class="card border overflow-hidden h-100">
+        {%- if img -%}
+          <a href="{{ p.url | relative_url }}" class="d-block">
+            <img
+              src="{{ img | relative_url }}"
+              alt="{{ p.title | escape }}"
+              class="w-100 post-card-img"
+              loading="lazy"
+            >
+          </a>
+        {%- endif -%}
+
+        <div class="card-body">
+          <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+            <span class="text-muted small">{{ p.date | date: "%Y-%m-%d" }}</span>
+            {%- for c in p.categories -%}
+              <span class="badge text-bg-dark border">{{ c }}</span>
+            {%- endfor -%}
+          </div>
+
+          <h2 class="h5 mb-2">
+            <a class="link-underline link-underline-opacity-0" href="{{ p.url | relative_url }}">
+              {{ p.title }}
+            </a>
+          </h2>
+
+          <div class="text-muted">
+            {{ p.excerpt | strip_html | truncate: 240 }}
+          </div>
+        </div>
+      </article>
+    </div>
+  {%- endfor -%}
+</div>
+
+
+
+<!--
+
+
+
+
+
+
+
 <div class="row g-3">
   {% assign items = site.posts | where_exp: "p", "p.categories contains 'casos-de-estudio'" %}
   {% for post in items %}
@@ -25,3 +87,5 @@ permalink: /casos-de-estudio/
     </div>
   {% endfor %}
 </div>
+
+-->
