@@ -31,7 +31,7 @@ twitter_username: ibl4zqu3z
 github_username:  ibl4zqu3z
 
 # Build settings
-theme: minima
+## theme: minima
 plugins:
   - jekyll-feed
 
@@ -68,3 +68,11 @@ defaults:
       type: posts
     values:
       layout: post
+
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: "highlight"

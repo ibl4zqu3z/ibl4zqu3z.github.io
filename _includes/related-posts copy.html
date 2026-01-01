@@ -1,0 +1,132 @@
+
+
+
+
+
+{%- assign shown = 0 -%}
+{%- assign used = "|" -%}
+
+<section class="mt-5 related-posts">
+  <h3 class="h5 mb-3">Artículos relacionados</h3>
+
+  <div class="row g-4 row-cols-1 row-cols-md-3">
+
+    {%- comment -%}PASS 1: tags/categorías en común{%- endcomment -%}
+    {%- for p in site.posts -%}
+      {%- if p.url == page.url -%}{%- continue -%}{%- endif -%}
+
+      {%- assign score = 0 -%}
+
+      {%- if page.tags and p.tags -%}
+        {%- for t in p.tags -%}
+          {%- if page.tags contains t -%}
+            {%- assign score = score | plus: 1 -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+
+      {%- if page.categories and p.categories -%}
+        {%- for c in p.categories -%}
+          {%- if page.categories contains c -%}
+            {%- assign score = score | plus: 1 -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+
+      {%- if score > 0 -%}
+        {%- assign img = p.image
+          | default: p.featured_image
+          | default: p.thumbnail
+          | default: p.header.teaser
+          | default: p.header.image
+        -%}
+
+        <div class="col">
+          <article class="card border overflow-hidden post-card h-100">
+            {%- if img -%}
+              <a href="{{ p.url | relative_url }}" class="d-block">
+                <img
+                  src="{{ img | relative_url }}"
+                  alt="{{ p.title | escape }}"
+                  class="w-100 post-card-img"
+                  loading="lazy"
+                >
+              </a>
+            {%- endif -%}
+
+            <div class="post-card-body">
+              <div class="post-card-meta">
+                <span class="post-card-date">{{ p.date | date: "%Y-%m-%d" }}</span>
+                {%- if p.categories and p.categories.size > 0 -%}
+                  <span class="post-card-badge">{{ p.categories[0] }}</span>
+                {%- endif -%}
+              </div>
+
+              <h4 class="post-card-title">
+                <a href="{{ p.url | relative_url }}">{{ p.title }}</a>
+              </h4>
+
+              <p class="post-card-excerpt">
+                {{ p.excerpt | strip_html | strip_newlines | truncate: 170 }}
+              </p>
+            </div>
+          </article>
+        </div>
+
+        {%- assign shown = shown | plus: 1 -%}
+        {%- capture used -%}{{ used }}{{ p.url }}|{%- endcapture -%}
+      {%- endif -%}
+
+      {%- if shown == 3 -%}{%- break -%}{%- endif -%}
+    {%- endfor -%}
+
+    {%- comment -%}PASS 2: relleno con recientes (sin duplicar){%- endcomment -%}
+    {%- if shown < 3 -%}
+      {%- for p in site.posts -%}
+        {%- if p.url == page.url -%}{%- continue -%}{%- endif -%}
+        {%- if used contains p.url -%}{%- continue -%}{%- endif -%}
+
+        {%- assign img = p.image
+          | default: p.featured_image
+          | default: p.thumbnail
+          | default: p.header.teaser
+          | default: p.header.image
+        -%}
+
+        <div class="col">
+          <article class="card border overflow-hidden post-card h-100">
+            {%- if img -%}
+              <a href="{{ p.url | relative_url }}" class="d-block">
+                <img
+                  src="{{ img | relative_url }}"
+                  alt="{{ p.title | escape }}"
+                  class="w-100 post-card-img"
+                  loading="lazy"
+                >
+              </a>
+            {%- endif -%}
+
+            <div class="post-card-body">
+              <div class="post-card-meta">
+                <span class="post-card-date">{{ p.date | date: "%Y-%m-%d" }}</span>
+                {%- if p.categories and p.categories.size > 0 -%}
+                  <span class="post-card-badge">{{ p.categories[0] }}</span>
+                {%- endif -%}
+              </div>
+
+              <h4 class="post-card-title">
+                <a href="{{ p.url | relative_url }}">{{ p.title }}</a>
+              </h4>
+            </div>
+          </article>
+        </div>
+
+        {%- assign shown = shown | plus: 1 -%}
+        {%- capture used -%}{{ used }}{{ p.url }}|{%- endcapture -%}
+
+        {%- if shown == 3 -%}{%- break -%}{%- endif -%}
+      {%- endfor -%}
+    {%- endif -%}
+
+  </div>
+</section>

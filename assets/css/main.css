@@ -1019,6 +1019,92 @@ Contacto
 }
 
 
+.related-list{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+/* 2 columnas en pantalla grande */
+@media (min-width: 992px){
+  .related-list{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:14px;
+  }
+
+.related-card{
+  display:flex;
+  align-items:stretch;
+  border-radius:14px;
+  overflow:hidden;
+  text-decoration:none;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.04);
+  transition:transform .12s ease, border-color .12s ease, background-color .12s ease;
+}
+
+.related-card:hover{
+  transform:translateY(-1px);
+  border-color:rgba(255,255,255,.14);
+  background:rgba(255,255,255,.05);
+}
+
+.related-card__thumb{
+  flex:0 0 150px;
+  background:#0b0b0b;
+}
+
+.related-card__img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+.related-card__placeholder{
+  width:100%;
+  height:100%;
+  background:linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+}
+
+.related-card__body{
+  flex:1;
+  padding:18px 20px;
+  background:rgba(255,255,255,.06);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:10px;
+}
+
+.related-card__title{
+  font-weight:700;
+  font-size:1.35rem;
+  line-height:1.1;
+  color:inherit;
+}
+
+.related-card__badge{
+  display:inline-block;
+  width:fit-content;
+  padding:.25rem .7rem;
+  border-radius:999px;
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.12);
+  font-weight:600;
+  font-size:.9rem;
+  text-transform:lowercase;
+}
+
+@media (max-width: 576px){
+  .related-card__thumb{ flex-basis:120px; }
+  .related-card__body{ padding:14px 16px; }
+  .related-card__title{ font-size:1.15rem; }
+}
+
+
+
 /** EVITAR SIDEBAR SOBREPUESTO **/
 
 /* Permite que el flex-item en Bootstrap pueda encogerse sin overflow raro */

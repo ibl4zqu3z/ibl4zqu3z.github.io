@@ -9,7 +9,28 @@ layout: default
       <article class="post">
         <h1 class="mb-2">{{ page.title }}</h1>
         <p class="text-muted mb-4">{{ page.date | date: "%d/%m/%Y" }}</p>
+
+
+
         <div class="post-content">
+                  {% assign featured = page.image
+          | default: page.featured_image
+          | default: page.thumbnail
+          | default: page.header.teaser
+          | default: page.header.image
+        %}
+
+        {% if featured %}
+          <figure class="post-featured">
+            <a href="{{ page.url | relative_url }}">
+              <img
+                src="{{ featured | relative_url }}"
+                alt="{{ page.title | escape }}"
+                loading="lazy"
+              >
+            </a>
+          </figure>
+        {% endif %}
             {{ content }}
         </div>
         {% include related-posts.html %}
