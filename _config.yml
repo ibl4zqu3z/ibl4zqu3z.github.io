@@ -95,3 +95,32 @@ social_links:
     url: "https://mastodon.social/ibl4zqu3z"
     icon: "fa-brands fa-mastodon"
     rel: "me"
+
+footer:
+  copyright_owner: "Isaac Blázquez López"
+  menu:
+    - title: "Inicio"
+      url: "/"
+    - title: "Blog"
+      url: "/blog/"
+    - title: "Guías"
+      url: "/guias/"
+    - title: "Writeups"
+      url: "/writeups/"
+    - title: "Contacto"
+      url: "/contacto/"
+
+social_links:
+  - name: "LinkedIn"
+    url: "https://www.linkedin.com/in/isaac-blazquez-lopez/"
+    icon: "fa-brands fa-linkedin-in"
+  - name: "X"
+    url: "https://x.com/ibl4zqu3z"
+    icon: "fa-brands fa-x-twitter"
+  - name: "YouTube"
+    url: "https://www.youtube.com/channel/UCZkmFRilAu3vMytY2ZZu0hA"
+    icon: "fa-brands fa-youtube"
+  - name: "Mastodon"
+    url: "https://mastodon.social/ibl4zqu3z"
+    icon: "fa-brands fa-mastodon"
+    rel: "me"

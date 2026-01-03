@@ -1,0 +1,51 @@
+<!--<footer class="site-footer">
+  <div class="site-footer__container">
+    <div class="site-footer__left">
+      <div class="site-footer__copyright">
+        &copy; {{ site.time | date: "%Y" }}
+        {{ site.footer.copyright_owner | default: site.title }}
+      </div>
+
+      {% if site.footer.menu %}
+      <nav class="site-footer__nav" aria-label="Enlaces del pie">
+        <ul class="site-footer__navlist">
+          {% for item in site.footer.menu %}
+          <li class="site-footer__navitem">
+            <a class="site-footer__link" href="{{ item.url | relative_url }}">{{ item.title }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+
+    {% if site.social_links %}
+    <div class="site-footer__right">
+      <div class="site-footer__social" aria-label="Redes sociales">
+        {% for s in site.social_links %}
+          <a
+            class="site-footer__socialbtn"
+            href="{{ s.url }}"
+            target="_blank"
+            rel="noopener noreferrer{% if s.rel %} {{ s.rel }}{% endif %}"
+            aria-label="{{ s.name }}"
+            title="{{ s.name }}"
+          >
+            <i class="{{ s.icon }}" aria-hidden="true"></i>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</footer>
+
+
+<footer class="footer mt-auto py-3 bg-body-tertiary">
+    <div class="container">
+        <span class="text-body-secondary">Place sticky footer content here.</span>
+    </div>
+</footer> 
+
+-->
+<footer class="py-3 my-4"> <ul class="nav justify-content-center border-bottom pb-3 mb-3"> <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary" _msttexthash="75569" _msthash="18">Inicio</a></li> <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary" _msttexthash="136006" _msthash="19">Funciones</a></li> <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary" _msttexthash="95589" _msthash="20">Precios</a></li> <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary" _msttexthash="425438" _msthash="21">Preguntas frecuentes</a></li> <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary" _msttexthash="107419" _msthash="22">Acerca de</a></li> </ul> <p class="text-center text-body-secondary" _msttexthash="272155" _msthash="23">© 2025 Company, Inc</p> </footer>
