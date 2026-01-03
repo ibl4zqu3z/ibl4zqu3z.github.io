@@ -1,9 +1,4 @@
 ---
-# Feel free to add content and custom Front Matter to this file.
-# To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
-
-# layout: home
-
 layout: default
 title: Inicio
 ---
@@ -48,20 +43,78 @@ title: Inicio
 
 
 
-{% assign featured_posts = site.posts | where: "featured", true %}
 
-{% if site.posts.size > 0 %}
-  {% if featured_posts.size > 0 %}
-    {% assign hero_post = featured_posts[0] %}
-  {% else %}
-    {% assign hero_post = site.posts[0] %}
+{% assign all_posts = site.posts | sort: "date" | reverse %}
+{% assign featured_posts = all_posts | where: "featured", true %}
+
+{% if all_posts.size > 0 %}
+
+  {%- comment -%}
+  DESTACADO (3 tarjetas) por categoría:
+  1) Superior: writeups
+  2) Inferior izq: guias
+  3) Inferior der: casos-de-estudio
+  Prioriza featured dentro de cada categoría y hace fallback al último post de la categoría.
+  Si una categoría no tiene posts, rellena con el post más reciente disponible no usado.
+  {%- endcomment -%}
+
+  {% assign list = featured_posts | where_exp: "p", "p.categories contains 'writeups'" %}
+  {% if list.size == 0 %}
+    {% assign list = all_posts | where_exp: "p", "p.categories contains 'writeups'" %}
+  {% endif %}
+  {% assign hero_post = list | first %}
+  {% if hero_post == nil %}
+    {% assign hero_post = all_posts | first %}
   {% endif %}
 
   {% assign used = "" %}
   {% assign used = used | append: hero_post.url | append: "|" %}
 
-  {% assign secondary_featured = featured_posts | slice: 1, 2 %}
-  {% assign filler_needed = 2 | minus: secondary_featured.size %}
+  {% assign list = featured_posts | where_exp: "p", "p.categories contains 'guias'" %}
+  {% if list.size == 0 %}
+    {% assign list = all_posts | where_exp: "p", "p.categories contains 'guias'" %}
+  {% endif %}
+  {% assign post_guias = nil %}
+  {% for p in list %}
+    {% assign token = p.url | append: "|" %}
+    {% if used contains token %}{% continue %}{% endif %}
+    {% assign post_guias = p %}
+    {% assign used = used | append: p.url | append: "|" %}
+    {% break %}
+  {% endfor %}
+
+  {% assign list = featured_posts | where_exp: "p", "p.categories contains 'casos-de-estudio'" %}
+  {% if list.size == 0 %}
+    {% assign list = all_posts | where_exp: "p", "p.categories contains 'casos-de-estudio'" %}
+  {% endif %}
+  {% assign post_casos = nil %}
+  {% for p in list %}
+    {% assign token = p.url | append: "|" %}
+    {% if used contains token %}{% continue %}{% endif %}
+    {% assign post_casos = p %}
+    {% assign used = used | append: p.url | append: "|" %}
+    {% break %}
+  {% endfor %}
+
+  {% if post_guias == nil %}
+    {% for p in all_posts %}
+      {% assign token = p.url | append: "|" %}
+      {% if used contains token %}{% continue %}{% endif %}
+      {% assign post_guias = p %}
+      {% assign used = used | append: p.url | append: "|" %}
+      {% break %}
+    {% endfor %}
+  {% endif %}
+
+  {% if post_casos == nil %}
+    {% for p in all_posts %}
+      {% assign token = p.url | append: "|" %}
+      {% if used contains token %}{% continue %}{% endif %}
+      {% assign post_casos = p %}
+      {% assign used = used | append: p.url | append: "|" %}
+      {% break %}
+    {% endfor %}
+  {% endif %}
 
   <section class="mb-4">
 
@@ -115,88 +168,71 @@ title: Inicio
   <section class="mb-5">
     <div class="row g-3">
 
-      {% for p in secondary_featured %}
-        {% assign used = used | append: p.url | append: "|" %}
-
-        {% assign img = p.image
-          | default: p.featured_image
-          | default: p.thumbnail
-          | default: p.header.teaser
-          | default: p.header.image
-        %}
-
-        <div class="col-12 col-lg-6">
-          <article class="card border overflow-hidden h-100">
-            {% if img %}
-              <a href="{{ p.url | relative_url }}" class="d-block">
-                <img
-                  src="{{ img | relative_url }}"
-                  alt="{{ p.title | escape }}"
-                  class="w-100 home-teaser-img"
-                  loading="lazy"
-                >
+      {% assign p = post_guias %}
+      {% assign img = p.image
+        | default: p.featured_image
+        | default: p.thumbnail
+        | default: p.header.teaser
+        | default: p.header.image
+      %}
+      <div class="col-12 col-lg-6">
+        <article class="card border overflow-hidden h-100">
+          {% if img %}
+            <a href="{{ p.url | relative_url }}" class="d-block">
+              <img
+                src="{{ img | relative_url }}"
+                alt="{{ p.title | escape }}"
+                class="w-100 home-teaser-img"
+                loading="lazy"
+              >
+            </a>
+          {% endif %}
+          <div class="card-body">
+            <div class="text-muted small mb-2">{{ p.date | date: "%Y-%m-%d" }}</div>
+            <h3 class="h5 mb-2">
+              <a class="link-underline link-underline-opacity-0" href="{{ p.url | relative_url }}">
+                {{ p.title }}
               </a>
-            {% endif %}
-            <div class="card-body">
-              <div class="text-muted small mb-2">{{ p.date | date: "%Y-%m-%d" }}</div>
-              <h3 class="h5 mb-2">
-                <a class="link-underline link-underline-opacity-0" href="{{ p.url | relative_url }}">
-                  {{ p.title }}
-                </a>
-              </h3>
-              <div class="text-muted">
-                {{ p.excerpt | strip_html | truncate: 180 }}
-              </div>
+            </h3>
+            <div class="text-muted">
+              {{ p.excerpt | strip_html | truncate: 180 }}
             </div>
-          </article>
-        </div>
-      {% endfor %}
-
-      {% if filler_needed > 0 %}
-        {% assign filler_count = 0 %}
-        {% for p in site.posts %}
-          {% assign token = p.url | append: "|" %}
-          {% if used contains token %}{% continue %}{% endif %}
-
-          {% assign filler_count = filler_count | plus: 1 %}
-          {% assign used = used | append: p.url | append: "|" %}
-
-          {% assign img = p.image
-            | default: p.featured_image
-            | default: p.thumbnail
-            | default: p.header.teaser
-            | default: p.header.image
-          %}
-
-          <div class="col-12 col-lg-6">
-            <article class="card border overflow-hidden h-100">
-              {% if img %}
-                <a href="{{ p.url | relative_url }}" class="d-block">
-                  <img
-                    src="{{ img | relative_url }}"
-                    alt="{{ p.title | escape }}"
-                    class="w-100 home-teaser-img"
-                    loading="lazy"
-                  >
-                </a>
-              {% endif %}
-              <div class="card-body">
-                <div class="text-muted small mb-2">{{ p.date | date: "%Y-%m-%d" }}</div>
-                <h3 class="h5 mb-2">
-                  <a class="link-underline link-underline-opacity-0" href="{{ p.url | relative_url }}">
-                    {{ p.title }}
-                  </a>
-                </h3>
-                <div class="text-muted">
-                  {{ p.excerpt | strip_html | truncate: 180 }}
-                </div>
-              </div>
-            </article>
           </div>
+        </article>
+      </div>
 
-          {% if filler_count == filler_needed %}{% break %}{% endif %}
-        {% endfor %}
-      {% endif %}
+      {% assign p = post_casos %}
+      {% assign img = p.image
+        | default: p.featured_image
+        | default: p.thumbnail
+        | default: p.header.teaser
+        | default: p.header.image
+      %}
+      <div class="col-12 col-lg-6">
+        <article class="card border overflow-hidden h-100">
+          {% if img %}
+            <a href="{{ p.url | relative_url }}" class="d-block">
+              <img
+                src="{{ img | relative_url }}"
+                alt="{{ p.title | escape }}"
+                class="w-100 home-teaser-img"
+                loading="lazy"
+              >
+            </a>
+          {% endif %}
+          <div class="card-body">
+            <div class="text-muted small mb-2">{{ p.date | date: "%Y-%m-%d" }}</div>
+            <h3 class="h5 mb-2">
+              <a class="link-underline link-underline-opacity-0" href="{{ p.url | relative_url }}">
+                {{ p.title }}
+              </a>
+            </h3>
+            <div class="text-muted">
+              {{ p.excerpt | strip_html | truncate: 180 }}
+            </div>
+          </div>
+        </article>
+      </div>
 
     </div>
   </section>
@@ -211,95 +247,104 @@ title: Inicio
         <span class="home-block__chev" aria-hidden="true">›</span> Ver más
       </a>
     </div>
-
     <div class="row g-4">
-      {% assign items = site.posts | where_exp: "p", "p.categories contains 'writeups'" | slice: 0, 2 %}
       {% assign months = "enero,febrero,marzo,abril,mayo,junio,julio,agosto,septiembre,octubre,noviembre,diciembre" | split: "," %}
+      {% assign count = 0 %}
+      {% for post in all_posts %}
+        {% if post.categories contains 'writeups' %}
+          {% assign token = post.url | append: "|" %}
+          {% if used contains token %}{% continue %}{% endif %}
 
-      {% for post in items %}
-        {% assign img = post.image
-          | default: post.featured_image
-          | default: post.thumbnail
-          | default: post.header.teaser
-          | default: post.header.image
-        %}
+          {% assign img = post.image
+            | default: post.featured_image
+            | default: post.thumbnail
+            | default: post.header.teaser
+            | default: post.header.image
+          %}
 
-        {% assign m_idx = post.date | date: "%-m" | minus: 1 %}
-        {% assign m_name = months[m_idx] %}
+          {% assign m_idx = post.date | date: "%-m" | minus: 1 %}
+          {% assign m_name = months[m_idx] %}
 
-        <div class="col-12 col-lg-6">
-          <article class="tile">
-            {% if img %}
-              <a class="tile__media" href="{{ post.url | relative_url }}">
-                <img class="tile__img" src="{{ img | relative_url }}" alt="{{ post.title | escape }}" loading="lazy">
-              </a>
-            {% endif %}
+          <div class="col-12 col-lg-6">
+            <article class="tile">
+              {% if img %}
+                <a class="tile__media" href="{{ post.url | relative_url }}">
+                  <img class="tile__img" src="{{ img | relative_url }}" alt="{{ post.title | escape }}" loading="lazy">
+                </a>
+              {% endif %}
 
-            <div class="tile__body">
-              <span class="tile__date">{{ m_name }} {{ post.date | date: "%-d, %Y" }}</span>
+              <div class="tile__body">
+                <span class="tile__date">{{ m_name }} {{ post.date | date: "%-d, %Y" }}</span>
 
-              <h3 class="tile__title">
-                <a class="tile__link" href="{{ post.url | relative_url }}">{{ post.title }}</a>
-              </h3>
-            </div>
-          </article>
-        </div>
+                <h3 class="tile__title">
+                  <a class="tile__link" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+                </h3>
+              </div>
+            </article>
+          </div>
+
+          {% assign used = used | append: post.url | append: "|" %}
+          {% assign count = count | plus: 1 %}
+          {% if count == 2 %}{% break %}{% endif %}
+        {% endif %}
       {% endfor %}
     </div>
   </div>
 </section>
 
-
-
-
-<!-- Sección: Blog (pegar en index.html donde corresponda) -->
+<!-- Sección: Guías (pegar en index.html donde corresponda) -->
 <section class="home-block">
   <div class="container">
     <div class="home-block__head">
-      <h2 class="home-block__title"><span class="home-block__slash">/</span> Blog <span class="home-block__slash">/</span></h2>
-      <a class="btn btn-ghost home-block__btn" href="{{ '/blog/' | relative_url }}">
+      <h2 class="home-block__title"><span class="home-block__slash">/</span> Guías <span class="home-block__slash">/</span></h2>
+      <a class="btn btn-ghost home-block__btn" href="{{ '/Writeups/' | relative_url }}">
         <span class="home-block__chev" aria-hidden="true">›</span> Ver más
       </a>
     </div>
-
     <div class="row g-4">
-      {% assign items = site.posts | slice: 0, 2 %}
       {% assign months = "enero,febrero,marzo,abril,mayo,junio,julio,agosto,septiembre,octubre,noviembre,diciembre" | split: "," %}
+      {% assign count = 0 %}
+      {% for post in all_posts %}
+        {% if post.categories contains 'guias' %}
+          {% assign token = post.url | append: "|" %}
+          {% if used contains token %}{% continue %}{% endif %}
 
-      {% for post in items %}
-        {% assign img = post.image
-          | default: post.featured_image
-          | default: post.thumbnail
-          | default: post.header.teaser
-          | default: post.header.image
-        %}
+          {% assign img = post.image
+            | default: post.featured_image
+            | default: post.thumbnail
+            | default: post.header.teaser
+            | default: post.header.image
+          %}
 
-        {% assign m_idx = post.date | date: "%-m" | minus: 1 %}
-        {% assign m_name = months[m_idx] %}
+          {% assign m_idx = post.date | date: "%-m" | minus: 1 %}
+          {% assign m_name = months[m_idx] %}
 
-        <div class="col-12 col-lg-6">
-          <article class="tile">
-            {% if img %}
-              <a class="tile__media" href="{{ post.url | relative_url }}">
-                <img class="tile__img" src="{{ img | relative_url }}" alt="{{ post.title | escape }}" loading="lazy">
-              </a>
-            {% endif %}
+          <div class="col-12 col-lg-6">
+            <article class="tile">
+              {% if img %}
+                <a class="tile__media" href="{{ post.url | relative_url }}">
+                  <img class="tile__img" src="{{ img | relative_url }}" alt="{{ post.title | escape }}" loading="lazy">
+                </a>
+              {% endif %}
 
-            <div class="tile__body">
-              <span class="tile__date">{{ m_name }} {{ post.date | date: "%-d, %Y" }}</span>
+              <div class="tile__body">
+                <span class="tile__date">{{ m_name }} {{ post.date | date: "%-d, %Y" }}</span>
 
-              <h3 class="tile__title">
-                <a class="tile__link" href="{{ post.url | relative_url }}">{{ post.title }}</a>
-              </h3>
-            </div>
-          </article>
-        </div>
+                <h3 class="tile__title">
+                  <a class="tile__link" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+                </h3>
+              </div>
+            </article>
+          </div>
+
+          {% assign used = used | append: post.url | append: "|" %}
+          {% assign count = count | plus: 1 %}
+          {% if count == 2 %}{% break %}{% endif %}
+        {% endif %}
       {% endfor %}
     </div>
   </div>
 </section>
-
-
 
 <!-- Sección: Casos de estudio (pegar en index.html donde corresponda) -->
 <section class="home-block">
@@ -311,36 +356,45 @@ title: Inicio
       </a>
     </div>
     <div class="row g-4">
-      {% assign items = site.posts | where_exp: "p", "p.categories contains 'casos-de-estudio'" | slice: 0, 2 %}
       {% assign months = "enero,febrero,marzo,abril,mayo,junio,julio,agosto,septiembre,octubre,noviembre,diciembre" | split: "," %}
-      {% for post in items %}
-        {% assign img = post.image
-          | default: post.featured_image
-          | default: post.thumbnail
-          | default: post.header.teaser
-          | default: post.header.image
-        %}
+      {% assign count = 0 %}
+      {% for post in all_posts %}
+        {% if post.categories contains 'casos-de-estudio' %}
+          {% assign token = post.url | append: "|" %}
+          {% if used contains token %}{% continue %}{% endif %}
 
-        {% assign m_idx = post.date | date: "%-m" | minus: 1 %}
-        {% assign m_name = months[m_idx] %}
+          {% assign img = post.image
+            | default: post.featured_image
+            | default: post.thumbnail
+            | default: post.header.teaser
+            | default: post.header.image
+          %}
 
-        <div class="col-12 col-lg-6">
-          <article class="tile">
-            {% if img %}
-              <a class="tile__media" href="{{ post.url | relative_url }}">
-                <img class="tile__img" src="{{ img | relative_url }}" alt="{{ post.title | escape }}" loading="lazy">
-              </a>
-            {% endif %}
+          {% assign m_idx = post.date | date: "%-m" | minus: 1 %}
+          {% assign m_name = months[m_idx] %}
 
-            <div class="tile__body">
-              <span class="tile__date">{{ m_name }} {{ post.date | date: "%-d, %Y" }}</span>
+          <div class="col-12 col-lg-6">
+            <article class="tile">
+              {% if img %}
+                <a class="tile__media" href="{{ post.url | relative_url }}">
+                  <img class="tile__img" src="{{ img | relative_url }}" alt="{{ post.title | escape }}" loading="lazy">
+                </a>
+              {% endif %}
 
-              <h3 class="tile__title">
-                <a class="tile__link" href="{{ post.url | relative_url }}">{{ post.title }}</a>
-              </h3>
-            </div>
-          </article>
-        </div>
+              <div class="tile__body">
+                <span class="tile__date">{{ m_name }} {{ post.date | date: "%-d, %Y" }}</span>
+
+                <h3 class="tile__title">
+                  <a class="tile__link" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+                </h3>
+              </div>
+            </article>
+          </div>
+
+          {% assign used = used | append: post.url | append: "|" %}
+          {% assign count = count | plus: 1 %}
+          {% if count == 2 %}{% break %}{% endif %}
+        {% endif %}
       {% endfor %}
     </div>
   </div>
@@ -365,114 +419,4 @@ title: Inicio
   </div>
 </section>
 
-
-
-<!-- 
-  <section class="mb-5">
-    <div class="row g-3">
-      <div class="col-12 col-lg-4">
-        <article class="card border overflow-hidden h-100">
-          <img src="{{ '/assets/images/sections/IMAGE_WRITEUPS.png' | relative_url }}" alt="Writeups" class="w-100 home-section-img">
-          <div class="card-body d-flex flex-column">
-            <div class="text-muted mb-3">
-              Writeups técnicos reproducibles: enumeración, explotación, post-explotación y remediación.
-            </div>
-            <div class="mt-auto d-flex justify-content-center">
-              <a class="btn btn-accent px-4" href="{{ '/writeups/' | relative_url }}">Ver más</a>
-            </div>
-          </div>
-        </article>
-      </div>
-      <div class="col-12 col-lg-4">
-        <article class="card border overflow-hidden h-100">
-          <img src="{{ '/assets/images/sections/IMAGE_GUIAS.png' | relative_url }}" alt="Guías" class="w-100 home-section-img">
-          <div class="card-body d-flex flex-column">
-            <div class="text-muted mb-3">
-              Guías paso a paso: tooling, técnicas y laboratorios con foco práctico.
-            </div>
-            <div class="mt-auto d-flex justify-content-center">
-              <a class="btn btn-accent px-4" href="{{ '/guias/' | relative_url }}">Ver más</a>
-            </div>
-          </div>
-        </article>
-      </div>
-      <div class="col-12 col-lg-4">
-        <article class="card border overflow-hidden h-100">
-          <img src="{{ '/assets/images/sections/IMAGE_CASOS_ESTUDIO.png' | relative_url }}" alt="Casos de estudio" class="w-100 home-section-img">
-          <div class="card-body d-flex flex-column">
-            <div class="text-muted mb-3">
-              Casos de estudio: análisis técnico, cronología, impacto, respuesta y lecciones aprendidas.
-            </div>
-            <div class="mt-auto d-flex justify-content-center">
-              <a class="btn btn-accent px-4" href="{{ '/casos-de-estudio/' | relative_url }}">Ver más</a>
-            </div>
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  
-  
-  <section class="mb-4">
-    <div class="d-flex align-items-center justify-content-between mb-3">
-      <h2 class="h4 mb-0">Más recientes</h2>
-      <a class="link-underline link-underline-opacity-0" href="{{ '/blog/' | relative_url }}">Ir al blog</a>
-    </div>
-
-    <div class="row g-3">
-      {% assign shown = 0 %}
-      {% for p in site.posts %}
-        {% assign token = p.url | append: "|" %}
-        {% if used contains token %}{% continue %}{% endif %}
-
-        {% assign shown = shown | plus: 1 %}
-
-        {% assign img = p.image
-          | default: p.featured_image
-          | default: p.thumbnail
-          | default: p.header.teaser
-          | default: p.header.image
-        %}
-
-        <div class="col-12 col-lg-6">
-          <article class="card border overflow-hidden h-100">
-            {% if img %}
-              <a href="{{ p.url | relative_url }}" class="d-block">
-                <img
-                  src="{{ img | relative_url }}"
-                  alt="{{ p.title | escape }}"
-                  class="w-100 home-teaser-img"
-                  loading="lazy"
-                >
-              </a>
-            {% endif %}
-            <div class="card-body">
-              <div class="text-muted small mb-2">{{ p.date | date: "%Y-%m-%d" }}</div>
-              <h3 class="h5 mb-2">
-                <a class="link-underline link-underline-opacity-0" href="{{ p.url | relative_url }}">
-                  {{ p.title }}
-                </a>
-              </h3>
-              <div class="text-muted">
-                {{ p.excerpt | strip_html | truncate: 180 }}
-              </div>
-            </div>
-          </article>
-        </div>
-
-        {% if shown == 6 %}{% break %}{% endif %}
-      {% endfor %}
-    </div>
-  </section>
-
-{% else %}
-  <div class="card border">
-    <div class="card-body">
-      <div class="h4 mb-2">Sin entradas</div>
-      <div class="text-muted">Crea posts en _posts/ para que la home muestre contenido.</div>
-    </div>
-  </div>
 {% endif %}
-
--->

@@ -12,14 +12,14 @@ share: true
 related: true
 categories:
   - writeups
-  - HackTheBox
-tags:
-  - UDP
-  - snmp
-  - gobuster
-  - mosh
-  - mosh-server
-collection: writeups
+# tags:
+#   - UDP
+#   - snmp
+#   - gobuster
+#   - mosh
+#   - mosh-server
+# collection: writeups
+featured: true
 ---
 
 En este writeup, compartiré el proceso que seguí para comprometer la máquina **UnderPass** en Hack The Box.<!--more--> A través de la enumeración SNMP, la explotación de credenciales por defecto de *daloRADIUS*, y la escalada de privilegios utilizando *mosh-server*, logré obtener ambas flags.
