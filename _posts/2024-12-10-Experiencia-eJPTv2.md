@@ -11,7 +11,6 @@ toc_sticky: true
 share: true
 related: true
 categories:
-  - Certificaciones
   - guias
 tags:
   - eJPTv2
