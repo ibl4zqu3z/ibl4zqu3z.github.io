@@ -3,7 +3,7 @@ title: "Enumeracion y ataque a Joomla"
 header:
   image: /assets/images/posts/HTB_Academy_CTF_Enumeracion_y_ataque_a_Joomla/Joomla_Enumeracion_y_ataque.png
   teaser: /assets/images/posts/HTB_Academy_CTF_Enumeracion_y_ataque_a_Joomla/Joomla_Enumeracion_y_ataque.png
-excerpt: En este write-up de HTB Academy muestro un flujo completo contra Joomla: identificación del CMS, enumeración de artefactos típicos, uso de herramientas como Droopescan, fuerza bruta controlada del panel /administrator/ y, tras el acceso, abuso de edición de plantillas para conseguir ejecución remota de comandos y validar el impacto en el servidor.
+excerpt: "En este write-up de HTB Academy muestro un flujo completo contra Joomla: identificación del CMS, enumeración de artefactos típicos, uso de herramientas como Droopescan, fuerza bruta controlada del panel /administrator/ y, tras el acceso, abuso de edición de plantillas para conseguir ejecución remota de comandos y validar el impacto en el servidor."
 excerpt_separator: "<!--more-->"
 share: true
 related: true
