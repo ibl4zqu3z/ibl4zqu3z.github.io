@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ibl4zqu3z.github.io/sitemap.xml
