@@ -1266,3 +1266,12 @@ Contacto
     justify-content: flex-start;
   }
 }
+
+.post-card-img{
+  display:block;
+  width:100%;
+  height:auto !important;
+  max-height:none !important;
+  object-fit: unset !important;
+}
+
