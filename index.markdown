@@ -120,7 +120,7 @@ title: Inicio
 
       <div class="home-block__head">
       <h2 class="home-block__title"><span class="home-block__slash">/</span> Destacado <span class="home-block__slash">/</span></h2>
-      <a class="btn btn-ghost home-block__btn" href="{{ '/casos-de-estudio/' | relative_url }}">
+      <a class="btn btn-ghost home-block__btn" href="{{ '/blog/' | relative_url }}">
         <span class="home-block__chev" aria-hidden="true">›</span> Ver más
       </a>
     </div>

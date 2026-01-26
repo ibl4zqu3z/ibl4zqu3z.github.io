@@ -1,16 +1,16 @@
 ---
 title: "API Attack - HTB Skills Assessment"
-date: 2026-01-26
 header:
   image: /assets/images/guias/API_Attack_HTB_Skills_Assessment.png
   teaser: /assets/images/guias/API_Attack_HTB_Skills_Assessment.png
 excerpt: "Write-up técnico del HTB Skills Assessment “API Attack”: enumeración de endpoints, abuso de autenticación/autorización y encadenado de fallos típicos en APIs hasta obtener impacto verificable y evidencias reproducibles."
 excerpt_separator: "<!--more-->"
+share: true
+related: true
 categories:
-  - guias
-feature: true
+  - writeups
+featured: true
 ---
-
 
 ## Escenario
 
