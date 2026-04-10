@@ -1,0 +1,177 @@
+---
+layout: post
+title:  Mi experiencia realizando el examen de eJPTv2
+
+date: 2026-01-17 10:00:00 +0100
+description: "Mi experiencia realizando el examen de eJPTv2"
+excerpt: 'Mi experiencia realizando el examen de eJPTv2'
+
+category: guias
+category_label: Guías
+primary_category_anchor: guias
+categories:
+  - guias
+kicker: "guias"
+
+tags:
+- eJPTv2
+
+reading_time: "6 min de lectura"
+
+level: intermedio
+
+featured: true
+featured_badge: "Guias"
+featured_lines:  
+
+cover_badge: "Guias"
+cover_lines:
+
+cover_image: /assets/img/blog/exp_eJPTv2/eJPTv2_experience.jpg
+
+slug: experiencia-certificacion-ejptv2
+
+permalink: /blog/guias/experiencia-certificacion-ejptv2.html
+
+toc_html: |
+  <a href="#preparacion-para-el-examen">Preparación para el examen</a>
+  <a href="#consejos-durante-el-examen">Consejos durante el examen</a>
+  <a href="#el-dia-del-examen">El día del examen</a>
+  <a href="#el-pentesting-de-las-maquinas">El Pentesting de las máquinas</a>
+  <a href="#lecciones-aprendidas">Lecciones aprendidas</a>
+---
+
+<p>Hace un tiempo decidí presentarme al examen de eJPTv2 para obtener la certificación, y os quiero compartir mi experiencia con el proceso, desde la preparación hasta la obtención de la certificacion de eJPTv2, un examen de certificación ofrecido por eLearnSecurity.</p>
+<p><!--more--></p>
+<p>El examen de eJPTv2 es un desafío práctico en el que se requiere realizar una serie de tareas dentro de un entorno realista pero simulado, para demostrar las habilidades para realizar un pentesting. Esto incluye obtener acceso a un sistema, identificar vulnerabilidades, explotar servicios, y realizar post-explotación e incluso pivoting a una red interna.</p>
+<h2 id="preparacion-para-el-examen">Preparación para el examen</h2>
+<p>Mi camino hacia el examen de eJPTv2 comenzó con el estudio de la teoría y la práctica ofrecida por INE.</p>
+<p>Ya habia trabajado en algunos proyectos relacionados con pentesting, pero sabía que necesitaba adaptar mis conocimientos a las herramientas adecuadas para tener éxito en el examen.</p>
+<p>Aquí están algunos de los pasos clave que seguí durante mi preparación:</p>
+<ol>
+<li><p><strong>Revisión de los temas del examen:</strong>
+Lo primero que hice fue leer cuidadosamente el temario oficial del examen. eJPTv2 cubre una amplia gama de temas, desde la recopilación de información hasta la explotación de vulnerabilidades y la post-explotación.</p>
+<p>Los temas principales incluyen:</p>
+<ul>
+<li>Reconocimiento y enumeración de servicios</li>
+<li>Vulnerabilidades comunes y ataques a aplicaciones</li>
+<li>Herramientas de pentesting como Nmap, Gobuster, Nikto y Hydra</li>
+<li>Técnicas de post-explotación y escalada de privilegios</li>
+</ul>
+</li>
+<li><p><strong>Cursos y materiales recomendados:</strong>
+Decidí invertir tiempo (y dinero) en los cursos de eLearnSecurity, específicamente en el curso de eJPTv2. Este curso tiene muchas horas de video y mucha cantidad de informacion que comprender y sobre todo practicar en sus laboratorios. Ademas estudie modulos en la Academia de HackTheBox, en concreto el path de pentesting completo. Añadiendole el modulo de Wordpress que no recuerdo si esta dentro.</p>
+</li>
+<li><p><strong>Práctica en entornos controlados:</strong>
+Además del curso, me hice máquinas de VulnHub (las podeis ver resueltas en este blog). En ellas pude aplicar lo aprendido en un entorno controlado y con escenarios que simulaban vulnerabilidades reales. Practiqué con máquinas de diferentes niveles de dificultad para mejorar mi capacidad de identificación de vulnerabilidades y explotación.</p>
+</li>
+</ol>
+<h2 id="consejos-durante-el-examen">Consejos durante el examen</h2>
+<ul>
+<li><p><strong>Uso eficiente del tiempo:</strong></p>
+<ul>
+<li>El examen tiene un límite de tiempo (48 horas), por lo que es vital gestionar bien tu tiempo. <strong>Toma descansos</strong> al menos cada 4 horas, para comer algo, estirar las piernas, etc.</li>
+<li><strong>Leete todas las preguntas antes de comenzar a contestar</strong>. En estas preguntas te puedes encontrar que te dan usuarios para algunas máquinas, o te proponen claves posibles. Apuntalas y usalas.</li>
+<li>No te quedes demasiado tiempo atascado en una tarea, si algo no funciona, pasa a otro objetivo y regresa a ello más tarde si es necesario.</li>
+<li><strong>Aprovecha los momentos de descanso para lanzar ataques largos</strong> contra servicios. Por ejemplo si vas a parar 1 hora para estirar las piernas, comer y descansar un poco, lanza un ataque de diccionario a algun servicio como ssh o ftp con diccionarios grandes que sepas que van a tardar un rato en completarse.</li>
+<li>No hace falta llegar a ser root de todas las máquinas pero tampoco es complicado conseguirlo, son máquinas sencillas.</li>
+</ul>
+</li>
+<li><p><strong>Piensa que no es un CTF</strong></p>
+<ul>
+<li><strong>No es un CTF</strong>, no vas buscando pensar "out-the-box". Es un entorno realista, piensa que puede ser una empresa. No vayas a lo rebuscado o a un ataque muy elaborado.</li>
+<li>Hazte un <strong>listado de usuarios y claves</strong> que vayas recopilando entre máquinas para probarlas en las siguientes máquinas. Incluso prueba a que las claves sean tan debiles que uses como diccionario de claves los nombres de los usuarios.</li>
+<li>Monta una carpeta en tu máquina atacante y la sirves en la red con un servidor web. Será tu "carpeta compartida" con los usuarios, las claves, y lo que te haga falta.</li>
+</ul>
+</li>
+<li><p><strong>Comprueba los resultados</strong></p>
+<ul>
+<li>Si te preguntan por la clave de acceso de un usuario y la sacas rompiendo un hash, comprueba que puedes acceder con ese usuario y clave.</li>
+</ul>
+</li>
+<li><p><strong>Documentación:</strong>
+Asegúrate de tomar notas detalladas de cada paso que realices. Yo hacia captura de pantalla y copia de comando ejecutado y resultado obtenido. La documentación es crucial para asegurarte de que no te pierdas detalles importantes durante el examen.</p>
+<ul>
+<li><p><strong>Usa alguna herramienta para dibujar la red.</strong></p>
+<ul>
+<li>Yo use <strong>draw.io</strong> y fui colocando los diferentes elementos para obtener una visualizacion de la red con informacion que fui añadiendo durante el examen</li>
+</ul>
+<p><img alt="alt text" src="/assets/img/blog/exp_eJPTv2/image.png"/></p>
+</li>
+<li><p><strong>Usa una aplicacion para toma de notas.</strong></p>
+<ul>
+<li>Yo use <strong>Visual Studio</strong> con ficheros en markdown y usando algunos pluggins para dar formato al codigo que copiaba y pegaba. Tambien puedes usar <strong>Obsidian</strong> o <strong>Notion</strong>, etc. Da igual cual uses pero que te sientas muy comodo usandola.</li>
+<li>Para cada máquina descubierta en la red fui creando un fichero para tomar notas de esa máquina. Y ademas tenia un fichero general para notas sobre la red, el entorno o informacion general que afectara a todas las máquinas.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="el-dia-del-examen">El día del examen</h2>
+<p>Aunque no tenía pensado presentarme ese día, finalmente decidí hacerlo.</p>
+<p>No me sentía completamente preparado, pero fue mi <strong>esposa</strong> quien me dijo que, conociéndome, nunca estaría listo, ya que siempre quiero estar más y más preparado. Ese comentario me hizo pensar que era el momento adecuado para dar el paso, que no perdia nada por intentarlo y que no habia mejor oportunidad que unos dias sin trabajar para poder dedicar esas horas a obtener la certificacion.</p>
+<p>El día comenzó con una jornada de trabajo por la mañana. Después de salir del trabajo alrededor de las 15:00 h, almorcé y me tomé un descanso en el sofá de casa para relajarme. Fue en ese momento cuando tomé la decisión de que finalmente me presentaría al examen.</p>
+<p>Sobre las 6 de la tarde, cafe en mano, encendí mi PC y me aseguré de que el sistema operativo estuviera completamente actualizado, evitando que una actualización pendiente pudiera ralentizar mi conexión durante el examen.</p>
+<p>Antes de iniciar el examen, leí detenidamente los dos documentos informativos (eJPT Lab Guidelines updated y final Letter of Engagement eJPT) para asegurarme de comprender todo el procedimiento y las instrucciones clave. Una vez que me sentí listo, hice clic en "Iniciar examen" y accedí al entorno de laboratorio, el cual tardó unos 5 minutos en cargar.</p>
+<p>El examen lo comencé a las <strong>19:00 h</strong>, y desde ese momento me dediqué completamente a explorar la red y las máquinas disponibles. Durante las primeras horas, me tomé mi tiempo para enumerar cada máquina de la red una por una, asegurándome de obtener toda la información posible de cada una antes de pasar a la siguiente. Cuando encontré una máquina que requería un escaneo mas exhaustivo lo dejaba lanzado y, pasaba a la siguiente máquina para no perder tiempo mientras se llevaba a cabo. Esto me permitió aprovechar cada minuto del examen y mantener un ritmo constante sin interrupciones innecesarias.</p>
+<p>A las <strong>23:00 h</strong>, decidí tomar mi primer descanso para cenar y despejar un poco la mente. Me sentia muy motivado por los avances conseguidos. Llevaba unas 15 preguntas completadas. Sobre las <strong>00:30 h</strong> volví al examen con energías renovadas.</p>
+<p>Continué trabajando hasta las <strong>3:00 h</strong> de la madrugada, hora en la que decidí irme a la cama. Para ese momento, había respondido <strong>18 preguntas de las 35</strong> que debía completar, lo que me dejó un buen margen de trabajo para el día siguiente.</p>
+<p>Decidí descansar unas 6 horas, por lo que puse el despertador para despertarme alrededor de las <strong>9:00 h</strong> de la mañana. Tras un desayuno y un buen café cargado, volví al examen para continuar con los siguientes objetivos.</p>
+<h3>El segundo día.</h3>
+<p>La mañana comenzó con un repaso de las preguntas que ya había contestado y una revisión de las que aún necesitaba responder. Una vez repasado y organizadas las notas del dia anterior retome el examen con la siguiente máquina de la cual tenía que obtener credenciales de acceso y contestar a una pregunta sobre el metodo necesario para escalar privilegios en esta máquina, pero no conseguía completar este paso.</p>
+<p>A pesar de esto, continué con el ataque a las <strong>máquinas 4, 5 y 6</strong>, lanzando ataques mientras seguía intentando encontrar una forma de escalar privilegios en la máquina 3. Estaba decidido a no dejarme vencer, pero esto consumió gran parte de la mañana. Fue un proceso frustrante, ya que me sentía estancado. La escalada de privilegios es algo que he practicado mucho y en esta máquina me estaba siendo imposible encontrar la forma. Esto me suponia no llegar a contestar a algunas preguntas de esta máquina y era algo que no podía permitirme.</p>
+<p>Fue entonces cuando decidí ir a <strong>almorzar</strong> y descansar un poco antes de continuar. Necesitaba despejar mi mente para poder regresar al examen con nuevas energías. Tras el descanso, regresé al examen y repasé nuevamente las preguntas que había contestado hasta ese momento.</p>
+<p>Llegado este punto Opté por cambiar mi enfoque a una forma más estratégica. Repartí las preguntas entre las máquinas para saber qué necesitaba encontrar en cada una de ellas para poder contestar correctamente.</p>
+<p>Consegui una lista que comenzaba asi:</p>
+<ul>
+<li>Necesitaba escalar privilegios en la máquina 3.</li>
+<li>Necesitaba la credencial root de la base de datos de la maquina 3.</li>
+<li>Necesitaba encontrar la máquina de pivote a la red interna.</li>
+<li>etc.</li>
+</ul>
+<p>Tenia que encontrar una <strong>credencial root</strong> para acceder a <strong>MySQL</strong>. Aunque tenia un usuario con muy pocos privilegios, tenía acceso a la base de datos, así que pensé que sería sencillo obtener la clave. Al acceder a la base de datos, vi que el <strong>usuario root</strong> compartía el hash de la contraseña con el usuario de la base de datos que usaba para acceder. Esto indicaba que la clave debía ser la misma, ya que el hash era idéntico.</p>
+<p>Sin embargo, al aplicar la técnica de comprobar cada respuesta probando las credenciales obtenidas, no me permitió el acceso. Sabía que esto no tenía sentido, ya que un hash idéntico debería implicar la misma clave. Para no perder demasiado tiempo, decidí dejar este paso para mas adelante.</p>
+<p>Algo no estaba bien asi que decidi tomar un descanso y cafe antes de seguir.</p>
+<p>La siguiente máquina la resolví relativamente fácil. Utilicé un par de ataques a las credenciales y exploté un servicio SMB, lo que me permitió acceder al sistema y encontrar las respuestas a las preguntas relacionadas con esa máquina. Esto me dio algo de confianza y me permitió avanzar rápidamente.</p>
+<p>Volvi a la máquina donde estaba atascado y tras varias horas de pruebas y exploración, logré un avance importante. Conseguí las <strong>credenciales de usuario</strong> necesarias para acceder a la máquina <strong>por SSH</strong> usando un diccionario creado por mi usando todos los ususarios y claves de las respuestas de las preguntas del examen.</p>
+<p>Al ingresar con este nuevo usuario, descubrí que podía realizar la escalada de privilegios debido a una mala configuración de permisos <strong>sudo</strong> en el sistema. Esta vulnerabilidad me permitió finalmente escalar privilegios y completar el acceso a la máquina, lo que fue un alivio enorme.</p>
+<p>Ya habían pasado algo mas de <strong>24 horas</strong> desde que inicié el examen y en este momento ya tenia 3 máquinas pero no tenia aun localizada la máquina que me daria paso a la red interna. Tenia contestadas casi la totalidad de las preguntas, pero aun me quedaban 3 máquinas de la red y dos de ellas ni las habia tocado y para colmo tenían muy pocos servicios abiertos, lo que hacia mas complicada su explotacion.</p>
+<p>Decidi centrarme en la máquina que ya tenia explorada para completar su explotacion. Consegui hacerme con la máquina al cabo de una hora y al enumerar localmente la máquina encontre que esta máquina tenia el acceso a al red interna.</p>
+<p>Realice el pivoting a la red interna, comprobe la red y enumere cada máquina que encontre alli. Esto me llevo en total 2 horas mas. Ahora ya tenia todas las preguntas contestadas y solo tenia que comprobar mis respuestas y enviar el examen.</p>
+<p>En total tarde aproximadamente 30 horas en entregar mi examen completo y revisado.</p>
+<h2 id="el-pentesting-de-las-maquinas">El Pentesting de las máquinas</h2>
+<h3>Máquina 1: <strong>Windows con WordPress instalado</strong></h3>
+<p>La primera máquina que encontré fue una máquina con <strong>Windows</strong> y <strong>WordPress</strong> instalado. Mi primer paso fue intentar acceder al servicio <strong>RDP</strong> (Remote Desktop Protocol) utilizando un ataque de fuerza bruta con <strong>Hydra</strong>. Tras realizar el ataque, obtuve acceso exitoso a la máquina.</p>
+<p>Una vez dentro, empecé a explorar el sistema y encontré las credenciales de la base de datos de <strong>WordPress</strong>. Con esta información, utilicé <strong>JohnTheRipper</strong> para romper el hash de la contraseña de administrador de <strong>WordPress</strong>. Después de un tiempo, logré obtener las credenciales de administrador de <strong>WordPress</strong>, lo que me permitió tener acceso completo al panel de administración del sitio.</p>
+<p>Para complementar la información y realizar una enumeración más detallada, decidí usar la herramienta <strong>WPScan</strong>, especializada en la enumeración de vulnerabilidades en sitios WordPress. Con <strong>WPScan</strong>, pude identificar una serie de vulnerabilidades adicionales y configuraciones del sitio que me ayudaron a responder a todas las preguntas relacionadas con esta máquina.</p>
+<p>Con las credenciales de administrador de <strong>WordPress</strong>, pude realizar varias acciones dentro del sitio, como modificar configuraciones y obtener información adicional sobre la máquina. Esto me permitió completar los objetivos del examen relacionados con la máquina número 1.</p>
+<h3>Máquina 2: <strong>Windows con servidor web</strong></h3>
+<p>La segunda máquina era un sistema operativo <strong>Windows</strong> que corría un <strong>servidor web</strong>. Al realizar una exploración exhaustiva del servidor web con <strong>nmap</strong>, encontré que tenía un formulario accesible públicamente donde se podía ejecutar código. Este formulario estaba diseñado de manera que permitía a los usuarios introducir comandos que el servidor ejecutaría, lo que me dio una oportunidad para explotar la máquina.</p>
+<p>Aprovechando esta vulnerabilidad, decidí inyectar un comando que agregara un nuevo usuario al sistema con privilegios para acceder a <strong>RDP</strong>. Esto me permitió crear un nuevo usuario con permisos adecuados para conectarme al servidor a través de <strong>Remote Desktop Protocol (RDP)</strong>. Después de agregar el usuario y configurar el acceso, utilicé <strong>RDP</strong> para conectarme a la máquina de manera remota y obtener acceso completo al sistema.</p>
+<p>Una vez dentro de la máquina, realicé una post-explotación local, comenzando con la enumeración de la máquina. Utilicé herramientas estándar como <strong>whoami</strong>, <strong>netstat</strong>, y otros comandos para obtener más información sobre el sistema, usuarios activos, servicios en ejecución, y otros datos clave del sistema comprometido.</p>
+<p>La post-explotación me permitió conocer más sobre la configuración interna de la máquina y cómo sus servicios estaban configurados, lo que me ayudó a obtener información adicional para completar las preguntas relacionadas con la máquina 2.</p>
+<h3>Máquina 3: <strong>Linux con Drupal instalado</strong></h3>
+<p>La tercera máquina que encontré era un sistema <strong>Linux</strong> con <strong>Drupal</strong> instalado. Al realizar un escaneo con <strong>nmap</strong> para identificar los servicios disponibles, observé que el puerto 80 estaba abierto, lo que indicaba que había un servidor web activo. Utilicé <strong>Nikto</strong> para realizar una evaluación de vulnerabilidades en el servidor web y <strong>Dirb</strong> para buscar directorios ocultos que pudieran contener archivos de configuración interesantes.</p>
+<p>No fue suficiente para obtener acceso directo. Fue entonces cuando decidí utilizar <strong>Metasploit</strong> con el exploit <strong>Drupalgeddon2</strong>, una vulnerabilidad crítica en Drupal que había sido publicada en 2018. <strong>Drupalgeddon2</strong> es un <strong>remote code execution (RCE)</strong> exploit que afecta a las versiones vulnerables de Drupal (7.x y 8.x), y permite a un atacante ejecutar código arbitrario en el servidor sin necesidad de autenticación. Esta vulnerabilidad fue catalogada como <strong>CVE-2018-7600</strong> y es conocida por permitir a los atacantes comprometer un sitio web de Drupal con facilidad si no se aplican las actualizaciones de seguridad.</p>
+<p>El <strong>exploit Drupalgeddon2</strong> funciona aprovechando un fallo en el sistema de manejo de las solicitudes HTTP en Drupal, permitiendo a los atacantes ejecutar comandos en el servidor. Para usarlo, cargué el <strong>exploit</strong> en <strong>Metasploit</strong>, configuré los parámetros correctos como la dirección IP de la máquina objetivo y el puerto, y ejecuté el ataque.</p>
+<p>Tras ejecutar el exploit, logré obtener acceso al servidor con un usuario con muy pocos privilegios pero suficientes para conseguir explorar ficheros de configuracion del servidor de drupal y obtener credenciales de la base de datos. Con estas credenciales accedi a la base de datos y obtuve usuarios y hashes de passwords tanto para drupal como para la base de datos.</p>
+<p>Con <strong>JohnTheRipper</strong> y <strong>hashcat</strong> consegui las claves de cada uno de los usuarios de drupal usando como diccionario de claves y usuarios un diccionario personal usando las claves y usuarios que aparecian en las respuestas del examen.</p>
+<p>Para la obtencion del usuario root tuve que acceder por <strong>SSH</strong> a la máquina con uno de los usuarios que habia obtenido y desde ahi pude elevar privilegios a root abusando de una mala configuracion de los permisos de sudo para un binario.</p>
+<p>Una vez tuve el usuario root de la máquina solo me quedo comprobar cada clave obtenida de la máquina y anotarlo todo.</p>
+<h3>máquina 4: <strong>La máquina SMB</strong></h3>
+<p>La máquina 4 fue un desafío interesante. El primer paso fue realizar la enumeración del servicio SMB en busca de usuarios y recursos expuestos. Durante esta fase, identifiqué varios usuarios que estaban accesibles, lo que me permitió dirigir mis siguientes pasos hacia un ataque más enfocado.</p>
+<p>Una vez identificados los usuarios, procedí a realizar un ataque de fuerza bruta con Hydra. Utilizando los usuarios descubiertos en la enumeración SMB, lancé el ataque para intentar adivinar las contraseñas asociadas. Después de un tiempo, conseguí acceder al sistema con éxito utilizando las credenciales correctas.</p>
+<p>Con acceso a la máquina, utilicé el módulo psexec de Metasploit para ejecutar comandos de forma remota en el sistema. Gracias a este módulo, obtuve acceso con privilegios de NT AUTHORITY\SYSTEM, lo que me dio control total sobre la máquina.</p>
+<p>Durante la enumeración local de la máquina, descubrí que tenía dos interfaces de red. Este detalle me llevó a intentar pivotar hacia la otra red utilizando la máquina comprometida como un punto de acceso. Al realizar este pivoting, logré explorar la red interna, lo que me permitió completar las preguntas relacionadas con la máquina y avanzar en el examen.</p>
+<p>Este proceso fue crucial para acceder a la red interna, y el uso de pivoting me permitió cumplir con los requisitos del examen relacionados con esta máquina.</p>
+<h3>Maquina 5 y 6</h3>
+<p>Estas maquinas tenian muy pocos servicios abiertos y al poco tiempo me di cuenta que estaban de relleno a modo de "rabbit hole"</p>
+<h2 id="lecciones-aprendidas">Lecciones aprendidas</h2>
+<p>Las lecciones más importantes son:</p>
+<ul>
+<li>La importancia de una buena enumeración y recopilación de información.</li>
+<li>El valor de tener una sólida comprensión de las herramientas de pentesting y saber cuándo usarlas.</li>
+<li>La necesidad de ser paciente y meticuloso durante el proceso de explotación.</li>
+</ul>
+<p>En conclusión, el examen de eJPTv2 fue una experiencia desafiante pero gratificante. Me permitió poner en práctica mis habilidades de pentesting en un entorno realista aplicando mis conocimientos y habilidades.</p>
+<p>Para aquellos interesados en comenzar una carrera en pentesting, recomiendo encarecidamente este examen como un primer paso.</p>

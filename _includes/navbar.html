@@ -1,0 +1,45 @@
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="{{ '/index.html' | relative_url }}">{{ site.data.site.brand }}</a>
+    <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Abrir navegación">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="mainNavbar">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+        <li class="nav-item"><a class="nav-link{% if page.nav == 'home' %} active{% endif %}" href="{{ '/index.html' | relative_url }}">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link{% if page.nav == 'about' %} active{% endif %}" href="{{ '/about.html' | relative_url }}">Sobre mí</a></li>
+
+        <li class="nav-item dropdown d-none d-lg-block nav-desktop-dropdown">
+          <a class="nav-link dropdown-toggle nav-link-parent{% if page.nav == 'services' %} active{% endif %}" href="{{ '/servicios.html' | relative_url }}">Servicios</a>
+          <ul class="dropdown-menu dropdown-menu-dark">
+            <li><a class="dropdown-item{% if page.url contains 'servicio_pentesting' %} active{% endif %}" href="{{ '/servicio_pentesting.html' | relative_url }}">Pentesting</a></li>
+            <li><a class="dropdown-item{% if page.url contains 'servicio_consultoria' %} active{% endif %}" href="{{ '/servicio_consultoria.html' | relative_url }}">Consultoría</a></li>
+            <li><a class="dropdown-item{% if page.url contains 'servicio_formacion' or page.url contains 'curso_' %} active{% endif %}" href="{{ '/servicio_formacion.html' | relative_url }}">Formación</a></li>
+          </ul>
+        </li>
+        <li class="nav-item d-lg-none"><a class="nav-link{% if page.nav == 'services' %} active{% endif %}" href="{{ '/servicios.html' | relative_url }}">Servicios</a></li>
+
+<li class="nav-item"><a class="nav-link{% if page.nav == 'portfolio' %} active{% endif %}" href="{{ '/portafolio.html' | relative_url }}">Portafolio</a></li>
+
+        <li class="nav-item dropdown d-none d-lg-block nav-desktop-dropdown">
+          <a class="nav-link dropdown-toggle nav-link-parent{% if page.nav == 'blog' %} active{% endif %}" href="{{ '/blog.html' | relative_url }}">Blog</a>
+          <ul class="dropdown-menu dropdown-menu-dark">
+            <li><a class="dropdown-item{% if page.blog_category == 'writeups' %} active{% endif %}" href="{{ '/writeups.html' | relative_url }}">Writeups</a></li>
+            <li><a class="dropdown-item{% if page.blog_category == 'casos-de-estudio' %} active{% endif %}" href="{{ '/casos-de-estudio.html' | relative_url }}">Casos de estudio</a></li>
+            <li><a class="dropdown-item{% if page.blog_category == 'guias' %} active{% endif %}" href="{{ '/guias.html' | relative_url }}">Guías</a></li>
+          </ul>
+        </li>
+        <li class="nav-item d-lg-none"><a class="nav-link{% if page.nav == 'blog' %} active{% endif %}" href="{{ '/blog.html' | relative_url }}">Blog</a></li>
+        <li class="nav-item d-lg-none"><a class="nav-link{% if page.blog_category == 'writeups' %} active{% endif %}" href="{{ '/writeups.html' | relative_url }}">Writeups</a></li>
+        <li class="nav-item d-lg-none"><a class="nav-link{% if page.blog_category == 'casos-de-estudio' %} active{% endif %}" href="{{ '/casos-de-estudio.html' | relative_url }}">Casos de estudio</a></li>
+        <li class="nav-item d-lg-none"><a class="nav-link{% if page.blog_category == 'guias' %} active{% endif %}" href="{{ '/guias.html' | relative_url }}">Guías</a></li>
+
+        <li class="nav-item"><a class="nav-link{% if page.nav == 'contact' %} active{% endif %}" href="{{ '/contacto.html' | relative_url }}">Contacto</a></li>
+        <li class="nav-item ms-lg-2 mt-3 mt-lg-0">
+          <a class="btn btn-outline-darksoft-accent" href="{{ page.cta_href | default: site.data.site.nav_cta.href | relative_url }}">{{ page.cta_label | default: site.data.site.nav_cta.label }}</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

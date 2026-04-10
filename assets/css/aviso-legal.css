@@ -1,0 +1,192 @@
+.legal-hero{
+      min-height:auto;
+      padding:8.5rem 0 2.25rem;
+      background:
+        radial-gradient(circle at top right, rgba(241,79,68,.12), transparent 28%),
+        linear-gradient(180deg, #111111 0%, #111111 100%);
+    }
+
+    .legal-layout{
+      padding: 1rem 0 5rem;
+      position: relative;
+    }
+
+    .legal-layout::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 100% 15%, rgba(241,79,68,.06), transparent 18%),
+        radial-gradient(circle at 0% 85%, rgba(241,79,68,.05), transparent 20%);
+      pointer-events:none;
+    }
+
+    .legal-layout > .container{
+      position:relative;
+      z-index:1;
+    }
+
+    .legal-anchor-nav{
+      list-style:none;
+      padding:0;
+      margin:1.25rem 0 0;
+      display:grid;
+      gap:.7rem;
+    }
+
+    .legal-anchor-nav a{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:1rem;
+      padding:.78rem .95rem;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.03);
+      color:rgba(255,255,255,.84);
+      transition:background-color .2s ease, border-color .2s ease, transform .2s ease;
+    }
+
+    .legal-anchor-nav a:hover{
+      background:rgba(241,79,68,.08);
+      border-color:rgba(241,79,68,.26);
+      color:#fff;
+      transform:translateY(-1px);
+    }
+
+    .legal-meta{
+      display:grid;
+      gap:.85rem;
+      margin-top:1.5rem;
+    }
+
+    .legal-meta__item{
+      padding:1rem 1.1rem;
+      border-radius:16px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .legal-meta__item small{
+      display:block;
+      color:rgba(255,255,255,.55);
+      text-transform:uppercase;
+      letter-spacing:.1em;
+      font-size:.72rem;
+      margin-bottom:.3rem;
+    }
+
+    .legal-meta__item strong{
+      display:block;
+      color:#fff;
+      font-size:.98rem;
+      line-height:1.5;
+    }
+
+    .legal-table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:1.15rem;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      overflow:hidden;
+    }
+
+    .legal-table tr + tr td,
+    .legal-table tr + tr th{
+      border-top:1px solid rgba(255,255,255,.08);
+    }
+
+    .legal-table th,
+    .legal-table td{
+      text-align:left;
+      padding:1rem 1.1rem;
+      vertical-align:top;
+    }
+
+    .legal-table th{
+      width:32%;
+      color:#fff;
+      font-size:.92rem;
+      font-weight:700;
+      background:rgba(255,255,255,.03);
+    }
+
+    .legal-table td{
+      color:var(--muted);
+      line-height:1.8;
+    }
+
+    .legal-list{
+      margin:1rem 0 0;
+      padding-left:1.15rem;
+      color:var(--muted);
+    }
+
+    .legal-list li + li{
+      margin-top:.6rem;
+    }
+
+    .legal-note,
+    .legal-placeholder{
+      margin-top:1rem;
+      padding:1rem 1.1rem;
+      border-radius:16px;
+      border:1px solid rgba(241,79,68,.25);
+      background:rgba(241,79,68,.08);
+      color:#ffe7e5;
+      line-height:1.8;
+    }
+
+    .legal-placeholder{
+      font-family:var(--font-mono);
+      font-size:.92rem;
+    }
+
+    .legal-section-copy p:last-child{
+      margin-bottom:0;
+    }
+
+    .legal-section-copy a{
+      color:#fff;
+      text-decoration:underline;
+      text-decoration-color:rgba(241,79,68,.4);
+      text-underline-offset:3px;
+    }
+
+    .legal-section-copy a:hover{
+      color:var(--accent);
+    }
+
+    .legal-inline-tag{
+      display:inline-flex;
+      align-items:center;
+      padding:.3rem .55rem;
+      border-radius:999px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      color:#fff;
+      font-size:.82rem;
+      font-weight:600;
+    }
+
+    @media (max-width: 991.98px){
+      .legal-hero{
+        padding-top:7rem;
+      }
+
+      .legal-table th,
+      .legal-table td{
+        display:block;
+        width:100%;
+      }
+
+      .legal-table th{
+        padding-bottom:.35rem;
+        border-bottom:none;
+      }
+
+      .legal-table td{
+        padding-top:0;
+      }
+    }

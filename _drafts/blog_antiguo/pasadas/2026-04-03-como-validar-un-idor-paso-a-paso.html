@@ -1,0 +1,118 @@
+---
+title: "Cómo validar un IDOR paso a paso | ibl4zqu3z"
+post_title: "Cómo validar un IDOR paso a paso sin convertir el análisis en una simple prueba superficial"
+description: "Entrada del blog de ibl4zqu3z sobre pentesting, seguridad ofensiva y análisis técnico."
+nav: blog
+category_label: "Guías"
+primary_category_anchor: guias
+categories:
+  - guias
+kicker: "Guías"
+featured: true
+featured_badge: "Guía práctica"
+featured_lines:
+  - "GET /api/users/1042/profile"
+  - "GET /api/users/1043/profile"
+  - "Impacto confirmado: acceso horizontal no autorizado"
+cover_badge: "Guía práctica"
+cover_lines:
+  - "GET /api/users/1042/profile"
+  - "GET /api/users/1043/profile"
+  - "Impacto confirmado: acceso horizontal no autorizado"
+reading_time: "9 min de lectura"
+date: 2026-04-03 00:00:00 +02:00
+excerpt: "Un flujo realista para detectar, confirmar y documentar una vulnerabilidad IDOR, midiendo impacto técnico, alcance funcional y riesgo de negocio en aplicaciones web modernas."
+kicker_secondary: "Seguridad ofensiva"
+tags:
+  - Pentesting web
+  - Autorización
+  - IDOR
+  - Validación manual
+toc_html: |
+  <a href="#alcance">1. Delimitar el contexto antes de tocar parámetros</a>
+  <a href="#captura">2. Capturar una petición legítima y entender su función</a>
+  <a href="#mutacion">3. Mutar el identificador con criterio</a>
+  <a href="#impacto">4. Medir impacto real</a>
+  <a href="#evidencia">5. Preparar evidencias para el informe</a>
+---
+<p>
+                Detectar un IDOR no consiste en cambiar un número en una petición y dar el hallazgo por cerrado. El valor real
+                de la validación aparece cuando demuestras qué recurso queda expuesto, qué controles fallan, qué perfiles pueden
+                explotarlo y cuál es el impacto efectivo sobre datos, operaciones o privilegios.
+              </p>
+<p>
+                En entornos reales, muchos falsos positivos nacen de validaciones incompletas. También ocurre lo contrario:
+                vulnerabilidades con un impacto alto pasan desapercibidas porque se prueban sin entender la lógica funcional.
+              </p>
+<h2 id="alcance">1. Delimitar el contexto antes de tocar parámetros</h2>
+<p>
+                Lo primero es identificar dónde existe una referencia directa a objetos internos. Puede aparecer en rutas,
+                parámetros GET, cuerpos JSON, identificadores en GraphQL, valores ocultos del frontend o referencias devueltas
+                por una API tras una búsqueda legítima.
+              </p>
+<ul>
+<li>Identifica el recurso: usuario, pedido, ticket, documento, factura, expediente.</li>
+<li>Comprueba si el identificador es secuencial, predecible o reutilizable.</li>
+<li>Relaciona el recurso con el rol autenticado y con las reglas de autorización esperadas.</li>
+</ul>
+<h2 id="captura">2. Capturar una petición legítima y entender su función</h2>
+<p>
+                Antes de mutar el identificador, necesitas entender qué hace exactamente la petición original. No es lo mismo una
+                lectura de perfil que una operación de descarga, edición, aprobación o borrado. El impacto depende de la acción.
+              </p>
+              
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">petición.txt</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>GET /api/v2/customers/1042/invoices/8831 HTTP/1.1
+      Host: target.local
+      Authorization: Bearer eyJhbGciOi...
+      Accept: application/json</code></pre>
+    </div>
+  </div>
+
+  <p>
+                La pregunta no es solo si el servidor devuelve algo distinto al cambiar el identificador. La pregunta correcta es
+                si ese objeto debería estar autorizado para ese usuario concreto en ese flujo concreto.
+              </p>
+<h2 id="mutacion">3. Mutar el identificador con criterio</h2>
+<p>
+                Cambia el objeto por otro del mismo tipo y observa respuesta, estructura, códigos HTTP, mensajes de error y campos
+                sensibles. Después repite la prueba con varios recursos: uno inexistente, uno ajeno y uno de otro rol o tenant.
+              </p>
+<blockquote>
+                Un IDOR bien validado no se apoya en una sola respuesta exitosa. Se apoya en un patrón consistente de ausencia de control.
+              </blockquote>
+<p>
+                Conviene distinguir entre cuatro escenarios: acceso total, acceso parcial, metadatos expuestos y operación permitida
+                sin visualización previa. A veces el servidor oculta la vista, pero permite descargar, modificar o borrar el recurso.
+              </p>
+<h2 id="impacto">4. Medir impacto real</h2>
+<p>
+                Una vez confirmado el fallo, documenta el impacto por dimensión: confidencialidad, integridad, trazabilidad y posible
+                escalada lateral. Un IDOR sobre perfiles públicos no equivale a un IDOR sobre facturas, historiales, expedientes o paneles
+                administrativos.
+              </p>
+<ul>
+<li>Datos expuestos: personales, financieros, operativos, internos.</li>
+<li>Capacidad de modificación: cambios de estado, edición, borrado, reasignación.</li>
+<li>Alcance: horizontal, vertical, cross-tenant, acceso masivo o automatizable.</li>
+</ul>
+<h2 id="evidencia">5. Preparar evidencias para el informe</h2>
+<p>
+                La evidencia debe permitir reproducir el hallazgo sin ruido. Incluye petición base, petición alterada, respuesta,
+                recurso accedido, rol usado y explicación del control ausente. Si el objeto pertenece a otro usuario o cliente,
+                indícalo explícitamente sin exponer más datos de los necesarios en la versión final del informe.
+              </p>
+<p>
+                La remediación tampoco debe quedarse en “validar permisos”. Lo correcto es exigir comprobación server-side del acceso
+                al objeto en cada operación, desacoplar el control del frontend y revisar los endpoints equivalentes que compartan la
+                misma lógica de autorización.
+              </p>

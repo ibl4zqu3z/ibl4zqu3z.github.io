@@ -1,127 +1,41 @@
-# Welcome to Jekyll!
-#
-# This config file is meant for settings that affect your whole blog, values
-# which you are expected to set up once and rarely edit after that. If you find
-# yourself editing this file very often, consider using Jekyll's data files
-# feature for the data you need to update frequently.
-#
-# For technical reasons, this file is *NOT* reloaded automatically when you use
-# 'bundle exec jekyll serve'. If you change this file, please restart the server process.
-#
-# If you need help with YAML syntax, here are some quick references for you:
-# https://learn-the-web.algonquindesign.ca/topics/markdown-yaml-cheat-sheet/#yaml
-# https://learnxinyminutes.com/docs/yaml/
-#
-# Site settings
-# These are used to personalize your new site. If you look in the HTML files,
-# you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
-# You can create any custom variable you would like, and they will be accessible
-# in the templates via {{ site.myvariable }}.
-
-title: "ibl4zqu3z"
-email: "hola@ibl4zqu3z.es"
-description: >- # this means to ignore newlines until "baseurl:"
-  Pentester y hacker ético. Auditorías de seguridad, pentesting de redes y aplicaciones web, y formación técnica.
-  Writeups, guías prácticas y casos de estudio con enfoque reproducible y orientado a remediación.
-
-url: "https://ibl4zqu3z.github.io" # the base hostname & protocol for your site, e.g. http://example.com
-baseurl: "" # the subpath of your site, e.g. /blog
-
-twitter_username: ibl4zqu3z
-github_username:  ibl4zqu3z
-
-# Build settings
-## theme: minima
-plugins:
-  - jekyll-feed
-
-# Exclude from processing.
-# The following items will not be processed, by default.
-# Any item listed under the `exclude:` key here will be automatically added to
-# the internal "default list".
-#
-# Excluded items can be processed by explicitly listing the directories or
-# their entries' file path in the `include:` list.
-#
-# exclude:
-#   - .sass-cache/
-#   - .jekyll-cache/
-#   - gemfiles/
-#   - Gemfile
-#   - Gemfile.lock
-#   - node_modules/
-#   - vendor/bundle/
-#   - vendor/cache/
-#   - vendor/gems/
-#   - vendor/ruby/
-
-plugins:
-  - jekyll-paginate
-  - jekyll-sitemap
-
-paginate: 6
-paginate_path: "/blog/page:num/"
-
-
-defaults:
-  - scope:
-      path: ""
-      type: posts
-    values:
-      layout: post
-
+title: ibl4zqu3z
+description: Marca personal de ciberseguridad centrada en pentesting, seguridad ofensiva,
+  consultoría y formación.
+lang: es
+timezone: Europe/Madrid
+url: https://ibl4zqu3z.github.io
+baseurl: ''
+social:
+  linkedin: https://es.linkedin.com/in/isaac-blazquez-lopez
+  x: https://x.com/ibl4zqu3z
+  mastodon: https://mastodon.social/ibl4zqu3z
+  youtube: https://www.youtube.com/channel/UCZkmFRilAu3vMytY2ZZu0hA
+  website: https://ibl4zqu3z.github.io/
 markdown: kramdown
-highlighter: rouge
-kramdown:
-  input: GFM
-  syntax_highlighter: rouge
-  syntax_highlighter_opts:
-    css_class: "highlight"
-
-
-social_links:
-  - label: LinkedIn
-    url: "https://www.linkedin.com/in/isaac-blazquez-lopez/"
-    icon: "fa-brands fa-linkedin-in"
-
-  - label: X
-    url: "https://x.com/ibl4zqu3z"
-    icon: "fa-brands fa-x-twitter"
-
-  - label: YouTube
-    url: "https://www.youtube.com/channel/UCZkmFRilAu3vMytY2ZZu0hA"
-    icon: "fa-brands fa-youtube"
-
-  - label: Mastodon
-    url: "https://mastodon.social/ibl4zqu3z"
-    icon: "fa-brands fa-mastodon"
-    rel: "me"
-
-footer:
-  copyright_owner: "Isaac Blázquez López"
-  menu:
-    - title: "Inicio"
-      url: "/"
-    - title: "Blog"
-      url: "/blog/"
-    - title: "Guías"
-      url: "/guias/"
-    - title: "Writeups"
-      url: "/writeups/"
-    - title: "Contacto"
-      url: "/contacto/"
-
-social_links:
-  - name: "LinkedIn"
-    url: "https://www.linkedin.com/in/isaac-blazquez-lopez/"
-    icon: "fa-brands fa-linkedin-in"
-  - name: "X"
-    url: "https://x.com/ibl4zqu3z"
-    icon: "fa-brands fa-x-twitter"
-  - name: "YouTube"
-    url: "https://www.youtube.com/channel/UCZkmFRilAu3vMytY2ZZu0hA"
-    icon: "fa-brands fa-youtube"
-  - name: "Mastodon"
-    url: "https://mastodon.social/ibl4zqu3z"
-    icon: "fa-brands fa-mastodon"
-    rel: "me"
+permalink: /blog/:title/
+plugins:
+- jekyll-sitemap
+exclude:
+- README-MIGRACION.md
+- vendor
+- node_modules
+collections:
+  portfolio:
+    output: true
+    permalink: /portafolio/:name.html
+defaults:
+- scope:
+    path: ''
+  values:
+    layout: default
+- scope:
+    path: ''
+    type: posts
+  values:
+    layout: post
+- scope:
+    path: ''
+    type: portfolio
+  values:
+    layout: portfolio_item
+    nav: portfolio

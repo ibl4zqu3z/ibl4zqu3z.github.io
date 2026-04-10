@@ -1,0 +1,501 @@
+---
+title: "ibl4zqu3z | Pentester & Ethical Hacker"
+description: "Página de inicio para marca personal de ciberseguridad centrada en pentesting, auditorías de seguridad y formación."
+permalink: /
+nav: home
+---
+<header class="hero" id="inicio">
+<div class="container px-4 px-lg-5 position-relative">
+<div class="row align-items-center g-5">
+<div class="col-xl-8">
+<span class="eyebrow"><i class="bi bi-shield-lock"></i> Pentesting · Seguridad ofensiva · Consultoría · Formación</span>
+<h1>Hola! Soy <br/><span class="hero-identity" data-glitch="Isaac Blázquez" id="heroIdentity">Isaac Blázquez<span class="glitch-scan"></span></span></h1>
+<h2>Pentester, hacker ético y especialista en ciberseguridad</h2>
+<p class="lead mt-4 mb-4">
+            Te ayudo a fortalecer la seguridad de sistemas y aplicaciones a través de técnicas avanzadas de pentesting.         
+          </p>
+<div class="d-flex flex-wrap gap-3 mb-4">
+<a class="btn btn-outline-darksoft btn-lg px-4" href="#servicios">Ver servicios</a>
+<a class="btn btn-outline-darksoft btn-lg px-4" href="#blog">Leer el blog</a>
+<a class="btn btn-outline-darksoft btn-lg px-4" href="contacto.html">Contactar</a>
+</div>
+</div>
+<div class="col-xl-4">
+<div class="terminal-box">
+<div class="t-prompt">root@ibl4zqu3z:~$ <span class="t-cmd" id="typedCmd"></span><span class="t-cursor"></span></div>
+<div id="termOutput"></div>
+</div>
+</div>
+</div>
+</div>
+</header><section class="section-padding">
+<div class="container px-4 px-lg-5">
+<div class="row mb-5">
+<div class="col-lg-8" id="servicios"><span class="eyebrow">Servicios</span></div>
+<div class="col-lg-8">
+<h2 class="section-title mb-3">Servicios orientados a seguridad ofensiva y mejora operativa</h2>
+<p class="section-subtitle mb-0">La propuesta no se limita a detectar vulnerabilidades. El objetivo es demostrar riesgo real, reducir ruido técnico y entregar una base útil para remediar con criterio.</p>
+</div>
+<div class="col-lg-4">
+<a class="btn btn-lg btn-outline-darksoft-accent" href="contacto.html">Solicitar auditoría</a>
+</div>
+</div>
+<div class="row g-4">
+<div class="col-md-6 col-xl-4">
+<div class="service-card" id="servicio-pentesting">
+<div class="icon-badge"><i class="bi bi-bug"></i></div>
+<h3 class="h5 text-white">Pentesting</h3>
+<p>Evaluación técnica de aplicaciones, sistemas y entornos para identificar vulnerabilidades reales, verificar su impacto y priorizar su corrección con criterio.</p>
+<ul class="list-soft">
+<li>Infraestructura</li>
+<li>Aplicaciones web</li>
+<li>Metodologia PTES / OWASP</li>
+<li>Validación de impacto</li>
+</ul>
+<div class="service-card__actions mt-auto pt-3">
+<a class="btn btn-outline-darksoft-accent service-card__btn" href="servicio_pentesting.html">Ver más</a>
+</div>
+</div>
+</div>
+<div class="col-md-6 col-xl-4">
+<div class="service-card" id="servicio-infraestructura">
+<div class="icon-badge"><i class="bi bi-router"></i></div>
+<h3 class="h5 text-white">Consultoría de ciberseguridad</h3>
+<p>Apoyo técnico para mejorar postura de seguridad, revisar exposición, definir medidas de protección y traducir riesgos complejos en acciones concretas.</p>
+<ul class="list-soft">
+<li>Superficie interna</li>
+<li>Servicios y puertos</li>
+<li>Configuraciones débiles</li>
+</ul>
+<div class="service-card__actions mt-auto pt-3">
+<a class="btn btn-outline-darksoft-accent service-card__btn" href="servicio_consultoria.html">Ver más</a>
+</div>
+</div>
+</div>
+<div class="col-md-6 col-xl-4">
+<div class="service-card" id="servicio-formacion">
+<div class="icon-badge"><i class="bi bi-mortarboard"></i></div>
+<h3 class="h5 text-white">Formación</h3>
+<p>Formaciones técnicas y de concienciación adaptadas al nivel del equipo, con enfoque práctico y orientadas a mejorar capacidades reales.</p>
+<ul class="list-soft">
+<li>Equipos técnicos</li>
+<li>Buenas prácticas</li>
+<li>Casos reales</li>
+</ul>
+<div class="service-card__actions mt-auto pt-3">
+<a class="btn btn-outline-darksoft-accent service-card__btn" href="servicio_formacion.html">Ver más</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section><section class="section-padding" id="entradas_destacadas">
+  <div class="container px-4 px-lg-5">
+    <div class="col-lg-8" id="blog"><span class="eyebrow">Blog</span></div>
+    <div class="section-head">
+      <div>
+        <h2 class="section-title" id="destacadas-title">Entradas destacadas</h2>
+        <p class="section-copy">Una selección de artículos técnicos centrados en pentesting, seguridad ofensiva, análisis de superficie de ataque y reporting orientado a remediación.</p>
+      </div>
+      <a class="btn btn-outline-darksoft" href="{{ '/blog.html' | relative_url }}">Leer el blog</a>
+    </div>
+
+    {% assign featured_posts = site.posts | where: 'featured', true %}
+    {% if featured_posts.size == 0 %}
+      {% assign featured_posts = site.posts | slice: 0, 3 %}
+    {% endif %}
+
+    {% if featured_posts.size > 0 %}
+    <div class="carousel slide featured-carousel" data-bs-interval="5200" data-bs-ride="carousel" id="featuredPostsCarousel">
+      {% if featured_posts.size > 1 %}
+      <div class="carousel-indicators">
+        {% for post in featured_posts limit:3 %}
+        <button type="button" data-bs-target="#featuredPostsCarousel" data-bs-slide-to="{{ forloop.index0 }}"{% if forloop.first %} class="active" aria-current="true"{% endif %} aria-label="Slide {{ forloop.index }}"></button>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <div class="carousel-inner">
+        {% for post in featured_posts limit:3 %}
+        <div class="carousel-item{% if forloop.first %} active{% endif %}">
+          <article class="featured-slide">
+            <div class="row g-0 h-100">
+              <div class="col-lg-6">
+                <div class="featured-media h-100">
+                  {% assign featured_image = post.cover_image | default: post.thumb_image %}
+                  {% if featured_image %}
+                  <img class="featured-media__img" src="{{ featured_image | relative_url }}" alt="{{ post.post_title | default: post.title | escape }}" loading="lazy"/>
+                  {% else %}
+                  <div class="cover-grid"></div>
+                  {% endif %}
+                  <div class="terminal-lines">
+                    {% if post.featured_lines %}
+                      {% for line in post.featured_lines %}<span>{{ line }}</span>{% endfor %}
+                    {% else %}
+                      <span>recon / context / validation</span>
+                      <span>manual analysis / evidence / impact</span>
+                      <span>reporting / remediation / follow-up</span>
+                    {% endif %}
+                  </div>
+                  <span class="feature-badge">{{ post.featured_badge | default: 'Destacado' }}</span>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="featured-content">
+                  <span class="post-kicker">{{ post.kicker | default: post.category_label }}</span>
+                  <h3 class="featured-title">{{ post.post_title | default: post.title }}</h3>
+                  <p class="featured-excerpt">{{ post.excerpt | strip_html }}</p>
+                  <div class="meta-row">
+                    <span>{{ post.date | date: "%d/%m/%Y" }}</span>
+                    {% if post.reading_time %}<span class="meta-sep">•</span><span>{{ post.reading_time }}</span>{% endif %}
+                    {% if post.kicker_secondary %}<span class="meta-sep">•</span><span>{{ post.kicker_secondary }}</span>{% endif %}
+                  </div>
+                  <div class="mt-4 d-flex gap-2 flex-wrap">
+                    <a class="btn btn-accent" href="{{ post.url | relative_url }}">Leer artículo</a>
+                    <a class="btn btn-outline-darksoft" href="{{ '/blog.html' | relative_url }}">Ver más posts</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+        {% endfor %}
+      </div>
+      {% if featured_posts.size > 1 %}
+      <button class="carousel-control-prev" data-bs-slide="prev" data-bs-target="#featuredPostsCarousel" type="button">
+        <span aria-hidden="true" class="carousel-control-prev-icon"></span>
+        <span class="visually-hidden">Anterior</span>
+      </button>
+      <button class="carousel-control-next" data-bs-slide="next" data-bs-target="#featuredPostsCarousel" type="button">
+        <span aria-hidden="true" class="carousel-control-next-icon"></span>
+        <span class="visually-hidden">Siguiente</span>
+      </button>
+      {% endif %}
+    </div>
+    {% else %}
+    <div class="article-card p-4">
+      <h3 class="h4 text-white">Todavía no hay entradas publicadas</h3>
+      <p class="mb-0 text-white-50">Publica un fichero nuevo en <span class="mono">_posts/</span> y este bloque se llenará automáticamente.</p>
+    </div>
+    {% endif %}
+  </div>
+</section><section class="section-padding" id="portafolio-destacado">
+  <div class="container px-4 px-lg-5">
+    {% assign home_featured_portfolio = site.portfolio | where: 'home_featured', true | sort: 'order' %}
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Portafolio</span>
+        <h2 class="section-title mb-3">Proyectos destacados y trabajos representativos</h2>
+        <p class="section-copy">Una selección de trabajos y proyectos publicados fuera del blog para enseñar herramientas, enfoque técnico, documentación y tipo de entregable.</p>
+      </div>
+      <a class="btn btn-outline-darksoft" href="{{ '/portafolio.html' | relative_url }}">Ver portafolio completo</a>
+    </div>
+
+    {% if home_featured_portfolio.size > 0 %}
+    <div id="featuredPortfolioHomeCarousel" class="carousel slide featured-carousel" data-bs-ride="carousel" data-bs-interval="5600">
+      {% if home_featured_portfolio.size > 1 %}
+      <div class="carousel-indicators">
+        {% for item in home_featured_portfolio %}
+        <button type="button" data-bs-target="#featuredPortfolioHomeCarousel" data-bs-slide-to="{{ forloop.index0 }}"{% if forloop.first %} class="active" aria-current="true"{% endif %} aria-label="Slide {{ forloop.index }}"></button>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="carousel-inner">
+        {% for item in home_featured_portfolio %}
+        <div class="carousel-item{% if forloop.first %} active{% endif %}">
+          <article class="featured-slide">
+            <div class="row g-0 h-100">
+              <div class="col-xl-5 col-lg-6">
+                <div class="featured-media h-100">
+                  {% if item.cover_image %}
+                  <img class="featured-media__img" src="{{ item.cover_image | relative_url }}" alt="{{ item.title | escape }}" loading="lazy"/>
+                  {% else %}
+                  <div class="cover-grid"></div>
+                  {% endif %}
+                  <div class="terminal-lines">
+                    {% if item.cover_lines %}
+                      {% for line in item.cover_lines limit: 3 %}<span>{{ line }}</span>{% endfor %}
+                    {% else %}
+                      <span>{{ item.portfolio_kind_label | downcase }} / {{ item.status_label | default: 'publicado' | downcase }}</span>
+                      {% if item.scope_label %}<span>{{ item.scope_label | downcase }}</span>{% endif %}
+                      {% if item.tools %}<span>{{ item.tools | join: ' / ' | downcase | truncate: 54 }}</span>{% endif %}
+                    {% endif %}
+                  </div>
+                  <span class="feature-badge">{{ item.portfolio_kind_label }}</span>
+                </div>
+              </div>
+              <div class="col-xl-7 col-lg-6">
+                <div class="featured-content">
+                  <span class="post-kicker">{{ item.portfolio_kind_label }}</span>
+                  <h3 class="featured-title">{{ item.title }}</h3>
+                  <p class="featured-excerpt">{{ item.excerpt | strip_html | truncate: 220 }}</p>
+                  <div class="meta-row">
+                    {% if item.status_label %}<span>{{ item.status_label }}</span>{% endif %}
+                    {% if item.year_label %}<span class="meta-sep">•</span><span>{{ item.year_label }}</span>{% endif %}
+                    {% if item.scope_label %}<span class="meta-sep">•</span><span>{{ item.scope_label }}</span>{% endif %}
+                  </div>
+                  <div class="mt-4 d-flex gap-2 flex-wrap">
+                    <a href="{{ item.url | relative_url }}" class="btn btn-accent">Ver proyecto</a>
+                    <a href="{{ '/portafolio.html' | relative_url }}" class="btn btn-outline-darksoft">Ir al portafolio</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% if home_featured_portfolio.size > 1 %}
+      <button class="carousel-control-prev" data-bs-slide="prev" data-bs-target="#featuredPortfolioHomeCarousel" type="button">
+        <span aria-hidden="true" class="carousel-control-prev-icon"></span>
+        <span class="visually-hidden">Anterior</span>
+      </button>
+      <button class="carousel-control-next" data-bs-slide="next" data-bs-target="#featuredPortfolioHomeCarousel" type="button">
+        <span aria-hidden="true" class="carousel-control-next-icon"></span>
+        <span class="visually-hidden">Siguiente</span>
+      </button>
+      {% endif %}
+    </div>
+    {% else %}
+    <div class="article-card p-4">
+      <h3 class="h4 text-white">Todavía no hay proyectos destacados</h3>
+      <p class="mb-0 text-white-50">Marca elementos del portafolio con <span class="mono">home_featured: true</span> para mostrarlos aquí.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+<section class="section-padding" id="ultimas-entradas">
+  <div class="container px-4 px-lg-5">
+    <div class="posts-slider" data-slider="blog">
+      <div class="posts-slider__head">
+        <div class="posts-slider__copy">
+          <span class="eyebrow">Más artículos</span>
+          <h2 class="section-title mb-3">Entradas recientes del blog</h2>
+          <p class="section-subtitle mb-0">Contenido técnico reciente sobre auditorías web, APIs, reconocimiento, explotación controlada y buenas prácticas aplicadas a seguridad ofensiva.</p>
+        </div>
+        <div class="posts-slider__controls" aria-label="Controles de entradas recientes">
+          <button class="posts-slider__btn" type="button" data-slider-prev aria-label="Entrada anterior"><i class="bi bi-arrow-left"></i></button>
+          <button class="posts-slider__btn" type="button" data-slider-next aria-label="Siguiente entrada"><i class="bi bi-arrow-right"></i></button>
+        </div>
+      </div>
+      <div class="posts-slider__viewport">
+        <div class="posts-slider__track">
+          {% for post in site.posts limit: 9 %}
+          <div class="posts-slider__item">
+            <article class="article-card">
+              <span class="tag">{{ post.category_label }}</span>
+              <h3 class="h4 text-white">{{ post.post_title | default: post.title }}</h3>
+              <p>{{ post.excerpt | strip_html | truncate: 150 }}</p>
+              <div class="post-mini-meta">
+                <span>{{ post.date | date: "%d/%m/%Y" }}</span><span class="meta-sep">•</span><span>{{ post.reading_time | default: 'Lectura' }}</span>
+              </div>
+              <a class="btn btn-outline-darksoft post-mini-link" href="{{ post.url | relative_url }}">Leer entrada</a>
+            </article>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="posts-slider__dots" data-slider-dots aria-label="Posiciones del slider"></div>
+    </div>
+  </div>
+</section><section class="section-padding" id="sobre-mi">
+<div class="container px-4 px-lg-5">
+<div class="row mb-5 align-items-end">
+<div class="col-lg-8">
+<span class="eyebrow">Perfil</span>
+<h2 class="section-title mb-3">Pentesting con criterio técnico, visión operativa y enfoque en resultados</h2>
+<p class="section-subtitle mb-0">
+          Experiencia previa en entornos IT, análisis ofensivo orientado a riesgo real y capacidad para traducir hallazgos técnicos en decisiones útiles para remediación.
+        </p>
+</div>
+<div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+<a class="btn btn-outline-darksoft-accent" href="about.html">Conoce más sobre mi</a>
+</div>
+</div>
+<div class="row g-4">
+<div class="col-lg-7">
+<div class="about-card h-100">
+<span class="small-tag mb-3">Sobre mí</span>
+<p>
+            Soy Isaac Blázquez, conocido como ibl4zqu3z, profesional de ciberseguridad orientado a pentesting y seguridad ofensiva. Mi trayectoria previa de más de dos décadas en entornos IT me permite analizar una vulnerabilidad no solo desde su componente técnico, sino también desde su impacto operativo, su exposición real y la viabilidad de su corrección.
+          </p>
+<p class="mb-0">
+            Trabajo con foco en auditorías web, revisión de APIs, validación manual de hallazgos e informes claros, reproducibles y útiles tanto para equipos técnicos como para responsables de decisión.
+          </p>
+</div>
+</div>
+<div class="col-lg-5">
+<div class="about-card h-100">
+<span class="small-tag">Áreas clave</span>
+<ul class="timeline-list mt-3">
+<li>Auditorías web en caja negra, gris y blanca</li>
+<li>Revisión de APIs y control de acceso a objetos</li>
+<li>Validación manual de vulnerabilidades</li>
+<li>Informes técnicos y ejecutivos orientados a remediación</li>
+<li>Formación técnica y divulgación especializada</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section><section class="section-padding" id="testimonios">
+<div class="container px-4 px-lg-5">
+<div class="row align-items-end mb-5">
+<div class="col-lg-8">
+<h2 class="section-title mb-3">Testimonios de clientes y colaboradores</h2>
+</div>
+<div class="col-lg-4">
+<div class="testimonial-controls">
+<button aria-label="Testimonio anterior" class="carousel-control-prev" data-bs-slide="prev" data-bs-target="#testimonialsCarousel" type="button">
+<span aria-hidden="true" class="carousel-control-prev-icon"></span>
+</button>
+<button aria-label="Siguiente testimonio" class="carousel-control-next" data-bs-slide="next" data-bs-target="#testimonialsCarousel" type="button">
+<span aria-hidden="true" class="carousel-control-next-icon"></span>
+</button>
+</div>
+</div>
+</div>
+<div class="carousel slide" data-bs-interval="5000" data-bs-ride="carousel" id="testimonialsCarousel">
+<div class="carousel-inner">
+<div class="carousel-item active">
+<div class="row g-4">
+<div class="col-lg-6">
+<div class="testimonial-card">
+<div class="testimonial-rating">★★★★★</div>
+<p class="testimonial-text">La auditoría fue directa, técnica y útil. No recibimos un listado genérico de hallazgos, sino evidencias claras, impacto validado y una priorización que permitió corregir primero lo que realmente exponía al negocio.</p>
+<div class="testimonial-meta">
+<strong>Responsable de Tecnología</strong>
+<span>Empresa de servicios digitales</span>
+</div>
+</div>
+</div>
+<div class="col-lg-6">
+<div class="testimonial-card">
+<div class="testimonial-rating">★★★★★</div>
+<p class="testimonial-text">El informe estaba muy por encima de lo habitual. Cada hallazgo era reproducible, bien explicado y con medidas concretas. Eso redujo mucho el tiempo entre la detección y la remediación por parte del equipo.</p>
+<div class="testimonial-meta">
+<strong>CTO</strong>
+<span>Startup SaaS</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="carousel-item">
+<div class="row g-4">
+<div class="col-lg-6">
+<div class="testimonial-card">
+<div class="testimonial-rating">★★★★★</div>
+<p class="testimonial-text">La revisión de la API ayudó a descubrir fallos de autorización que no habían aparecido en revisiones previas. El valor estuvo en el análisis manual y en la forma de demostrar el riesgo con escenarios realistas.</p>
+<div class="testimonial-meta">
+<strong>Lead Developer</strong>
+<span>Plataforma B2B</span>
+</div>
+</div>
+</div>
+<div class="col-lg-6">
+<div class="testimonial-card">
+<div class="testimonial-rating">★★★★★</div>
+<p class="testimonial-text">La formación fue muy clara y aplicada. El equipo entendió no solo el fallo, sino cómo evitar repetirlo. Se notó experiencia técnica real y capacidad para comunicar sin perder precisión.</p>
+<div class="testimonial-meta">
+<strong>Responsable de Operaciones</strong>
+<span>Compañía tecnológica</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="carousel-item">
+<div class="row g-4">
+<div class="col-lg-6">
+<div class="testimonial-card">
+<div class="testimonial-rating">★★★★★</div>
+<p class="testimonial-text">Se valoró especialmente el equilibrio entre profundidad técnica y visión ejecutiva. El trabajo permitió presentar riesgos de forma comprensible ante dirección sin simplificar en exceso ni perder contexto.</p>
+<div class="testimonial-meta">
+<strong>CISO externo</strong>
+<span>Proyecto de auditoría puntual</span>
+</div>
+</div>
+</div>
+<div class="col-lg-6">
+<div class="testimonial-card">
+<div class="testimonial-rating">★★★★★</div>
+<p class="testimonial-text">La metodología fue ordenada desde el alcance hasta el cierre. Hubo poca fricción, buen nivel de detalle y una validación muy útil para separar falsos positivos de problemas explotables de verdad.</p>
+<div class="testimonial-meta">
+<strong>Security Manager</strong>
+<span>Entorno corporativo</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="carousel-indicators testimonial-indicators">
+<button aria-current="true" aria-label="Slide 1" class="active" data-bs-slide-to="0" data-bs-target="#testimonialsCarousel" type="button"></button>
+<button aria-label="Slide 2" data-bs-slide-to="1" data-bs-target="#testimonialsCarousel" type="button"></button>
+<button aria-label="Slide 3" data-bs-slide-to="2" data-bs-target="#testimonialsCarousel" type="button"></button>
+</div>
+</div>
+</div>
+</section><section class="section-padding" id="contacto">
+<div class="container px-4 px-lg-5">
+<div class="cta-strip mb-5">
+<div class="row align-items-center g-4">
+<div class="col-lg-8">
+<h2 class="h2 text-white mb-2">¿Necesitas revisar la seguridad de una aplicación, una API o un entorno expuesto?</h2>
+<p class="mb-0 text-light-emphasis">
+            Puedo ayudarte a evaluar superficie de ataque, validar vulnerabilidades reales y convertir los hallazgos en acciones concretas de remediación.
+          </p>
+</div>
+<div class="col-lg-4 text-lg-end">
+<a class="btn btn-accent btn-lg px-4" href="contacto.html">Solicitar auditoría</a>
+</div>
+</div>
+</div>
+<div class="row g-4">
+<div class="col-lg-6">
+<div class="contact-card h-100">
+<span class="small-tag">Canales de contacto</span>
+<h3 class="h4 text-white">Redes profesionales</h3>
+<p>
+            Puedes contactar conmigo a través de mis perfiles profesionales y canales de publicación técnica.
+          </p>
+<div class="d-grid gap-3 mt-4">
+<a class="btn btn-outline-darksoft text-start" href="{{ site.social.linkedin }}" rel="noopener noreferrer" target="_blank">
+<i class="bi bi-linkedin me-2"></i> LinkedIn
+            </a>
+<a class="btn btn-outline-darksoft text-start" href="{{ site.social.x }}" rel="noopener noreferrer" target="_blank">
+<i class="bi bi-twitter-x me-2"></i> Twitter / X
+            </a>
+<a class="btn btn-outline-darksoft text-start" href="{{ site.social.mastodon }}" rel="noopener noreferrer" target="_blank">
+<i class="bi bi-mastodon me-2"></i> Mastodon
+            </a>
+<a class="btn btn-outline-darksoft text-start" href="{{ site.social.youtube }}" rel="noopener noreferrer" target="_blank">
+<i class="bi bi-youtube me-2"></i> YouTube
+            </a>
+</div>
+</div>
+</div>
+<div class="col-lg-6">
+<div class="contact-card h-100">
+<span class="small-tag">CTA</span>
+<h3 class="h4 text-white">Proyecto, auditoría o colaboración</h3>
+<p>
+            Si buscas una revisión técnica de seguridad, una auditoría puntual, apoyo en consultoría o formación especializada, accede a la página de contacto y envíame los detalles del alcance.
+          </p>
+<ul class="timeline-list mt-4">
+<li>Pentesting web e infraestructura</li>
+<li>Revisión de APIs</li>
+<li>Consultoría de ciberseguridad</li>
+<li>Formación técnica y concienciación</li>
+</ul>
+<div class="mt-4 d-flex flex-wrap gap-3">
+<a class="btn btn-accent" href="contacto.html">Ir a contacto</a>
+<a class="btn btn-outline-darksoft" href="about.html">Ver perfil completo</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>

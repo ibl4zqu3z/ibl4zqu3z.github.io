@@ -1,0 +1,37 @@
+brand: ibl4zqu3z
+author: Isaac Blázquez
+lang: es
+nav_cta:
+  label: Contactar
+  href: contacto.html
+footer:
+  description: Pentesting, seguridad ofensiva, consultoría y formación orientada a
+    resultados.
+  services:
+  - title: Pentesting
+    url: servicio_pentesting.html
+  - title: Consultoría
+    url: servicio_consultoria.html
+  - title: Formación
+    url: servicio_formacion.html
+  navigation:
+  - title: Sobre mí
+    url: about.html
+  - title: Portafolio
+    url: portafolio.html
+  - title: FAQ
+    url: faq.html
+  - title: Contacto
+    url: contacto.html
+  legal:
+  - title: Aviso legal
+    url: aviso-legal.html
+  - title: Política de privacidad
+    url: privacidad.html
+  - title: Política de cookies
+    url: cookies.html
+social:
+  linkedin: https://es.linkedin.com/in/isaac-blazquez-lopez
+  x: https://x.com/ibl4zqu3z
+  website: https://ibl4zqu3z.github.io/
+  mastodon: https://mastodon.social/@TU_USUARIO

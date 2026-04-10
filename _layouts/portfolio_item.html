@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: 'es' }}">
+<head>
+  {% include head.html %}
+</head>
+<body{% if page.body_class %} class="{{ page.body_class }}"{% endif %}>
+  {% include navbar.html %}
+
+  <main class="post-page">
+    <section class="post-main">
+      <div class="container px-4 px-lg-5">
+
+        <div class="post-head">
+          <nav class="post-breadcrumb" aria-label="breadcrumb">
+            <a href="{{ '/index.html' | relative_url }}">Inicio</a>
+            <span>/</span>
+            <a href="{{ '/portafolio.html' | relative_url }}">Portafolio</a>
+            <span>/</span>
+            <span>{{ page.title }}</span>
+          </nav>
+
+          <div class="post-meta-row">
+            <span class="post-kicker">{{ page.portfolio_kind_label }}</span>
+            {% if page.status_label %}<span class="meta-sep">•</span><span>{{ page.status_label }}</span>{% endif %}
+            {% if page.year_label %}<span class="meta-sep">•</span><span>{{ page.year_label }}</span>{% endif %}
+          </div>
+
+          <h1 class="post-page-title">{{ page.title }}</h1>
+          {% if page.excerpt %}
+          <p class="post-page-excerpt">{{ page.excerpt }}</p>
+          {% endif %}
+        </div>
+
+        <div class="post-layout">
+          <article class="post-content-column">
+            <div class="post-cover-box article-card">
+              {% if page.cover_image %}
+              <img class="post-cover-image-file" src="{{ page.cover_image | relative_url }}" alt="{{ page.title | escape }}" loading="eager"/>
+              {% else %}
+              <div class="post-cover-art"></div>
+              {% endif %}
+              <div class="post-cover-overlay">
+                <span class="feature-badge">{{ page.cover_badge | default: page.portfolio_kind_label }}</span>
+                <div class="terminal-lines">
+                  {% if page.cover_lines %}
+                    {% for line in page.cover_lines %}<span>{{ line }}</span>{% endfor %}
+                  {% else %}
+                    <span>approach / scope / validation</span>
+                    <span>evidence / reporting / output</span>
+                    <span>technical clarity / practical value</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <div class="post-article article-card">
+              {{ content }}
+            </div>
+          </article>
+
+          <aside class="post-sidebar-column">
+            <div class="post-sidebar-inner">
+              <div class="sidebar-card post-sidebar-card">
+                <span class="small-tag">Ficha</span>
+                <ul class="post-side-list mt-3">
+                  {% if page.portfolio_kind_label %}<li><span>Tipo</span><strong>{{ page.portfolio_kind_label }}</strong></li>{% endif %}
+                  {% if page.status_label %}<li><span>Estado</span><strong>{{ page.status_label }}</strong></li>{% endif %}
+                  {% if page.year_label %}<li><span>Año</span><strong>{{ page.year_label }}</strong></li>{% endif %}
+                  {% if page.scope_label %}<li><span>Ámbito</span><strong>{{ page.scope_label }}</strong></li>{% endif %}
+                </ul>
+              </div>
+
+              {% if page.summary_points %}
+              <div class="sidebar-card post-sidebar-card mt-4">
+                <span class="small-tag">Resumen</span>
+                <ul class="timeline-list mt-3">
+                  {% for point in page.summary_points %}<li>{{ point }}</li>{% endfor %}
+                </ul>
+              </div>
+              {% endif %}
+
+              {% if page.tools %}
+              <div class="sidebar-card post-sidebar-card mt-4">
+                <span class="small-tag">Herramientas / stack</span>
+                <div class="post-tags mt-3">
+                  {% for tool in page.tools %}<span class="pill">{{ tool }}</span>{% endfor %}
+                </div>
+              </div>
+              {% endif %}
+
+              {% if page.links %}
+              <div class="sidebar-card post-sidebar-card mt-4">
+                <span class="small-tag">Enlaces</span>
+                <div class="d-grid gap-2 mt-3">
+                  {% for link in page.links %}
+                  <a class="btn {% if forloop.first %}btn-accent{% else %}btn-outline-darksoft{% endif %}" href="{{ link.url }}"{% if link.external %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ link.label }}</a>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          </aside>
+        </div>
+
+        <div class="related-posts-block">
+          <div class="related-head">
+            <span class="eyebrow">Más elementos</span>
+            <h2 class="section-title mb-0">Relacionados dentro del portafolio</h2>
+          </div>
+          {% assign related_items = site.portfolio | where_exp: 'item', 'item.url != page.url' | where: 'portfolio_kind_slug', page.portfolio_kind_slug | sort: 'order' | limit: 3 %}
+          <div class="related-posts-grid">
+            {% if related_items.size > 0 %}
+              {% for item in related_items %}
+              <article class="post-card related-post-card">
+                <a class="post-card-link" href="{{ item.url | relative_url }}" aria-label="Abrir {{ item.title | escape }}">
+                  <div class="post-thumb">
+                    {% if item.cover_image %}
+                    <img class="post-thumb-image" src="{{ item.cover_image | relative_url }}" alt="{{ item.title | escape }}" loading="lazy"/>
+                    {% else %}
+                    <div class="post-cover"></div>
+                    {% endif %}
+                    <span class="tag-corner">{{ item.portfolio_kind_label }}</span>
+                  </div>
+                  <div class="post-body">
+                    <h3 class="post-title">{{ item.title }}</h3>
+                    <p class="post-excerpt">{{ item.excerpt | strip_html | truncate: 160 }}</p>
+                    <span class="post-open-indicator">Ver detalle</span>
+                  </div>
+                </a>
+              </article>
+              {% endfor %}
+            {% else %}
+              <article class="post-card related-post-card">
+                <a class="post-card-link" href="{{ '/portafolio.html' | relative_url }}">
+                  <div class="post-thumb"><div class="post-cover"></div><span class="tag-corner">Portafolio</span></div>
+                  <div class="post-body">
+                    <h3 class="post-title">Volver al listado completo</h3>
+                    <p class="post-excerpt">Añade más trabajos o proyectos a la colección <span class="mono">_portfolio/</span> y aparecerán aquí automáticamente.</p>
+                    <span class="post-open-indicator">Ir al portafolio</span>
+                  </div>
+                </a>
+              </article>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  {% include blog_bottom_cta.html %}
+  {% include footer.html %}
+  {% include scripts.html %}
+</body>
+</html>

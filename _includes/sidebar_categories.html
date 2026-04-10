@@ -1,0 +1,18 @@
+<ul class="category-list">
+  <li><a href="{{ '/writeups.html' | relative_url }}"{% if include.current_category_key == 'writeups' %} class="active"{% endif %} data-category-filter="writeups" data-category-label="Writeups"><span>Writeups</span><small>{{ site.posts | where_exp: 'post', "post.primary_category_anchor == 'writeups'" | size }}</small></a></li>
+  <li><a href="{{ '/casos-de-estudio.html' | relative_url }}"{% if include.current_category_key == 'casos-de-estudio' %} class="active"{% endif %} data-category-filter="casos-de-estudio" data-category-label="Casos de estudio"><span>Casos de estudio</span><small>{{ site.posts | where_exp: 'post', "post.primary_category_anchor == 'casos-de-estudio'" | size }}</small></a></li>
+  <li><a href="{{ '/guias.html' | relative_url }}"{% if include.current_category_key == 'guias' %} class="active"{% endif %} data-category-filter="guias" data-category-label="Guías"><span>Guías</span><small>{{ site.posts | where_exp: 'post', "post.primary_category_anchor == 'guias'" | size }}</small></a></li>
+
+  {% assign reserved_categories = "writeups|casos-de-estudio|guias" | split: "|" %}
+  {% assign seen_dynamic_categories = "|" %}
+  {% for post in site.posts %}
+    {% assign dynamic_category_key = post.primary_category_anchor | default: post.categories[0] | slugify %}
+    {% assign dynamic_category_label = post.category_label | default: post.categories[0] %}
+    {% capture dynamic_marker %}|{{ dynamic_category_key }}|{% endcapture %}
+    {% unless dynamic_category_key == blank or reserved_categories contains dynamic_category_key or seen_dynamic_categories contains dynamic_marker %}
+      {% assign dynamic_category_count = site.posts | where_exp: 'post', 'post.primary_category_anchor == dynamic_category_key' | size %}
+      <li><a href="{{ '/categorias.html?category=' | append: dynamic_category_key | relative_url }}"{% if include.current_category_key == dynamic_category_key %} class="active"{% endif %} data-category-filter="{{ dynamic_category_key }}" data-category-label="{{ dynamic_category_label }}"><span>{{ dynamic_category_label }}</span><small>{{ dynamic_category_count }}</small></a></li>
+      {% capture seen_dynamic_categories %}{{ seen_dynamic_categories }}{{ dynamic_category_key }}|{% endcapture %}
+    {% endunless %}
+  {% endfor %}
+</ul>

@@ -97,8 +97,6 @@
       </div>
     </section>
 
-    {% assign related_all = site.posts | where_exp: 'post', 'post.url != page.url' | where_exp: 'post', 'post.primary_category_anchor == page.primary_category_anchor' %}
-    {% if related_all.size > 0 %}
     <section class="section-padding pt-0">
       <div class="container px-4 px-lg-5">
         <div class="section-head">
@@ -108,23 +106,34 @@
           </div>
         </div>
 
+        {% assign related = site.posts | where_exp: 'post', 'post.url != page.url' | where_exp: 'post', 'post.primary_category_anchor == page.primary_category_anchor' | limit: 3 %}
         <div class="posts-grid" id="related-posts">
-          {% for post in related_all limit: 3 %}
-          <article class="post-card related-post-card">
-            <a class="post-card-link" href="{{ post.url | relative_url }}" aria-label="Abrir {{ post.post_title | default: post.title | escape }}">
-              <div class="post-thumb">{% assign related_image = post.thumb_image | default: post.cover_image %}{% if related_image %}<img class="post-thumb-image" src="{{ related_image | relative_url }}" alt="{{ post.post_title | default: post.title | escape }}" loading="lazy"/>{% else %}<div class="post-cover"></div>{% endif %}<span class="tag-corner">{{ post.category_label }}</span></div>
+          {% if related.size > 0 %}
+            {% for post in related %}
+            <article class="post-card related-post-card">
+              <a class="post-card-link" href="{{ post.url | relative_url }}" aria-label="Abrir {{ post.post_title | default: post.title | escape }}">
+                <div class="post-thumb">{% assign related_image = post.thumb_image | default: post.cover_image %}{% if related_image %}<img class="post-thumb-image" src="{{ related_image | relative_url }}" alt="{{ post.post_title | default: post.title | escape }}" loading="lazy"/>{% else %}<div class="post-cover"></div>{% endif %}<span class="tag-corner">{{ post.category_label }}</span></div>
+                <div class="post-body">
+                  <h3 class="post-title">{{ post.post_title | default: post.title }}</h3>
+                  <p class="post-excerpt">{{ post.excerpt | strip_html | truncate: 160 }}</p>
+                  <span class="post-open-indicator">Abrir artículo</span>
+                </div>
+              </a>
+            </article>
+            {% endfor %}
+          {% else %}
+            <article class="post-card related-post-card">
+              <div class="post-thumb">{% if page.thumb_image or page.cover_image %}<img class="post-thumb-image" src="{{ page.thumb_image | default: page.cover_image | relative_url }}" alt="{{ page.post_title | default: page.title | escape }}" loading="lazy"/>{% else %}<div class="post-cover"></div>{% endif %}<span class="tag-corner">{{ page.category_label }}</span></div>
               <div class="post-body">
-                <h3 class="post-title">{{ post.post_title | default: post.title }}</h3>
-                <p class="post-excerpt">{{ post.excerpt | strip_html | truncate: 160 }}</p>
-                <span class="post-open-indicator">Abrir artículo</span>
+                <h3 class="post-title">Todavía no hay más entradas relacionadas</h3>
+                <p class="post-excerpt">Añade nuevas entradas en <span class="mono">_posts/</span> usando la misma categoría principal y aparecerán aquí automáticamente.</p>
+                <a class="read-more" href="{{ category_url | relative_url }}">Ver más entradas de {{ page.category_label }}</a>
               </div>
-            </a>
-          </article>
-          {% endfor %}
+            </article>
+          {% endif %}
         </div>
       </div>
     </section>
-    {% endif %}
   </main>
 
   {% include blog_bottom_cta.html %}

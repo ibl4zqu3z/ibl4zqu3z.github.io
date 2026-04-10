@@ -1,0 +1,89 @@
+---
+layout: post
+
+title: Como instalar Metasploitable 3 para practicar pentesting
+excerpt: 'En este post te enseño a instalar Metasploitable 3 en tu equipo para que puedas practicar pentesting en dos maquinas cargadas de vulnerabilidades.'
+
+category: guias
+category_label: Guías
+primary_category_anchor: guias
+categories:
+  - guias
+kicker: "guias"
+kicker_secondary: "guias"
+tags:
+- metasploitable3
+
+post_title: "Como instalar Metasploitable 3 para practicar pentesting"
+description: ""
+
+featured-image: /assets/img/blog/instalar-metasploitable3/cover.png
+
+slug: como-instalar-Metasploitable-3
+permalink: /blog/guias/como-instalar-Metasploitable-3.html
+
+nav: blog
+
+featured: false
+featured_badge: "metasploitable3"
+featured_lines:  
+  - Metasploitable
+
+cover_badge: "Metasploitable"
+cover_lines:
+  - Metasploitable
+cover_image: /assets/img/blog/instalar-metasploitable3/cover.png
+
+reading_time: "4 min de lectura"
+date: 2026-01-26 10:00:00 +0100
+
+toc_html: |
+  <a href="#requisitos-previos">Requisitos previos</a>
+  <a href="#pasos">Pasos:</a>
+  <a href="#enhorabuena">¡Enhorabuena!</a>
+
+---
+
+<p>En este post te enseño a instalar Metasploitable 3 en tu equipo para que puedas practicar pentesting en dos maquinas cargadas de vulnerabilidades.
+</p>
+<h2 id="requisitos-previos">Requisitos previos</h2>
+<ul>
+<li>VirtualBox previamente instalado.</li>
+<li>Conexion a internet.</li>
+</ul>
+<h2 id="pasos">Pasos:</h2>
+<h3>Paso 1: Instalar Vagrant</h3>
+<p>Descarga Vagrant desde la direccion web:</p>
+<p>https://developer.hashicorp.com/vagrant/install</p>
+<p><img alt="alt text" src="/assets/img/blog/instalar-metasploitable3/image-2.png"/></p>
+<p>Ejecuta el instalador descargado, acepta la licencia de uso y espera que acabe la instalacion.</p>
+<p><img alt="alt text" src="/assets/img/blog/instalar-metasploitable3/image-4.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/instalar-metasploitable3/image-5.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/instalar-metasploitable3/image-6.png"/></p>
+<p><strong>Importante</strong></p>
+<p>Reinicia tu sistema después de la instalación para que las variables de entorno se configuren correctamente.</p>
+<p><img alt="alt text" src="/assets/img/blog/instalar-metasploitable3/image-7.png"/></p>
+<p>Una vez reiniciado el sistema instala el plugin “Vagrant Reload” ejecutando el siguiente comando en la consola de comandos:</p>
+<pre><code>vagrant plugin install vagrant-reload
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/instalar-metasploitable3/image-18.png"/></p>
+<h3>Paso 2: Descargar las maquinas con vagrant.</h3>
+<p>Abre una consola de powershell y ejecuta los siguientes comandos:</p>
+<pre><code class="language-ps">cd \
+mkdir metasploitable-workspace
+cd metasploitable-workspace
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/instalar-metasploitable3/image-22.png"/></p>
+<pre><code class="language-ps">Invoke-WebRequest -Uri "https://raw.githubusercontent.com/rapid7/metasploitable3/master/Vagrantfile" -OutFile "Vagrantfile"
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/instalar-metasploitable3/image-23.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/instalar-metasploitable3/image-24.png"/></p>
+<pre><code class="language-ps">vagrant up
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/instalar-metasploitable3/image-25.png"/></p>
+<p>Este proceso se tomara un tiempo en acabar dependiendo de tu conexion a internet.</p>
+<p><img alt="alt text" src="/assets/img/blog/instalar-metasploitable3/image-27.png"/></p>
+<p>Cuando acabe el proceso tendremos 2 maquinas nuevas en VirtualBox.</p>
+<p><img alt="alt text" src="/assets/img/blog/instalar-metasploitable3/image-28.png"/></p>
+<h2 id="enhorabuena">¡Enhorabuena!</h2>
+<p>Ahora ya tienes 2 maquinas nuevas llenas de vulnerabilidades para explotarlas.</p>

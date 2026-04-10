@@ -1,0 +1,116 @@
+---
+title: "Etiquetas | ibl4zqu3z"
+description: "Archivo de etiquetas del blog de ibl4zqu3z con acceso a todas las entradas agrupadas por tag."
+permalink: /etiquetas.html
+nav: blog
+body_class: "blog-page tag-archive-page"
+---
+<main class="blog-main">
+  <div class="container container-xxl">
+    <div class="blog-layout">
+      <div class="posts-column">
+        <section class="featured-wrap" aria-labelledby="tagArchiveTitle">
+          <div class="article-card p-4 p-lg-5 mb-4">
+            <span class="eyebrow">Etiquetas</span>
+            <h1 class="section-title mb-3" id="tagArchiveTitle">Todas las etiquetas</h1>
+            <p class="section-copy mb-0" id="tagArchiveSummary">Selecciona una etiqueta en el panel lateral para ver únicamente las entradas asociadas a ella.</p>
+          </div>
+        </section>
+
+        <section id="posts" class="blog-posts" aria-labelledby="posts-title">
+          <div class="section-head">
+            <div>
+              <span class="eyebrow">Listado</span>
+              <h2 class="section-title mb-0" id="posts-title">Entradas por etiqueta</h2>
+            </div>
+          </div>
+
+          <div class="posts-grid" id="tagArchiveGrid" data-posts-per-page="6">
+            {% for post in site.posts %}
+            {% assign tag_slugs = post.tags | join: '|' | slugify %}
+            <article class="post-card" data-search="{{ post.post_title | default: post.title | strip_html | downcase }} {{ post.excerpt | strip_html | downcase }} {{ post.category_label | downcase }} {{ post.tags | join: ' ' | downcase }}" data-tags="{% for tag in post.tags %}{{ tag | slugify }}{% unless forloop.last %}|{% endunless %}{% endfor %}">
+              <a class="post-card-link" href="{{ post.url | relative_url }}" aria-label="Abrir {{ post.post_title | default: post.title | escape }}">
+                <div class="post-thumb">
+                  {% assign card_image = post.thumb_image | default: post.cover_image %}
+                  {% if card_image %}
+                  <img class="post-thumb-image" src="{{ card_image | relative_url }}" alt="{{ post.post_title | default: post.title | escape }}" loading="lazy"/>
+                  {% else %}
+                  <div class="post-cover"></div>
+                  {% endif %}
+                  <span class="tag-corner">{{ post.category_label }}</span>
+                </div>
+                <div class="post-body">
+                  <h3 class="post-title">{{ post.post_title | default: post.title }}</h3>
+                  <p class="post-excerpt">{{ post.excerpt | strip_html | truncate: 160 }}</p>
+                  <div class="meta-row mt-0 mb-0">
+                    <span>{{ post.date | date: "%d/%m/%Y" }}</span>
+                    {% if post.reading_time %}<span class="meta-sep">•</span><span>{{ post.reading_time }}</span>{% endif %}
+                  </div>
+                  {% if post.tags %}
+                  <div class="pill-list mt-3 post-card-tags">
+                    {% for tag in post.tags %}
+                    <span>{{ tag }}</span>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                  <span class="post-open-indicator">Abrir artículo</span>
+                </div>
+              </a>
+            </article>
+            {% endfor %}
+          </div>
+
+          <div class="blog-results-state" id="tagArchiveResultsState" hidden>
+            <div class="article-card p-4">
+              <h3 class="h4 text-white mb-2">No hay resultados</h3>
+              <p class="mb-0 text-white-50">No hay entradas para esa etiqueta con el filtro actual.</p>
+            </div>
+          </div>
+
+          <div class="pagination-wrap" aria-label="Paginación del archivo de etiquetas">
+            <nav class="blog-pagination" id="tagArchivePagination"></nav>
+          </div>
+        </section>
+      </div>
+
+      <aside class="sidebar-column" id="contacto">
+        <div class="sidebar-stack">
+          <div class="sidebar-card">
+            <span class="sidebar-kicker">Buscar dentro del archivo</span>
+            <input class="sidebar-search" id="tagArchiveSearchInput" placeholder="Filtrar por título, extracto, categoría o etiqueta..." type="search"/>
+            <p class="sidebar-search-note">Puedes combinar el término buscado con la etiqueta seleccionada.</p>
+          </div>
+
+          <div class="sidebar-card">
+            <span class="sidebar-kicker">Etiquetas disponibles</span>
+            <ul class="category-list tag-list-archive">
+              <li><a href="{{ '/etiquetas.html' | relative_url }}" data-tag-filter="" data-tag-label="Todas"><span>Todas las etiquetas</span><small>{{ site.posts.size }}</small></a></li>
+              {% assign sorted_tags = site.tags | sort %}
+              {% for tag in sorted_tags %}
+              {% assign tag_name = tag[0] %}
+              {% assign tag_posts = tag[1] %}
+              {% assign tag_slug = tag_name | slugify %}
+              <li><a href="{{ '/etiquetas.html?tag=' | append: tag_slug | relative_url }}" data-tag-filter="{{ tag_slug }}" data-tag-label="{{ tag_name }}"><span>{{ tag_name }}</span><small>{{ tag_posts.size }}</small></a></li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <div class="sidebar-card">
+<span class="sidebar-kicker">Categorías</span>
+{% include sidebar_categories.html current_category_key=page.category_key %}
+</div>
+
+          <div class="sidebar-card">
+            <span class="sidebar-kicker">Contacto</span>
+            <div class="footer-socials sidebar-contact-icons">
+              <a href="{{ site.social.linkedin }}" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+              <a href="{{ site.social.x }}" target="_blank" rel="noopener noreferrer" aria-label="X"><i class="bi bi-twitter-x"></i></a>
+              <a href="{{ site.social.mastodon }}" target="_blank" rel="noopener noreferrer" aria-label="Mastodon"><i class="bi bi-mastodon"></i></a>
+<a href="{{ site.social.youtube }}" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</main>

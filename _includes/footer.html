@@ -1,61 +1,59 @@
-<!--<footer class="site-footer">
-  <div class="site-footer__container">
-    <div class="site-footer__left">
-      <div class="site-footer__copyright">
-        &copy; {{ site.time | date: "%Y" }}
-        {{ site.footer.copyright_owner | default: site.title }}
+<footer class="site-footer">
+  <div class="container px-4 px-lg-5">
+    <div class="row g-4 g-lg-5">
+      <div class="col-12 col-md-6 col-xl-3">
+        <div class="footer-brand">
+          <a class="footer-brand__name" href="{{ '/index.html' | relative_url }}">{{ site.data.site.brand }}</a>
+          <p class="footer-brand__text">{{ site.data.site.footer.description }}</p>
+          <div class="footer-socials">
+            {% if site.social.linkedin %}<a href="{{ site.social.linkedin }}" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>{% endif %}
+            {% if site.social.x %}<a href="{{ site.social.x }}" target="_blank" rel="noopener noreferrer" aria-label="X"><i class="bi bi-twitter-x"></i></a>{% endif %}
+            {% if site.social.mastodon %}<a href="{{ site.social.mastodon }}" target="_blank" rel="noopener noreferrer" aria-label="Mastodon"><i class="bi bi-mastodon"></i></a>{% endif %}
+            {% if site.social.youtube %}<a href="{{ site.social.youtube }}" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="bi bi-youtube"></i></a>{% endif %}
+            {% if site.social.website %}<a href="{{ site.social.website }}" target="_blank" rel="noopener noreferrer" aria-label="Web pública"><i class="bi bi-globe2"></i></a>{% endif %}
+          </div>
+        </div>
       </div>
 
-      {% if site.footer.menu %}
-      <nav class="site-footer__nav" aria-label="Enlaces del pie">
-        <ul class="site-footer__navlist">
-          {% for item in site.footer.menu %}
-          <li class="site-footer__navitem">
-            <a class="site-footer__link" href="{{ item.url | relative_url }}">{{ item.title }}</a>
-          </li>
-          {% endfor %}
-        </ul>
-      </nav>
-      {% endif %}
-    </div>
+      <div class="col-12 col-md-6 col-xl-3">
+        <div class="footer-col">
+          <h3 class="footer-title">Servicios</h3>
+          <ul class="footer-list">
+            {% for item in site.data.site.footer.services %}
+            <li><a href="{{ item.url | relative_url }}">{{ item.title }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
 
-    {% if site.social_links %}
-    <div class="site-footer__right">
-      <div class="site-footer__social" aria-label="Redes sociales">
-        {% for s in site.social_links %}
-          <a
-            class="site-footer__socialbtn"
-            href="{{ s.url }}"
-            target="_blank"
-            rel="noopener noreferrer{% if s.rel %} {{ s.rel }}{% endif %}"
-            aria-label="{{ s.name }}"
-            title="{{ s.name }}"
-          >
-            <i class="{{ s.icon }}" aria-hidden="true"></i>
-          </a>
-        {% endfor %}
+      <div class="col-12 col-md-6 col-xl-3">
+        <div class="footer-col">
+          <h3 class="footer-title">Navegación</h3>
+          <ul class="footer-list">
+            {% for item in site.data.site.footer.navigation %}
+            <li><a href="{{ item.url | relative_url }}">{{ item.title }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-xl-3">
+        <div class="footer-col">
+          <h3 class="footer-title">Información</h3>
+          <ul class="footer-list">
+            {% for item in site.data.site.footer.legal %}
+            <li><a href="{{ item.url | relative_url }}">{{ item.title }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
       </div>
     </div>
-    {% endif %}
   </div>
-</footer>
 
-
-<footer class="footer mt-auto py-3 bg-body-tertiary">
-    <div class="container">
-        <span class="text-body-secondary">Place sticky footer content here.</span>
+  <div class="container px-4 px-lg-5">
+    <div class="footer-copy">
+      <p class="mb-1">© {{ 'now' | date: '%Y' }} {{ site.data.site.brand }}</p>
+      <p class="mb-0">Todos los derechos reservados.</p>
     </div>
-</footer> 
-
--->
-<footer class="py-3 my-4">
-    <ul class="nav justify-content-center border-bottom pb-3 mb-3">
-      <li class="nav-item"><a class="nav-link" href="{{ '/blog/' | relative_url }}">Blog</a></li>
-      <li class="nav-item"><a class="nav-link" href="{{ '/writeups/' | relative_url }}">Writeups</a></li>
-      <li class="nav-item"><a class="nav-link" href="{{ '/guias/' | relative_url }}">Guías</a></li>
-      <li class="nav-item"><a class="nav-link" href="{{ '/casos-de-estudio/' | relative_url }}">Casos de estudio</a></li>
-      <li class="nav-item"><a class="nav-link" href="{{ '/quien-soy/' | relative_url }}">Quién soy</a></li>
-      <li class="nav-item"><a class="nav-link" href="{{ '/contacto/' | relative_url }}">Contacto</a></li>
-    </ul>
-  <p class="text-center text-body-secondary">© 2026 - Isaac Blazquez - ibl4zqu3z</p> 
+  </div>
 </footer>

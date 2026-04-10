@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: 'es' }}">
+<head>
+  {% include head.html %}
+</head>
+<body{% if page.body_class %} class="{{ page.body_class }}"{% endif %}>
+  {% include navbar.html %}
+
+  {% assign category_posts = site.posts | where_exp: 'post', 'post.primary_category_anchor == page.category_key' %}
+  {% assign featured_posts = category_posts | where: 'featured', true %}
+  {% if featured_posts.size == 0 %}
+    {% assign featured_posts = category_posts %}
+  {% endif %}
+
+  <main class="blog-main">
+    <div class="container container-xxl">
+      <div class="blog-layout">
+        <div class="posts-column">
+          <section class="featured-wrap" aria-labelledby="category-title">
+            <div class="article-card p-4 p-lg-5 mb-4">
+              <span class="eyebrow">Categoría</span>
+              <h1 class="section-title mb-3" id="category-title">{{ page.category_label }}</h1>
+              <p class="section-copy mb-0">{{ page.category_description }}</p>
+            </div>
+
+            {% if featured_posts.size > 0 %}
+            <div id="featuredPostsCarousel" class="carousel slide featured-carousel" data-bs-ride="carousel" data-bs-interval="5200">
+              {% if featured_posts.size > 1 %}
+              <div class="carousel-indicators">
+                {% for post in featured_posts limit:3 %}
+                <button type="button" data-bs-target="#featuredPostsCarousel" data-bs-slide-to="{{ forloop.index0 }}"{% if forloop.first %} class="active" aria-current="true"{% endif %} aria-label="Slide {{ forloop.index }}"></button>
+                {% endfor %}
+              </div>
+              {% endif %}
+
+              <div class="carousel-inner">
+                {% for post in featured_posts limit:3 %}
+                <div class="carousel-item{% if forloop.first %} active{% endif %}">
+                  <article class="featured-slide">
+                    <div class="row g-0 h-100">
+                      <div class="col-xl-5 col-lg-6">
+                        <div class="featured-media h-100">
+                          {% assign featured_image = post.cover_image | default: post.thumb_image %}
+                          {% if featured_image %}
+                          <img class="featured-media__img" src="{{ featured_image | relative_url }}" alt="{{ post.post_title | default: post.title | escape }}" loading="lazy"/>
+                          {% else %}
+                          <div class="cover-grid"></div>
+                          {% endif %}
+                          <div class="terminal-lines">
+                            {% if post.featured_lines %}
+                              {% for line in post.featured_lines %}<span>{{ line }}</span>{% endfor %}
+                            {% else %}
+                              <span>recon / review / validation</span>
+                              <span>manual analysis / context / scope</span>
+                              <span>impact / evidence / remediation</span>
+                            {% endif %}
+                          </div>
+                          <span class="feature-badge">{{ post.featured_badge | default: 'Destacado' }}</span>
+                        </div>
+                      </div>
+                      <div class="col-xl-7 col-lg-6">
+                        <div class="featured-content">
+                          <span class="post-kicker">{{ post.kicker | default: post.category_label }}</span>
+                          <h3 class="featured-title">{{ post.post_title | default: post.title }}</h3>
+                          <p class="featured-excerpt">{{ post.excerpt | strip_html }}</p>
+                          <div class="meta-row">
+                            <span>{{ post.date | date: "%d/%m/%Y" }}</span>
+                            {% if post.reading_time %}<span class="meta-sep">•</span><span>{{ post.reading_time }}</span>{% endif %}
+                            {% if post.kicker_secondary %}<span class="meta-sep">•</span><span>{{ post.kicker_secondary }}</span>{% endif %}
+                          </div>
+                          <div class="mt-4 d-flex gap-2 flex-wrap">
+                            <a href="{{ post.url | relative_url }}" class="btn btn-accent">Leer artículo</a>
+                            <a href="#posts" class="btn btn-outline-darksoft">Ver más posts</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                </div>
+                {% endfor %}
+              </div>
+
+              {% if featured_posts.size > 1 %}
+              <button class="carousel-control-prev" type="button" data-bs-target="#featuredPostsCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#featuredPostsCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Siguiente</span>
+              </button>
+              {% endif %}
+            </div>
+            {% endif %}
+          </section>
+
+          <section id="posts" class="blog-posts" aria-labelledby="posts-title">
+            <div class="section-head">
+              <div>
+                <span class="eyebrow">Listado</span>
+                <h2 class="section-title mb-0" id="posts-title">{{ category_posts.size }} entradas en {{ page.category_label }}</h2>
+              </div>
+            </div>
+
+            {% if category_posts.size > 0 %}
+            <div class="posts-grid">
+              {% for post in category_posts %}
+              <article class="post-card">
+                <a class="post-card-link" href="{{ post.url | relative_url }}" aria-label="Abrir {{ post.post_title | default: post.title | escape }}">
+                  <div class="post-thumb">
+                    {% assign card_image = post.thumb_image | default: post.cover_image %}
+                    {% if card_image %}
+                    <img class="post-thumb-image" src="{{ card_image | relative_url }}" alt="{{ post.post_title | default: post.title | escape }}" loading="lazy"/>
+                    {% else %}
+                    <div class="post-cover"></div>
+                    {% endif %}
+                    <span class="tag-corner">{{ post.category_label }}</span>
+                  </div>
+                  <div class="post-body">
+                    <h3 class="post-title">{{ post.post_title | default: post.title }}</h3>
+                    <p class="post-excerpt">{{ post.excerpt | strip_html | truncate: 160 }}</p>
+                    <div class="meta-row mt-0 mb-0">
+                      <span>{{ post.date | date: "%d/%m/%Y" }}</span>
+                      {% if post.reading_time %}<span class="meta-sep">•</span><span>{{ post.reading_time }}</span>{% endif %}
+                    </div>
+                    <span class="post-open-indicator">Abrir artículo</span>
+                  </div>
+                </a>
+              </article>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="article-card p-4">
+              <h3 class="h4 text-white">Todavía no hay entradas en esta categoría</h3>
+              <p class="mb-3 text-white-50">Cuando publiques posts con <span class="mono">primary_category_anchor: {{ page.category_key }}</span> aparecerán aquí automáticamente.</p>
+              <a class="btn btn-outline-darksoft" href="{{ '/blog.html' | relative_url }}">Volver al blog</a>
+            </div>
+            {% endif %}
+          </section>
+        </div>
+
+        <aside class="sidebar-column" id="contacto">
+          <div class="sidebar-stack">
+            <div class="sidebar-card cta-card">
+              <span class="sidebar-kicker">Contacto</span>
+              <h3 class="sidebar-title">¿Necesitas una auditoría o una revisión técnica?</h3>
+              <p class="sidebar-text">Pentesting web, APIs, infraestructura, validación de hallazgos y reporting técnico orientado a remediación.</p>
+              <div class="accent-line"></div>
+              <div class="d-grid gap-2 mt-4">
+                <a class="btn btn-accent" href="{{ '/contacto.html' | relative_url }}">Contactar</a>
+                <a class="btn btn-outline-darksoft" href="{{ '/servicios.html' | relative_url }}">Ver servicios</a>
+              </div>
+            </div>
+
+            <div class="sidebar-card">
+<span class="sidebar-kicker">Categorías</span>
+{% include sidebar_categories.html current_category_key=page.category_key %}
+</div>
+
+            <div class="sidebar-card">
+              <span class="sidebar-kicker">Etiquetas</span>
+              <div class="pill-list">
+                {% assign sorted_tags = site.tags | sort %}
+                {% for tag in sorted_tags %}
+                  {% assign tag_name = tag[0] %}
+                  {% assign tag_posts = tag[1] %}
+                  {% assign tag_slug = tag_name | slugify %}
+                  <a href="{{ '/etiquetas.html?tag=' | append: tag_slug | relative_url }}" data-tag-link="{{ tag_slug }}" aria-label="Ver entradas con la etiqueta {{ tag_name }}">
+                    <span>{{ tag_name }}</span>
+                    <small>{{ tag_posts.size }}</small>
+                  </a>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="sidebar-card">
+              <span class="sidebar-kicker">Contacto</span>
+              <div class="footer-socials sidebar-contact-icons">
+                <a href="{{ site.social.linkedin }}" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                <a href="{{ site.social.x }}" target="_blank" rel="noopener noreferrer" aria-label="X"><i class="bi bi-twitter-x"></i></a>
+                <a href="{{ site.social.mastodon }}" target="_blank" rel="noopener noreferrer" aria-label="Mastodon"><i class="bi bi-mastodon"></i></a>
+<a href="{{ site.social.youtube }}" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  {% include footer.html %}
+  {% include scripts.html %}
+</body>
+</html>

