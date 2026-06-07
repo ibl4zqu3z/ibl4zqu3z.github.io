@@ -1,0 +1,14 @@
+<div class="code-window">
+  <div class="code-window__topbar">
+    <div class="code-window__dots">
+      <span class="dot dot--red"></span>
+      <span class="dot dot--yellow"></span>
+      <span class="dot dot--green"></span>
+    </div>
+    <div class="code-window__title">{{ include.title | default: "código" }}</div>
+  </div>
+
+  <div class="code-window__body">
+    <pre><code>{{ include.code | escape }}</code></pre>
+  </div>
+</div>
